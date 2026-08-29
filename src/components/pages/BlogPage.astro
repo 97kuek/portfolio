@@ -3,16 +3,30 @@ import CommonLayout from "@/layouts/CommonLayout.astro"
 import Icon from "@/components/base/Icon.astro"
 import FormattedDate from "@/components/base/FormattedDate.astro"
 import PostRow from "@/components/blog/PostRow.astro"
+import { SITE } from "@site-config"
+import Pagination from "@/components/base/Pagination.astro"
 import { getPostsInLocale, withMetadata } from "@/lib/blog/listing"
 import { getSiteLocale } from "@/lib/i18n"
-import { sectionCrumb, sectionLabel } from "@/lib/sections"
+import { sectionCrumb, sectionLabel, sectionPath } from "@/lib/sections"
 
 import "@/styles/content-row.css"
 
 const locale = getSiteLocale(Astro.url.pathname)
 const isEnglish = locale === "en"
 
-const entries = await withMetadata(await getPostsInLocale(locale))
+interface Props {
+  /** One-based; page one is the section itself, later pages live under /page. */
+  page?: number
+}
+
+const { page = 1 } = Astro.props
+
+const posts = await getPostsInLocale(locale)
+const perPage = SITE.blog.postsPerPage
+const totalPages = Math.max(1, Math.ceil(posts.length / perPage))
+const entries = await withMetadata(
+  posts.slice((page - 1) * perPage, page * perPage),
+)
 ---
 
 <CommonLayout
@@ -47,6 +61,14 @@ const entries = await withMetadata(await getPostsInLocale(locale))
             : "学んだことや開発したものを、ここで発信していきます。"}
         </p>
       </section>
+    )}
+  {totalPages > 1 && (
+      <Pagination
+        currentPage={page}
+        totalPages={totalPages}
+        baseUrl={sectionPath("blog", locale)}
+        pageBaseUrl={`${sectionPath("blog", locale)}/page`}
+      />
     )}
 </CommonLayout>
 

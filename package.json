@@ -28,7 +28,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
     "astro": "astro",
     "sync": "astro sync",
@@ -38,11 +38,13 @@
     "lint": "oxlint --type-aware",
     "lint:styles": "node scripts/check-style-architecture.mjs",
     "test:markdown": "node --experimental-strip-types --test tests/markdown-plugins.test.ts",
+    "test:links": "node scripts/check-links.mjs",
     "routine": "pnpm lint && pnpm lint:styles && pnpm test:markdown && pnpm sync && pnpm format",
     "clean": "rm -rf dist/ .astro/ node_modules/.astro/data-store.json",
     "prepare": "husky",
     "comments": "node scripts/comments.mjs",
-    "dev:pages": "astro build && wrangler pages dev dist"
+    "dev:pages": "astro build && wrangler pages dev dist",
+    "subset:og-font": "node scripts/subset-og-font.mjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.10",
@@ -77,6 +79,7 @@
     "mdast-util-to-hast": "^13.2.0",
     "oxlint": "^1.72.0",
     "oxlint-tsgolint": "^0.24.0",
+    "pagefind": "^1.5.2",
     "sharp": "^0.35.3",
     "wrangler": "^4.42.0"
   },

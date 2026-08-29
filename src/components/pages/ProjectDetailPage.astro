@@ -1,12 +1,14 @@
 ---
 import { render } from "astro:content"
 
+import { SITE } from "@site-config"
 import CommonLayout from "@/layouts/CommonLayout.astro"
 import CoverImage from "@/components/base/CoverImage.astro"
 import Icon from "@/components/base/Icon.astro"
 import Link from "@/components/base/Link.astro"
 import Comments from "@/components/interactions/Comments.astro"
 import Reactions from "@/components/interactions/Reactions.astro"
+import TOCHeader from "@/components/toc/TOCHeader.astro"
 import DateRange from "@/components/projects/DateRange.astro"
 import ProjectNavigation from "@/components/projects/ProjectNavigation.astro"
 import {
@@ -16,6 +18,8 @@ import {
 } from "@/lib/content-locale"
 import { sectionCrumb } from "@/lib/sections"
 import { interactionTarget } from "@/lib/interactions"
+import { ogImagePath } from "@/lib/og"
+import { processRawHeadings } from "@/lib/toc"
 import { COVER_SIZES, COVER_WIDTHS } from "@/lib/layout"
 import {
   getProjectLinks,
@@ -33,7 +37,12 @@ const { title, description, image, fromDate, toDate, skills } = project.data
 const locale = getContentLocale(project.data)
 const isEnglish = locale === "en"
 
-const { Content } = await render(project)
+const { Content, headings } = await render(project)
+
+/* Two entries is a list of the obvious; the table earns its space from three. */
+const MIN_TOC_HEADINGS = 3
+const tocHeadings = processRawHeadings(headings, SITE.tocMaxDepth)
+const showToc = tocHeadings.length >= MIN_TOC_HEADINGS
 const links = getProjectLinks(
   project.data.code,
   project.data.doc,
@@ -56,9 +65,12 @@ const { prev, next } = await getProjectNavigation(project.id, (candidate) =>
   description={description}
   prose={false}
   type="article"
-  image={image?.src}
+  searchable
+  image={ogImagePath("projects", project.id)}
   breadcrumbs={[sectionCrumb("projects", locale), { label: title }]}
 >
+  {showToc && <TOCHeader slot="toc-header" headings={tocHeadings} />}
+
   <section class="project-meta">
     <p class="project-facts">
       <DateRange

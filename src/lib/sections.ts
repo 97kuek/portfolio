@@ -26,6 +26,11 @@ export const SECTIONS = {
     icon: "tags",
     label: { en: "Tags", ja: "タグ" },
   },
+  search: {
+    path: "/search",
+    icon: "search",
+    label: { en: "Search", ja: "検索" },
+  },
 } as const satisfies Record<
   string,
   { path: string; icon: string; label: Record<SiteLocale, string> }

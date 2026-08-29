@@ -1,0 +1,20 @@
+---
+import type { GetStaticPaths } from "astro"
+
+import { SITE } from "@site-config"
+import BlogPage from "@/components/pages/BlogPage.astro"
+import { getPostsInLocale } from "@/lib/blog/listing"
+
+/* Page one is the listing itself, so these start at two. */
+export const getStaticPaths: GetStaticPaths = async () => {
+  const posts = await getPostsInLocale("en")
+  const totalPages = Math.ceil(posts.length / SITE.blog.postsPerPage)
+  return Array.from({ length: Math.max(0, totalPages - 1) }, (_, index) => ({
+    params: { page: String(index + 2) },
+  }))
+}
+
+const { page = "1" } = Astro.params
+---
+
+<BlogPage page={Number(page)} />

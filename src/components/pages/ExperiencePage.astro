@@ -17,6 +17,7 @@ const entries = await getCollection("experience")
     ? "Education and activities to date."
     : "学歴とこれまでの活動を紹介します。"}
   prose={false}
+  searchable
   breadcrumbs={[sectionCrumb("experience", locale, { current: true })]}
 >
   <ExperienceTimeline {entries} />

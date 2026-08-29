@@ -25,6 +25,8 @@ interface Props {
   tags?: string[]
   section?: string
   breadcrumbs?: BreadcrumbItem[]
+  /** Marks this page's content as the body the search index should read. */
+  searchable?: boolean
 }
 
 const {
@@ -40,6 +42,7 @@ const {
   tags,
   section,
   breadcrumbs,
+  searchable = false,
 } = Astro.props
 const locale = getSiteLocale(Astro.url.pathname)
 ---
@@ -82,7 +85,7 @@ const locale = getSiteLocale(Astro.url.pathname)
           )}
         </div>
       )}
-    <main class={className}>
+    <main class={className} data-pagefind-body={searchable ? "" : undefined}>
       <slot />
     </main>
     <BackToTop />

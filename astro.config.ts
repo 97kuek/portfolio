@@ -36,7 +36,8 @@ export default defineConfig({
         !/\/people\/[^/]+\/?$/.test(page) &&
         !page.includes("/blog/tags/") &&
         !page.includes("/blog/stages/") &&
-        !page.includes("/palette"),
+        !page.includes("/palette") &&
+        !page.includes("/search"),
     }),
   ],
   server: { port: 4321, host: true },

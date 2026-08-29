@@ -9,6 +9,8 @@ interface Props {
   modifiedTime?: Date
   prose?: boolean
   breadcrumbs?: BreadcrumbItem[]
+  searchable?: boolean
+  noindex?: boolean
   [key: string]: any // Allow any additional props to pass through to Layout
 }
 
@@ -34,6 +36,10 @@ const resolvedBreadcrumbs = breadcrumbs ?? frontmatter?.breadcrumbs
   breadcrumbs={resolvedBreadcrumbs}
   {...layoutProps}
 >
+  {Astro.slots.has("toc-header") && (
+      <slot name="toc-header" slot="toc-header" />
+    )}
+
   <section class="page-heading">
     <h1>{pageTitle}</h1>
     {pageDescription && <p class="page-description">{pageDescription}</p>}

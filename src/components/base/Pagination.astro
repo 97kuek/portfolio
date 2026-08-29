@@ -1,20 +1,30 @@
 ---
 import Button from "@/components/base/Button.astro"
 import Icon from "@/components/base/Icon.astro"
+import { getUIStrings } from "@/lib/ui-strings"
 
 interface Props {
   currentPage: number
   totalPages: number
+  /** Where page one lives, which is the section itself. */
   baseUrl: string
+  /** Prefix for later pages, when they do not sit directly under `baseUrl`. */
+  pageBaseUrl?: string
   class?: string
 }
 
-const { currentPage, totalPages, baseUrl, class: className } = Astro.props
+const {
+  currentPage,
+  totalPages,
+  baseUrl,
+  pageBaseUrl,
+  class: className,
+} = Astro.props
 
-const getPageUrl = (page: number) => {
-  if (page === 1) return baseUrl
-  return `${baseUrl}/${page}`
-}
+const ui = getUIStrings(Astro.url.pathname)
+
+const getPageUrl = (page: number) =>
+  page === 1 ? baseUrl : `${pageBaseUrl ?? baseUrl}/${page}`
 
 /** @function Generate page numbers with ellipsis logic */
 const generatePages = () => {
@@ -61,7 +71,7 @@ const pages = generatePages()
 
 <nav
   role="navigation"
-  aria-label="pagination"
+  aria-label={ui.pagination}
   data-slot="pagination"
   class:list={["pagination", className]}
 >
@@ -72,11 +82,11 @@ const pages = generatePages()
         variant="ghost"
         size="default"
         class="pagination-step"
-        aria-label="Go to previous page"
+        aria-label={ui.previousPage}
         aria-disabled={currentPage === 1}
       >
         <Icon name="left" />
-        <span data-label>Previous</span>
+        <span data-label>{ui.previous}</span>
       </Button>
     </li>
 
@@ -88,7 +98,7 @@ const pages = generatePages()
               data-slot="pagination-ellipsis"
             >
               <Icon name="more-horizontal" />
-              <span class="sr-only">More pages</span>
+              <span class="sr-only">{ui.morePages}</span>
             </span>
           ) : (
             <Button
@@ -111,10 +121,10 @@ const pages = generatePages()
         variant="ghost"
         size="default"
         class="pagination-step"
-        aria-label="Go to next page"
+        aria-label={ui.nextPage}
         aria-disabled={currentPage === totalPages}
       >
-        <span data-label>Next</span>
+        <span data-label>{ui.next}</span>
         <Icon name="right" />
       </Button>
     </li>

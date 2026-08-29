@@ -51,6 +51,10 @@ export const SiteConfigSchema = z.object({
 
   /** Blog-specific settings */
   blog: z.object({
+    /** Posts per page in the blog listing. */
+    postsPerPage: z.number().int().positive().default(8),
+    /** Posts suggested at the foot of a post. Set to 0 to hide the section. */
+    relatedPostCount: z.number().int().nonnegative().default(3),
     /** Share action buttons on blog posts */
     shareActions: z
       .array(

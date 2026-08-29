@@ -30,6 +30,8 @@ export const SITE: SiteConfig = {
   tocMaxDepth: 3,
 
   blog: {
+    postsPerPage: 8,
+    relatedPostCount: 3,
     shareActions: ["x"],
   },
 

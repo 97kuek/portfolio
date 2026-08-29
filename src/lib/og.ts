@@ -42,6 +42,29 @@ const boldFont = readFont(
   "src/assets/og/DMSans-Bold.ttf",
 )
 
+/* DM Sans covers Latin only, so a Japanese title would render as blanks. These
+   are Noto Sans JP subset to kana, punctuation and the 3,000 most common kanji
+   (see scripts/subset-og-font.mjs). They are read at build time to draw the
+   images and never reach a browser, so their size costs nothing at runtime. */
+const japaneseRegularFont = readFont(
+  "../assets/og/NotoSansJP-Regular-subset.ttf",
+  "src/assets/og/NotoSansJP-Regular-subset.ttf",
+)
+const japaneseBoldFont = readFont(
+  "../assets/og/NotoSansJP-Bold-subset.ttf",
+  "src/assets/og/NotoSansJP-Bold-subset.ttf",
+)
+
+/**
+ * Where the generated card for an entry lives. Keyed by entry id, which is
+ * already unique across languages (`hello` and `hello-en`), so a translation
+ * gets its own card without a locale segment in the path.
+ */
+export const ogImagePath = (
+  collection: "blog" | "projects",
+  entryId: string,
+): string => `/og/${collection}/${entryId}.png`
+
 export async function renderPostImage({
   title,
   description,
@@ -107,7 +130,7 @@ export async function renderPostImage({
         justifyContent: "space-between",
         padding: 80,
         background: "#F1F2F6",
-        fontFamily: "DM Sans",
+        fontFamily: "DM Sans, Noto Sans JP",
       },
       children: [
         {
@@ -150,15 +173,17 @@ export async function renderPostImage({
     width,
     height,
     fonts: [
+      { name: "DM Sans", data: regularFont, weight: 400, style: "normal" },
+      { name: "DM Sans", data: boldFont, weight: 700, style: "normal" },
       {
-        name: "DM Sans",
-        data: regularFont,
+        name: "Noto Sans JP",
+        data: japaneseRegularFont,
         weight: 400,
         style: "normal",
       },
       {
-        name: "DM Sans",
-        data: boldFont,
+        name: "Noto Sans JP",
+        data: japaneseBoldFont,
         weight: 700,
         style: "normal",
       },

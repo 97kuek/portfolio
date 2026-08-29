@@ -76,6 +76,18 @@ wrangler d1 execute portfolio-interactions --remote --file=migrations/<file>.sql
   - かなが `unicode-range` から漏れ、かなと漢字で別のフォントになっていた
 - どうしても必要ならサブセット化し、かなの範囲を必ず含める
 
+## 検索・OG画像・目次
+
+- 検索はPagefind。`pnpm build` が `astro build` のあとに索引を作る
+  - 索引対象はレイアウトに `searchable` を渡したページだけ（記事・プロジェクト・経歴）
+  - 一覧ページを索引すると同じ内容が二重に出るので付けない
+  - `pnpm dev` では索引が無いため、検索ページは利用できない旨を表示する
+- OG画像は記事・プロジェクトごとに `/og/<collection>/<entryId>.png` を生成
+  - 和文フォントは `src/assets/og/NotoSansJP-*-subset.ttf`（ビルド時のみ読む）
+  - タイトルに未収録の文字が出たら `pnpm subset:og-font` で作り直す
+- 目次は `TOCHeader`（ヘッダー直下の折りたたみ）。見出し3つ以上のときだけ出す
+  - このサイトは本文幅が44remでサイドバーが入らないため、`TOCSidebar` は使わない
+
 ## 共通化の置き場
 
 - 値を2か所以上に書きそうになったら、先にここを見る
@@ -114,11 +126,12 @@ pnpm lint:styles
 pnpm test:markdown
 pnpm astro check
 pnpm build
+pnpm test:links
 ```
 
 - 見た目を変えたときは、デスクトップ幅とモバイル幅の両方で確認する
 - ライト・ダーク双方を確認する。`light-dark()` を使うときは両方で意図した色になるか見る
-- リンク切れは、ビルド後の `dist/` のHTMLからhrefを集めて存在を確かめる
+- リンク切れは `pnpm test:links`（ビルド後の `dist/` を走査。CIでも実行される）
 
 ## デプロイ
 

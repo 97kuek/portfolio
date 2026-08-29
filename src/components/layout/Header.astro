@@ -11,7 +11,7 @@ import {
   getProfileLinkPlacement,
 } from "@/components/profile/helper"
 import { alternateLanguagePath, getSiteLocale, localizedPath } from "@/lib/i18n"
-import { navLabel } from "@/lib/sections"
+import { navLabel, sectionLabel, sectionPath } from "@/lib/sections"
 import { getUIStrings } from "@/lib/ui-strings"
 
 const headerLinks = getProfileLinkPlacement("header")
@@ -62,6 +62,15 @@ const displayName = getDisplayName(locale)
         )
       })}
     </nav>
+    <Button
+      href={sectionPath("search", locale)}
+      variant="ghost"
+      size="square"
+      title={sectionLabel("search", locale)}
+      aria-label={sectionLabel("search", locale)}
+    >
+      <Icon name="search" size="1.25rem" />
+    </Button>
     <Link
       href={languageHref}
       class="language-switch"

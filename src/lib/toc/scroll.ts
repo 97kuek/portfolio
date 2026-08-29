@@ -12,6 +12,7 @@ export class UnifiedTOCController {
   private static readonly PROGRESS_CIRCLE_RADIUS = 10
   private static readonly NAV_SETTLE_DELAY_MS = 100
   private static readonly LINK_EMOJI_REGEX = /\s*🔗\s*$/
+  /** Fallback only; the label is read from the element's own data attribute. */
   private static readonly DEFAULT_SECTION_TEXT = "Overview"
   private activeIds: string[] = []
   private headings: HTMLElement[] = []
@@ -145,7 +146,8 @@ export class UnifiedTOCController {
                   .trim(),
               )
               .join(", ")
-          : UnifiedTOCController.DEFAULT_SECTION_TEXT
+          : (this.currentSectionText.dataset.defaultLabel ??
+            UnifiedTOCController.DEFAULT_SECTION_TEXT)
       this.currentSectionText.textContent = currentText
     }
   }

@@ -108,6 +108,26 @@ that they could not load. To exercise them locally:
 pnpm dev:pages
 ```
 
+## Search
+
+Pagefind builds the index from `dist` as the last step of `pnpm build`. Only
+pages whose layout is given `searchable` are indexed — posts, projects and the
+experience page — so a listing does not return its own contents a second time.
+The index does not exist during `pnpm dev`; the search page says so rather than
+failing silently.
+
+## Social cards
+
+Each post and project gets a generated card at `/og/<collection>/<entryId>.png`,
+drawn by `src/lib/og.ts`. Japanese titles need Japanese glyphs, so
+`src/assets/og/NotoSansJP-*-subset.ttf` are read at build time — never served to
+a browser. They cover kana, punctuation, Latin and the 3,000 most common kanji;
+if a title ever renders with blanks in its card, widen the subset:
+
+```bash
+pnpm subset:og-font
+```
+
 ## Fonts
 
 Latin comes from a self-hosted DM Sans; Japanese is left to the reader's system

@@ -1,20 +1,23 @@
 ---
 import { render } from "astro:content"
 
+import { SITE } from "@site-config"
 import Layout from "@/layouts/Layout.astro"
-import CoverImage from "@/components/base/CoverImage.astro"
-import TaxonomyChip from "@/components/base/TaxonomyChip.astro"
 import Badge from "@/components/base/Badge.astro"
+import CoverImage from "@/components/base/CoverImage.astro"
+import FormattedDate from "@/components/base/FormattedDate.astro"
 import Icon from "@/components/base/Icon.astro"
-import Comments from "@/components/interactions/Comments.astro"
-import Reactions from "@/components/interactions/Reactions.astro"
+import TaxonomyChip from "@/components/base/TaxonomyChip.astro"
 import PostMetadata from "@/components/blog/PostMetadata.astro"
 import PostNavigation from "@/components/blog/PostNavigation.astro"
+import PostRow from "@/components/blog/PostRow.astro"
 import ShareActions from "@/components/blog/ShareActions.astro"
+import Comments from "@/components/interactions/Comments.astro"
+import Reactions from "@/components/interactions/Reactions.astro"
+import TOCHeader from "@/components/toc/TOCHeader.astro"
 import { PostManager } from "@/lib/blog"
+import { getRelatedPosts, withMetadata } from "@/lib/blog/listing"
 import { getStageVariant } from "@/lib/blog/stage"
-import { interactionTarget } from "@/lib/interactions"
-import { COVER_SIZES, COVER_WIDTHS } from "@/lib/layout"
 import { taxonomyPath } from "@/lib/blog/taxonomy"
 import type { Post } from "@/lib/blog/types"
 import {
@@ -22,7 +25,14 @@ import {
   getContentSlug,
   isContentInLocale,
 } from "@/lib/content-locale"
+import { interactionTarget } from "@/lib/interactions"
+import { COVER_SIZES, COVER_WIDTHS } from "@/lib/layout"
+import { ogImagePath } from "@/lib/og"
 import { sectionCrumb } from "@/lib/sections"
+import { processRawHeadings } from "@/lib/toc"
+import { getUIStrings } from "@/lib/ui-strings"
+
+import "@/styles/content-row.css"
 
 interface Props {
   post: Post
@@ -33,13 +43,24 @@ const locale = getContentLocale(post.data)
 
 const postManager = PostManager.getInstance()
 const metadata = await postManager.getMetadata(post.id)
-const { Content } = await render(post)
+const { Content, headings } = await render(post)
+
+/* Two entries is a list of the obvious; the table earns its space from three. */
+const MIN_TOC_HEADINGS = 3
+const tocHeadings = processRawHeadings(headings, SITE.tocMaxDepth)
+const showToc = tocHeadings.length >= MIN_TOC_HEADINGS
 
 // Navigation stays inside one language: the sibling of a Japanese post is the
 // previous Japanese post, not whichever translation happens to sit next to it.
 // Reactions and comments follow the writing, not the translation, so both
 // language versions of a post share one thread.
 const target = interactionTarget("blog", getContentSlug(post.id, post.data))
+
+const ui = getUIStrings(locale)
+
+const relatedPosts = await withMetadata(
+  await getRelatedPosts(post, SITE.blog.relatedPostCount),
+)
 
 const localePosts = (await postManager.getMainPosts()).filter((entry) =>
   isContentInLocale(entry.data, locale),
@@ -55,14 +76,17 @@ const olderPost =
 <Layout
   title={post.data.title}
   description={post.data.description}
-  image={post.data.image?.src}
+  image={ogImagePath("blog", post.id)}
   type="article"
+  searchable
   publishedTime={post.data.createdAt}
   modifiedTime={post.data.updatedAt}
   author={metadata.authors[0]?.name}
   tags={post.data.tags}
   breadcrumbs={[sectionCrumb("blog", locale), { label: post.data.title }]}
 >
+  {showToc && <TOCHeader slot="toc-header" headings={tocHeadings} />}
+
   <article>
     <header class="post-header">
       {(post.data.stage || post.data.tags.length > 0) && (
@@ -112,12 +136,40 @@ const olderPost =
     />
   </article>
 
+  {relatedPosts.length > 0 && (
+      <section class="related-posts">
+        <h2>{ui.relatedPosts}</h2>
+        <ul class="content-list">
+          {relatedPosts.map(({ post: related, meta }) => (
+            <li>
+              <FormattedDate
+                date={related.data.createdAt}
+                class="content-list-date"
+              />
+              <PostRow metadata={meta} />
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
   <Comments target={target} />
 
   <PostNavigation prevPost={olderPost} nextPost={newerPost} />
 </Layout>
 
 <style>
+  .related-posts {
+    display: grid;
+    gap: var(--space-s);
+  }
+
+  .related-posts h2 {
+    margin: 0;
+    font-size: var(--step-1);
+    font-weight: var(--font-weight-medium);
+  }
+
   article {
     display: grid;
     gap: var(--space-m);

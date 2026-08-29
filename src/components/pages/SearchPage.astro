@@ -1,0 +1,270 @@
+---
+import CommonLayout from "@/layouts/CommonLayout.astro"
+import Icon from "@/components/base/Icon.astro"
+import { getLocaleTag, getSiteLocale } from "@/lib/i18n"
+import { sectionCrumb } from "@/lib/sections"
+import { getUIStrings } from "@/lib/ui-strings"
+
+const locale = getSiteLocale(Astro.url.pathname)
+const isEnglish = locale === "en"
+const ui = getUIStrings(locale)
+---
+
+<CommonLayout
+  title={ui.search}
+  description={isEnglish
+    ? "Search the posts, projects and experience on this site."
+    : "このサイトの記事・プロジェクト・経歴を検索できます。"}
+  prose={false}
+  noindex
+  breadcrumbs={[sectionCrumb("search", locale, { current: true })]}
+>
+  <site-search
+    data-locale={getLocaleTag(locale)}
+    data-empty={ui.searchEmpty}
+    data-error={ui.searchUnavailable}
+    data-result-count={ui.searchResultCount}
+    class="search"
+  >
+    <form class="search-form" role="search" data-form>
+      <label class="sr-only" for="search-input">{ui.search}</label>
+      <span class="search-icon" aria-hidden="true">
+        <Icon name="search" />
+      </span>
+      <input
+        id="search-input"
+        type="search"
+        name="q"
+        autocomplete="off"
+        placeholder={ui.searchPlaceholder}
+        data-input
+      >
+    </form>
+
+    <p class="search-status" role="status" aria-live="polite" data-status></p>
+    <ol class="search-results" data-results></ol>
+  </site-search>
+</CommonLayout>
+
+<style>
+  .search {
+    display: grid;
+    gap: var(--space-s);
+  }
+
+  .search-form {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .search-icon {
+    position: absolute;
+    inset-inline-start: var(--space-2xs);
+    display: inline-flex;
+    color: var(--muted-foreground);
+    pointer-events: none;
+  }
+
+  .search-form input {
+    inline-size: 100%;
+    min-block-size: var(--control-size);
+    padding-inline: calc(var(--space-2xs) * 2 + 1em) var(--space-2xs);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--background);
+    color: var(--foreground);
+    font: inherit;
+    font-size: var(--step-0);
+  }
+
+  .search-form input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  .search-status {
+    margin: 0;
+    color: var(--muted-foreground);
+    font-size: var(--step--1);
+  }
+
+  .search-results {
+    display: grid;
+    gap: var(--space-s);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+</style>
+
+<style is:global>
+  .search-result {
+    display: grid;
+    gap: var(--space-3xs);
+    padding-block-end: var(--space-s);
+    border-block-end: 1px solid var(--border);
+  }
+
+  .search-result:last-child {
+    padding-block-end: 0;
+    border-block-end: none;
+  }
+
+  .search-result h2 {
+    margin: 0;
+    font-size: var(--step-0);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .search-result p {
+    margin: 0;
+    color: var(--muted-foreground);
+    font-size: var(--step--1);
+  }
+
+  .search-result mark {
+    background: color-mix(in oklab, var(--accent) 22%, transparent);
+    color: inherit;
+  }
+</style>
+
+<script>
+  interface PagefindResultData {
+    url: string
+    meta: { title?: string }
+    excerpt: string
+  }
+
+  interface PagefindResult {
+    data: () => Promise<PagefindResultData>
+  }
+
+  interface Pagefind {
+    options: (options: Record<string, unknown>) => Promise<void>
+    search: (query: string) => Promise<{ results: PagefindResult[] }>
+  }
+
+  /* Built after the site, so it has no module for TypeScript to resolve and
+     no file at all during `astro dev`. A variable specifier keeps both the
+     type checker and Vite's import analysis out of it. */
+  const PAGEFIND_URL = "/pagefind/pagefind.js"
+  const DEBOUNCE_MS = 180
+  const MAX_RESULTS = 20
+
+  class SiteSearch extends HTMLElement {
+    private pagefind: Pagefind | null = null
+    private loading: Promise<Pagefind | null> | null = null
+    private input: HTMLInputElement | null = null
+    private results: HTMLOListElement | null = null
+    private status: HTMLElement | null = null
+    private timer: number | undefined
+
+    connectedCallback() {
+      this.input = this.querySelector("[data-input]")
+      this.results = this.querySelector("[data-results]")
+      this.status = this.querySelector("[data-status]")
+      if (!this.input) return
+
+      this.input.addEventListener("input", () => {
+        window.clearTimeout(this.timer)
+        this.timer = window.setTimeout(
+          () => void this.run(this.input!.value),
+          DEBOUNCE_MS,
+        )
+      })
+      this.querySelector("[data-form]")?.addEventListener("submit", (event) => {
+        event.preventDefault()
+        void this.run(this.input!.value)
+      })
+
+      // A query in the URL makes a search shareable and survives a reload.
+      const initial = new URLSearchParams(location.search).get("q")
+      if (initial) {
+        this.input.value = initial
+        void this.run(initial)
+      }
+    }
+
+    /* The index is built after the site, so it does not exist during `astro
+       dev`; the page stays usable and says so. */
+    private async load(): Promise<Pagefind | null> {
+      if (this.pagefind) return this.pagefind
+      if (!this.loading) {
+        this.loading = import(/* @vite-ignore */ PAGEFIND_URL)
+          .then(async (module: Pagefind) => {
+            await module.options({ language: this.dataset.locale })
+            this.pagefind = module
+            return module
+          })
+          .catch(() => null)
+      }
+      return this.loading
+    }
+
+    private setStatus(message: string) {
+      if (this.status) this.status.textContent = message
+    }
+
+    private async run(rawQuery: string) {
+      const query = rawQuery.trim()
+      const url = new URL(location.href)
+      if (query) url.searchParams.set("q", query)
+      else url.searchParams.delete("q")
+      history.replaceState(null, "", url)
+
+      if (!this.results) return
+      if (!query) {
+        this.results.replaceChildren()
+        this.setStatus("")
+        return
+      }
+
+      const pagefind = await this.load()
+      if (!pagefind) {
+        this.setStatus(this.dataset.error ?? "")
+        return
+      }
+
+      const { results } = await pagefind.search(query)
+      const found = await Promise.all(
+        results.slice(0, MAX_RESULTS).map((result) => result.data()),
+      )
+
+      this.results.replaceChildren()
+      if (found.length === 0) {
+        this.setStatus(this.dataset.empty ?? "")
+        return
+      }
+
+      this.setStatus(
+        (this.dataset.resultCount ?? "{count}").replace(
+          "{count}",
+          String(results.length),
+        ),
+      )
+
+      for (const entry of found) {
+        const item = document.createElement("li")
+        item.className = "search-result"
+
+        const heading = document.createElement("h2")
+        const link = document.createElement("a")
+        link.href = entry.url
+        link.textContent = entry.meta.title ?? entry.url
+        heading.append(link)
+
+        // Pagefind's excerpt carries <mark> around the matched words.
+        const excerpt = document.createElement("p")
+        excerpt.innerHTML = entry.excerpt
+
+        item.append(heading, excerpt)
+        this.results.append(item)
+      }
+    }
+  }
+
+  if (!customElements.get("site-search")) {
+    customElements.define("site-search", SiteSearch)
+  }
+</script>

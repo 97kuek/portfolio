@@ -44,6 +44,7 @@ export const SEMANTIC_ICONS = {
   monitor: "mingcute:computer-line",
   "more-horizontal": "mingcute:more-1-line",
   right: "mingcute:right-line",
+  search: "mingcute:search-line",
   star: "mingcute:star-line",
   "to-top": "mingcute:arrow-to-up-line",
 
