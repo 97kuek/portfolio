@@ -1,0 +1,326 @@
+---
+import { getLocaleTag, getSiteLocale } from "@/lib/i18n"
+import { getUIStrings } from "@/lib/ui-strings"
+
+interface Props {
+  /** `blog:hello`, `projects:wasa-chat` — shared by every translation. */
+  target: string
+}
+
+const { target } = Astro.props
+const locale = getSiteLocale(Astro.url.pathname)
+const ui = getUIStrings(locale)
+---
+
+<post-comments
+  data-target={target}
+  data-locale={getLocaleTag(locale)}
+  data-anonymous={ui.commentNamePlaceholder}
+  data-empty={ui.commentEmpty}
+  data-load-failed={ui.commentLoadFailed}
+  data-failed={ui.commentFailed}
+  data-rate-limited={ui.commentRateLimited}
+  data-submit={ui.commentSubmit}
+  data-submitting={ui.commentSubmitting}
+  class="comments"
+>
+  <h2 class="comments-title">{ui.comments}</h2>
+
+  <ol class="comment-list" data-list></ol>
+  <p class="comment-status" data-status hidden></p>
+
+  <form class="comment-form" data-form>
+    <label class="comment-field">
+      <span>{ui.commentName}</span>
+      <input
+        type="text"
+        name="author"
+        maxlength="40"
+        autocomplete="nickname"
+        placeholder={ui.commentNamePlaceholder}
+      >
+    </label>
+    <label class="comment-field">
+      <span>{ui.commentBody}</span>
+      <textarea
+        name="body"
+        rows="4"
+        maxlength="2000"
+        required
+        placeholder={ui.commentPlaceholder}
+      ></textarea>
+    </label>
+    <div class="comment-actions">
+      <button type="submit" class="comment-submit">{ui.commentSubmit}</button>
+    </div>
+  </form>
+</post-comments>
+
+<style>
+  .comments {
+    display: grid;
+    gap: var(--space-s);
+  }
+
+  .comments-title {
+    margin: 0;
+    font-size: var(--step-1);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .comment-list {
+    display: grid;
+    gap: var(--space-s);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .comment-list:empty {
+    display: none;
+  }
+
+  .comment-status {
+    margin: 0;
+    color: var(--muted-foreground);
+    font-size: var(--step--1);
+  }
+
+  .comment-form {
+    display: grid;
+    gap: var(--space-2xs);
+    padding: var(--space-s);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: color-mix(in oklab, var(--muted) 30%, transparent);
+  }
+
+  .comment-field {
+    display: grid;
+    gap: var(--space-3xs);
+    font-size: var(--step--1);
+    color: var(--muted-foreground);
+  }
+
+  .comment-field :is(input, textarea) {
+    padding: var(--space-2xs);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--background);
+    color: var(--foreground);
+    font: inherit;
+    font-size: var(--step-0);
+  }
+
+  .comment-field :is(input, textarea):focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  .comment-field textarea {
+    resize: vertical;
+  }
+
+  .comment-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .comment-submit {
+    min-block-size: var(--control-size-compact);
+    padding-inline: var(--space-s);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--background);
+    color: var(--foreground);
+    font: inherit;
+    font-size: var(--step--1);
+    cursor: pointer;
+  }
+
+  .comment-submit:is(:hover, :focus-visible) {
+    border-color: var(--accent);
+  }
+
+  .comment-submit[disabled] {
+    cursor: progress;
+    opacity: 0.6;
+  }
+</style>
+
+<style is:global>
+  .comment-item {
+    display: grid;
+    gap: var(--space-3xs);
+    padding-block-end: var(--space-s);
+    border-block-end: 1px solid var(--border);
+  }
+
+  .comment-item:last-child {
+    padding-block-end: 0;
+    border-block-end: none;
+  }
+
+  .comment-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    color: var(--muted-foreground);
+    font-size: var(--step--1);
+  }
+
+  .comment-author {
+    font-weight: var(--font-weight-medium);
+    color: var(--foreground);
+  }
+
+  .comment-body {
+    margin: 0;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+  }
+</style>
+
+<script>
+  interface Comment {
+    id: number
+    author: string | null
+    body: string
+    createdAt: string
+  }
+
+  class PostComments extends HTMLElement {
+    private target = ""
+    private list: HTMLOListElement | null = null
+    private status: HTMLElement | null = null
+    private form: HTMLFormElement | null = null
+    private submit: HTMLButtonElement | null = null
+
+    connectedCallback() {
+      this.target = this.dataset.target ?? ""
+      this.list = this.querySelector("[data-list]")
+      this.status = this.querySelector("[data-status]")
+      this.form = this.querySelector("[data-form]")
+      this.submit = this.querySelector(".comment-submit")
+      if (!this.target || !this.form) return
+
+      this.form.addEventListener("submit", (event) => this.post(event))
+      void this.load()
+    }
+
+    private setStatus(message: string | null) {
+      if (!this.status) return
+      this.status.textContent = message ?? ""
+      this.status.hidden = !message
+    }
+
+    /** Comment text is visitor input, so it only ever reaches the DOM as text. */
+    private render(comments: Comment[]) {
+      if (!this.list) return
+      this.list.replaceChildren()
+
+      if (comments.length === 0) {
+        this.setStatus(this.dataset.empty ?? null)
+        return
+      }
+      this.setStatus(null)
+
+      const formatter = new Intl.DateTimeFormat(this.dataset.locale, {
+        dateStyle: "medium",
+        timeStyle: "short",
+      })
+
+      for (const comment of comments) {
+        const item = document.createElement("li")
+        item.className = "comment-item"
+
+        const meta = document.createElement("p")
+        meta.className = "comment-meta"
+
+        const author = document.createElement("span")
+        author.className = "comment-author"
+        author.textContent =
+          comment.author ?? this.dataset.anonymous ?? "Anonymous"
+
+        const time = document.createElement("time")
+        time.dateTime = comment.createdAt
+        const posted = new Date(comment.createdAt)
+        time.textContent = Number.isNaN(posted.valueOf())
+          ? ""
+          : formatter.format(posted)
+
+        meta.append(author, time)
+
+        const body = document.createElement("p")
+        body.className = "comment-body"
+        body.textContent = comment.body
+
+        item.append(meta, body)
+        this.list.append(item)
+      }
+    }
+
+    private async load() {
+      try {
+        const response = await fetch(
+          `/api/comments?target=${encodeURIComponent(this.target)}`,
+        )
+        if (!response.ok) throw new Error(String(response.status))
+        const data = (await response.json()) as { comments: Comment[] }
+        this.render(data.comments)
+      } catch {
+        this.setStatus(this.dataset.loadFailed ?? null)
+      }
+    }
+
+    private async post(event: Event) {
+      event.preventDefault()
+      if (!this.form) return
+
+      const data = new FormData(this.form)
+      const body = String(data.get("body") ?? "").trim()
+      if (!body) return
+
+      const submitLabel = this.dataset.submit ?? ""
+      if (this.submit) {
+        this.submit.disabled = true
+        this.submit.textContent = this.dataset.submitting ?? submitLabel
+      }
+
+      try {
+        const response = await fetch("/api/comments", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            target: this.target,
+            author: String(data.get("author") ?? "").trim() || undefined,
+            body,
+          }),
+        })
+
+        if (response.ok) {
+          const payload = (await response.json()) as { comments: Comment[] }
+          this.render(payload.comments)
+          this.form.reset()
+        } else {
+          this.setStatus(
+            response.status === 429
+              ? (this.dataset.rateLimited ?? null)
+              : (this.dataset.failed ?? null),
+          )
+        }
+      } catch {
+        this.setStatus(this.dataset.failed ?? null)
+      } finally {
+        if (this.submit) {
+          this.submit.disabled = false
+          this.submit.textContent = submitLabel
+        }
+      }
+    }
+  }
+
+  if (!customElements.get("post-comments")) {
+    customElements.define("post-comments", PostComments)
+  }
+</script>

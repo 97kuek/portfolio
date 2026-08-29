@@ -1,0 +1,114 @@
+import { getSiteLocale, type SiteLocale } from "@/lib/i18n"
+
+/**
+ * Chrome and component labels that are not content. Page copy lives in the
+ * page components next to the markup it belongs to; this table exists for the
+ * shared widgets, where threading a translation through every caller would be
+ * worse than looking one up.
+ */
+const UI_STRINGS = {
+  en: {
+    backToTop: "Back to top",
+    commentBody: "Comment",
+    commentEmpty: "No comments yet. Be the first.",
+    commentFailed: "Could not post the comment. Please try again.",
+    commentLoadFailed: "Comments could not be loaded.",
+    commentName: "Name (optional)",
+    commentNamePlaceholder: "Anonymous",
+    commentPlaceholder: "Write a comment…",
+    commentRateLimited:
+      "Too many comments in a short time. Please wait a little.",
+    commentSubmit: "Post comment",
+    commentSubmitting: "Posting…",
+    comments: "Comments",
+    breadcrumbNav: "Breadcrumb navigation",
+    copyPostUrl: "Copy post URL",
+    copyUrl: "Copy URL",
+    featuredProject: "Featured project: ",
+    firstProject: "You're at the first project!",
+    goHome: "Go to home page",
+    home: "Home",
+    lastProject: "You're at the last project!",
+    menu: "Menu",
+    navigateHome: "Navigate to home page",
+    newestPost: "You're at the newest post!",
+    nextPost: "Next Post",
+    nextProject: "Next Project",
+    oldestPost: "You're at the oldest post!",
+    postActions: "Post actions",
+    postLabel: (title: string) => `Post: ${title}`,
+    previousPost: "Previous Post",
+    previousProject: "Previous Project",
+    published: "Published",
+    reactionCelebrate: "Congratulations",
+    reactionInsight: "Insightful",
+    reactionLike: "Like",
+    reactionLove: "Love",
+    reactions: "Reactions",
+    readingTime: (minutes: number) => `${minutes} min read`,
+    siteNav: "Site navigation",
+    theme: "Theme",
+    themeAuto: "Auto",
+    themeDark: "Dark",
+    themeLight: "Light",
+    toggleMenu: "Toggle menu",
+    updated: "Updated",
+  },
+  ja: {
+    backToTop: "ページ上部へ戻る",
+    commentBody: "コメント",
+    commentEmpty: "まだコメントはありません。最初の1件をどうぞ。",
+    commentFailed:
+      "コメントを送信できませんでした。時間をおいて再度お試しください。",
+    commentLoadFailed: "コメントを読み込めませんでした。",
+    commentName: "お名前（任意）",
+    commentNamePlaceholder: "匿名",
+    commentPlaceholder: "コメントを入力…",
+    commentRateLimited: "短時間に投稿しすぎです。少し時間をおいてください。",
+    commentSubmit: "コメントする",
+    commentSubmitting: "送信中…",
+    comments: "コメント",
+    breadcrumbNav: "パンくずリスト",
+    copyPostUrl: "記事のURLをコピー",
+    copyUrl: "URLをコピー",
+    featuredProject: "注目のプロジェクト: ",
+    firstProject: "これが最初のプロジェクトです",
+    goHome: "ホームへ戻る",
+    home: "ホーム",
+    lastProject: "これが最後のプロジェクトです",
+    menu: "メニュー",
+    navigateHome: "ホームへ移動",
+    newestPost: "これが最新の記事です",
+    nextPost: "次の記事",
+    nextProject: "次のプロジェクト",
+    oldestPost: "これが最初の記事です",
+    postActions: "記事の操作",
+    postLabel: (title: string) => `記事: ${title}`,
+    previousPost: "前の記事",
+    previousProject: "前のプロジェクト",
+    published: "公開日",
+    reactionCelebrate: "おめでとう",
+    reactionInsight: "なるほど",
+    reactionLike: "いいね",
+    reactionLove: "好き",
+    reactions: "リアクション",
+    readingTime: (minutes: number) => `約${minutes}分で読めます`,
+    siteNav: "サイトナビゲーション",
+    theme: "テーマ",
+    themeAuto: "自動",
+    themeDark: "ダーク",
+    themeLight: "ライト",
+    toggleMenu: "メニューを開閉",
+    updated: "更新日",
+  },
+} as const satisfies Record<SiteLocale, Record<string, unknown>>
+
+export type UIStrings = (typeof UI_STRINGS)[SiteLocale]
+
+/** Accepts a locale, or the pathname to derive one from. */
+export const getUIStrings = (localeOrPath: string): UIStrings =>
+  UI_STRINGS[
+    localeOrPath === "en" || localeOrPath === "ja"
+      ? localeOrPath
+      : getSiteLocale(localeOrPath)
+  ]

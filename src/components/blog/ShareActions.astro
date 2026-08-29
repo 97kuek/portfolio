@@ -3,6 +3,7 @@ import { SITE } from "@site-config"
 import { getShareActions } from "@/lib/blog/share"
 import type { AuthorData } from "@/lib/blog/types"
 import CopyButton from "@/components/base/CopyButton.astro"
+import { getUIStrings } from "@/lib/ui-strings"
 import Icon from "@/components/base/Icon.astro"
 
 interface Props {
@@ -13,6 +14,7 @@ interface Props {
 }
 
 const { title, url, authors, class: className } = Astro.props
+const ui = getUIStrings(Astro.url.pathname)
 const shareActions = getShareActions(
   SITE.blog.shareActions,
   title,
@@ -21,11 +23,11 @@ const shareActions = getShareActions(
 )
 ---
 
-<div class:list={["share-actions", className]} aria-label="Post actions">
+<div class:list={["share-actions", className]} aria-label={ui.postActions}>
   <CopyButton
     text={url}
-    label="Copy URL"
-    title="Copy post URL"
+    label={ui.copyUrl}
+    title={ui.copyPostUrl}
     size="1rem"
     class="share-action"
   />

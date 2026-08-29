@@ -8,6 +8,7 @@ tags:
   - "intro"
 authors:
   - "keitaro"
+image: "../../assets/photos/wasa-night.jpg"
 stage: "seedling"
 ---
 
@@ -30,6 +31,8 @@ AIエンジニアとしてインターンもしております。
 
 いま一番時間を使っているのは、[WASA Chat](/ja/projects/wasa-chat)です。
 早稲田大学の鳥人間プロジェクトWASAの引き継ぎWikiと公開資料を横断して、自然言語で質問できるチャットボットを開発しています。
+
+![滑走路を走るWASAの人力飛行機のテストフライト](../../assets/photos/wasa-test-flight.jpg)
 
 このプロジェクトで面白いのは、技術的な難しさが「賢い回答を作ること」よりも「間違った回答を出さないこと」に寄っている点です。
 引き継ぎ資料は、読んだ人がそれを信じて機体を作るためのものなので、もっともらしい嘘が一番困ります。

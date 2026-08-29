@@ -27,6 +27,12 @@ const sorted = [...entries].sort((a, b) => {
 })
 
 const displayed = typeof limit === "number" ? sorted.slice(0, limit) : sorted
+
+/* A two-week internship reads as a bare "Aug 2026" at month precision, which
+   hides the thing the entry is about. Short, finished spans show their days. */
+const TWO_MONTHS_MS = 62 * 24 * 60 * 60 * 1000
+const datePrecision = (start: Date, end?: Date) =>
+  end && end.getTime() - start.getTime() < TWO_MONTHS_MS ? "day" : "month"
 ---
 
 <Timeline>
@@ -38,6 +44,7 @@ const displayed = typeof limit === "number" ? sorted.slice(0, limit) : sorted
           toDate={entry.data.endDate}
           locale={isEnglish ? "en-US" : "ja-JP"}
           presentLabel={isEnglish ? "Present" : "現在"}
+          precision={datePrecision(entry.data.startDate, entry.data.endDate)}
         />
       </TimelineDate>
       <p class="experience-title">

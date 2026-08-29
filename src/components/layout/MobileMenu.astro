@@ -5,13 +5,20 @@ import Dropdown from "@/components/base/Dropdown.astro"
 import Icon from "@/components/base/Icon.astro"
 
 import ThemeOptions from "./ThemeOptions.astro"
-import { localizedPath, navLabel, type SiteLocale } from "@/lib/i18n"
+import {
+  DEFAULT_LOCALE,
+  localizedPath,
+  navLabel,
+  type SiteLocale,
+} from "@/lib/i18n"
+import { getUIStrings } from "@/lib/ui-strings"
 
 interface Props {
   locale?: SiteLocale
 }
 
-const { locale = "ja" } = Astro.props
+const { locale = DEFAULT_LOCALE } = Astro.props
+const ui = getUIStrings(locale)
 ---
 
 <Dropdown align="end" class="mobile-menu-content">
@@ -20,11 +27,11 @@ const { locale = "ja" } = Astro.props
     variant="ghost"
     size="square"
     class="mobile-menu-trigger"
-    title="Menu"
+    title={ui.menu}
     data-dropdown-trigger
   >
     <Icon name="menu" size="1.5rem" />
-    <span class="sr-only">Toggle menu</span>
+    <span class="sr-only">{ui.toggleMenu}</span>
   </Button>
 
   <div>

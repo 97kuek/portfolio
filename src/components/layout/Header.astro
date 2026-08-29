@@ -13,12 +13,14 @@ import {
   localizedPath,
   navLabel,
 } from "@/lib/i18n"
+import { getUIStrings } from "@/lib/ui-strings"
 
 const headerLinks = getProfileLinkPlacement("header")
 const hasHeaderLinks = headerLinks.length > 0
 const locale = getSiteLocale(Astro.url.pathname)
 const homeHref = localizedPath("/", locale)
 const languageHref = alternateLanguagePath(Astro.url.pathname)
+const ui = getUIStrings(locale)
 ---
 
 <header class="site-header">
@@ -45,7 +47,7 @@ const languageHref = alternateLanguagePath(Astro.url.pathname)
       )}
   </div>
   <div class="site-actions">
-    <nav class="desktop-nav" aria-label="Site navigation">
+    <nav class="desktop-nav" aria-label={ui.siteNav}>
       {NAV_LINKS.map((item) => {
         const isActive =
           Astro.url.pathname === localizedPath(item.href, locale) ||

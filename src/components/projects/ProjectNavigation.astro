@@ -1,5 +1,6 @@
 ---
 import { getContentHref } from "@/lib/content-locale"
+import { getUIStrings } from "@/lib/ui-strings"
 import type { Project } from "@/lib/projects"
 import Button from "@/components/base/Button.astro"
 import Icon from "@/components/base/Icon.astro"
@@ -9,6 +10,7 @@ interface Props {
   next?: Project | null
 }
 
+const ui = getUIStrings(Astro.url.pathname)
 const { prev, next } = Astro.props
 ---
 
@@ -23,9 +25,9 @@ const { prev, next } = Astro.props
         ><Icon name="arrow-left" /></project-navigation-icon
       >
       <project-navigation-label>
-        <span>Previous Project</span>
+        <span>{ui.previousProject}</span>
         <strong>
-          {prev?.data.title || "You're at the first project!"}
+          {prev?.data.title || ui.firstProject}
         </strong>
       </project-navigation-label>
     </project-navigation-content>
@@ -38,9 +40,9 @@ const { prev, next } = Astro.props
   >
     <project-navigation-content data-direction="next">
       <project-navigation-label>
-        <span>Next Project</span>
+        <span>{ui.nextProject}</span>
         <strong>
-          {next?.data.title || "You're at the last project!"}
+          {next?.data.title || ui.lastProject}
         </strong>
       </project-navigation-label>
       <project-navigation-icon

@@ -21,6 +21,11 @@ interface Props {
   presentLabel?: string
   /** Screen-reader wording for the separator between the two endpoints */
   toLabel?: string
+  /**
+   * Ranges read as "Jan – Mar 2024" by default. Pass "day" for spans short
+   * enough that the month alone would hide when they actually happened.
+   */
+  precision?: "month" | "day"
 }
 
 const {
@@ -31,12 +36,18 @@ const {
   locale,
   presentLabel = "Present",
   toLabel,
+  precision = "month",
 } = Astro.props
 
 // The dash is decorative; screen readers get a word, in the page's language.
 const separatorLabel = toLabel ?? (locale?.startsWith("ja") ? "から" : "to")
 
-const segments = formatDateRange(fromDate, toDate, undefined, locale)
+const segments = formatDateRange(
+  fromDate,
+  toDate,
+  precision === "day" ? { day: "numeric" } : undefined,
+  locale,
+)
 if (!segments) return null
 
 // Only a start date means the range is still running.
@@ -60,7 +71,10 @@ const isOngoing = Boolean(fromDate && !toDate)
   {isOngoing && (
       <>
         <span aria-hidden="true">
-          {getDateRangeSeparator(undefined, locale).trimStart()}
+          {getDateRangeSeparator(
+            precision === "day" ? { day: "numeric" } : undefined,
+            locale,
+          ).trimStart()}
         </span>
         <span class="sr-only"> {separatorLabel} </span>
         <span>{presentLabel}</span>

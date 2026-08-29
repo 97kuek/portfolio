@@ -7,6 +7,7 @@ import Link from "@/components/base/Link.astro"
 import ReadingTime from "@/components/base/ReadingTime.astro"
 import AuthorAvatar from "@/components/people/AuthorAvatar.astro"
 import { getSiteLocale, localizedPath } from "@/lib/i18n"
+import { getUIStrings } from "@/lib/ui-strings"
 
 interface Props extends PostMeta {
   variant?: "card" | "full"
@@ -28,7 +29,9 @@ const isCard = variant === "card"
 
 // This site has no per-person pages: every post is written by its owner, so the
 // byline points at the profile that opens the home page.
-const authorHref = `${localizedPath("/", getSiteLocale(Astro.url.pathname))}#profile`
+const locale = getSiteLocale(Astro.url.pathname)
+const ui = getUIStrings(locale)
+const authorHref = `${localizedPath("/", locale)}#profile`
 ---
 
 <div
@@ -57,13 +60,13 @@ const authorHref = `${localizedPath("/", getSiteLocale(Astro.url.pathname))}#pro
     )}
 
   <post-meta-item>
-    <Icon name="publish" title="Published" />
+    <Icon name="publish" title={ui.published} />
     <FormattedDate date={createdAt} />
   </post-meta-item>
 
   {updatedAt && (
       <post-meta-item>
-        <Icon name="edit" title="Updated" />
+        <Icon name="edit" title={ui.updated} />
         <FormattedDate date={updatedAt} />
       </post-meta-item>
     )}

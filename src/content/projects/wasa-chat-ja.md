@@ -2,6 +2,7 @@
 lang: "ja"
 routeSlug: "wasa-chat"
 title: "WASA Chat"
+image: "../../assets/photos/wasa-test-flight.jpg"
 description: "部内Wikiと公開資料を横断して質問できる、出典付きのRAGチャットボット。Cloudflare PagesとCloud Runで運用しています。"
 fromDate: "2026-08"
 code: "https://github.com/97kuek/wasa-chat"

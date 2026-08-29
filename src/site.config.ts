@@ -54,17 +54,18 @@ export const SITE: SiteConfig = {
 export const PROFILE: ProfileConfig = {
   name: SITE.title,
   othernames: "植木 敬太郎",
-  tagline: "AI Engineer / Waseda University, CCE B3",
+  tagline: "AI Engineer / Waseda University, Comm B3",
   taglineJa: "早稲田大学 情報通信学科 B3 / AIエンジニア",
   email: "ueki.keitaro@gmail.com",
   links: {
     github: "https://github.com/97kuek",
+    instagram: "https://www.instagram.com/97kuek_/",
   },
   highlightLinks: ["github"],
   linksPlacement: {
-    header: ["github", "email"],
-    about: ["github", "email"],
-    footer: ["github", "email"],
+    header: ["github", "instagram", "email"],
+    about: ["github", "instagram", "email"],
+    footer: ["github", "instagram", "email"],
   },
 }
 

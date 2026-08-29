@@ -27,6 +27,15 @@ pnpm build
 The static Astro build is deployed to Cloudflare Pages at
 <https://97kuek.pages.dev/>.
 
+```bash
+pnpm build
+wrangler pages deploy dist --project-name 97kuek --branch main
+```
+
+Comments and reactions run as Pages Functions on a D1 database. See
+[DEVELOPMENT.md](DEVELOPMENT.md) for the schema, the salt secret, and the
+bilingual content convention.
+
 ## Credits
 
 Built from the Apache-2.0 licensed

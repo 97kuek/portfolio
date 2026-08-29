@@ -1,6 +1,7 @@
 ---
 import Icon from "@/components/base/Icon.astro"
 import { getSiteLocale, localizedPath } from "@/lib/i18n"
+import { getUIStrings } from "@/lib/ui-strings"
 
 export interface BreadcrumbItem {
   href?: string
@@ -15,6 +16,7 @@ interface Props {
 
 const { items, class: className } = Astro.props
 const locale = getSiteLocale(Astro.url.pathname)
+const ui = getUIStrings(locale)
 
 // Add current page indicator to last item
 const breadcrumbItems = items.map((item, index) => ({
@@ -26,17 +28,17 @@ const linkClasses = "breadcrumb-link stretched-link"
 const currentClasses = "breadcrumb-current"
 ---
 
-<nav aria-label="Breadcrumb navigation" class={className}>
+<nav aria-label={ui.breadcrumbNav} class={className}>
   <ol class="breadcrumb-list">
     <li class="breadcrumb-item">
       <a
         href={localizedPath("/", locale)}
         class={linkClasses}
-        aria-label="Navigate to home page"
-        title="Go to home page"
+        aria-label={ui.navigateHome}
+        title={ui.goHome}
       >
         <Icon name="home" size="1.25rem" aria-hidden="true" />
-        <span class="sr-only">Home</span>
+        <span class="sr-only">{ui.home}</span>
       </a>
     </li>
 

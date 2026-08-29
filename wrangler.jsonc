@@ -1,5 +1,12 @@
 {
   "name": "97kuek",
   "compatibility_date": "2026-07-25",
-  "pages_build_output_dir": "./dist"
+  "pages_build_output_dir": "./dist",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "portfolio-interactions",
+      "database_id": "f36ab9c0-35ff-406e-9945-6cd2c0b2a59e"
+    }
+  ]
 }

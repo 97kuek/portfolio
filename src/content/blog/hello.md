@@ -6,6 +6,7 @@ tags:
   - "intro"
 authors:
   - "keitaro"
+image: "../../assets/photos/wasa-night.jpg"
 stage: "seedling"
 ---
 
@@ -29,6 +30,8 @@ internship.
 Most of my time right now goes to [WASA Chat](/projects/wasa-chat), a chatbot that answers
 natural-language questions across the handover wiki and public documents of WASA, Waseda's
 human-powered aircraft project.
+
+![A WASA human-powered aircraft during a test flight, with the crew running alongside](../../assets/photos/wasa-test-flight.jpg)
 
 What makes it interesting is that the hard part is not producing clever answers — it's not producing
 wrong ones. People read the handover documents and then build an aircraft based on what they read, so

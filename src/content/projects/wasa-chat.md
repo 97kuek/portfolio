@@ -1,5 +1,6 @@
 ---
 title: "WASA Chat"
+image: "../../assets/photos/wasa-test-flight.jpg"
 description: "A citation-backed RAG chatbot that answers questions across an internal wiki and public documents, running on Cloudflare Pages and Cloud Run."
 fromDate: "2026-08"
 code: "https://github.com/97kuek/wasa-chat"

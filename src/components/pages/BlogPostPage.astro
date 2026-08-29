@@ -1,17 +1,24 @@
 ---
+import { Image } from "astro:assets"
 import { render } from "astro:content"
 
 import Layout from "@/layouts/Layout.astro"
 import TaxonomyChip from "@/components/base/TaxonomyChip.astro"
 import Badge from "@/components/base/Badge.astro"
 import Icon from "@/components/base/Icon.astro"
+import Comments from "@/components/interactions/Comments.astro"
+import Reactions from "@/components/interactions/Reactions.astro"
 import PostMetadata from "@/components/blog/PostMetadata.astro"
 import PostNavigation from "@/components/blog/PostNavigation.astro"
 import ShareActions from "@/components/blog/ShareActions.astro"
 import { PostManager } from "@/lib/blog"
 import { getStageVariant } from "@/lib/blog/stage"
 import type { Post } from "@/lib/blog/types"
-import { getContentLocale, isContentInLocale } from "@/lib/content-locale"
+import {
+  getContentLocale,
+  getContentSlug,
+  isContentInLocale,
+} from "@/lib/content-locale"
 import { localizedPath } from "@/lib/i18n"
 
 interface Props {
@@ -28,6 +35,10 @@ const { Content } = await render(post)
 
 // Navigation stays inside one language: the sibling of a Japanese post is the
 // previous Japanese post, not whichever translation happens to sit next to it.
+// Reactions and comments follow the writing, not the translation, so both
+// language versions of a post share one thread.
+const interactionTarget = `blog:${getContentSlug(post.id, post.data)}`
+
 const localePosts = (await postManager.getMainPosts()).filter((entry) =>
   isContentInLocale(entry.data, locale),
 )
@@ -79,9 +90,22 @@ const olderPost =
         )}
     </header>
 
+    {post.data.image && (
+        <Image
+          src={post.data.image}
+          alt={post.data.title}
+          widths={[640, 960, 1280]}
+          sizes="(max-width: 48rem) 100vw, 48rem"
+          class="post-cover"
+          loading="eager"
+        />
+      )}
+
     <prose-content>
       <Content />
     </prose-content>
+
+    <Reactions target={interactionTarget} />
 
     <ShareActions
       title={post.data.title}
@@ -90,6 +114,8 @@ const olderPost =
       class="post-share"
     />
   </article>
+
+  <Comments target={interactionTarget} />
 
   <PostNavigation prevPost={olderPost} nextPost={newerPost} />
 </Layout>
@@ -119,6 +145,12 @@ const olderPost =
     flex-wrap: wrap;
     align-items: center;
     gap: var(--space-2xs);
+  }
+
+  :global(.post-cover) {
+    inline-size: 100%;
+    block-size: auto;
+    border-radius: var(--radius-lg);
   }
 
   :global(.post-share) {

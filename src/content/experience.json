@@ -13,6 +13,19 @@
     "descriptionEn": "Building products with machine learning and large language models."
   },
   {
+    "id": "jigjp-sabera-internship",
+    "category": "work",
+    "title": "サマーインターン SABERAコース",
+    "titleEn": "Summer Internship, SABERA Course",
+    "org": "株式会社jig.jp",
+    "orgEn": "jig.jp Inc.",
+    "orgUrl": "https://www.jig.jp/",
+    "startDate": "2026-08-17",
+    "endDate": "2026-08-29",
+    "description": "スマートグラス「SABERA」向けのアプリを、チーム開発で企画から実装まで担当しました。",
+    "descriptionEn": "Took an app for the SABERA smart glasses from concept to implementation as part of a team."
+  },
+  {
     "id": "waseda-cce-b3",
     "category": "education",
     "title": "学士課程 B3",

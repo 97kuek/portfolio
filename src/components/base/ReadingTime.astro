@@ -1,10 +1,12 @@
 ---
+import { getUIStrings } from "@/lib/ui-strings"
+
 interface Props {
   /** Primary word count to calculate reading time from */
   wordCount: number
   /** Optional combined word count (for posts with subposts) */
   combinedWordCount?: number | null
-  /** Custom suffix to append after time (default: "read") */
+  /** Custom suffix to append after time, overriding the localized wording */
   customSuffix?: string
   /** Separator between individual and combined reading times (default: " - ") */
   separator?: string
@@ -15,10 +17,12 @@ interface Props {
 const {
   wordCount,
   combinedWordCount,
-  customSuffix = "read",
+  customSuffix,
   separator = " - ",
   class: className,
 } = Astro.props
+
+const ui = getUIStrings(Astro.url.pathname)
 
 // Calculate reading time in minutes (220 words per minute)
 const calculateMinutes = (words: number) => Math.max(1, Math.round(words / 220))
@@ -26,7 +30,7 @@ const calculateMinutes = (words: number) => Math.max(1, Math.round(words / 220))
 const primaryMinutes = calculateMinutes(wordCount)
 const primaryText = customSuffix
   ? `${primaryMinutes} min ${customSuffix}`
-  : `${primaryMinutes} min`
+  : ui.readingTime(primaryMinutes)
 
 // Check if we should show combined time
 const shouldShowCombined =

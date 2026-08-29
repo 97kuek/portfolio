@@ -1,6 +1,7 @@
 ---
 import type { Post } from "@/lib/blog/types"
 import { getContentHref } from "@/lib/content-locale"
+import { getUIStrings } from "@/lib/ui-strings"
 import Button from "@/components/base/Button.astro"
 import Icon from "@/components/base/Icon.astro"
 
@@ -10,6 +11,7 @@ interface Props {
   parentPost?: Post | null
 }
 
+const ui = getUIStrings(Astro.url.pathname)
 const { prevPost, nextPost, parentPost } = Astro.props
 const isSubpost = !!parentPost
 ---
@@ -24,10 +26,10 @@ const isSubpost = !!parentPost
       <post-navigation-icon><Icon name="arrow-left" /></post-navigation-icon>
       <post-navigation-label>
         <span>
-          {isSubpost ? "Previous Subpost" : "Previous Post"}
+          {isSubpost ? "Previous Subpost" : ui.previousPost}
         </span>
         <strong>
-          {nextPost?.data.title || (isSubpost ? "No older subpost" : "You're at the oldest post!")}
+          {nextPost?.data.title || (isSubpost ? "No older subpost" : ui.oldestPost)}
         </strong>
       </post-navigation-label>
     </post-navigation-content>
@@ -59,10 +61,10 @@ const isSubpost = !!parentPost
     <post-navigation-content data-direction="next">
       <post-navigation-label>
         <span>
-          {isSubpost ? "Next Subpost" : "Next Post"}
+          {isSubpost ? "Next Subpost" : ui.nextPost}
         </span>
         <strong>
-          {prevPost?.data.title || (isSubpost ? "No newer subpost" : "You're at the newest post!")}
+          {prevPost?.data.title || (isSubpost ? "No newer subpost" : ui.newestPost)}
         </strong>
       </post-navigation-label>
       <post-navigation-icon><Icon name="arrow-right" /></post-navigation-icon>

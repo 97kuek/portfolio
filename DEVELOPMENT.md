@@ -37,6 +37,44 @@ plain CSS that is easy to inspect.
 - `src/styles/`: global CSS tokens and shared styling.
 - `src/content/`: user-editable content.
 - `public/`: static assets served from `/`.
+- `functions/`: Cloudflare Pages Functions backing comments and reactions.
+- `migrations/`: SQL applied to the D1 database behind those endpoints.
+
+## Bilingual content
+
+English is the default language and owns the unprefixed routes; Japanese lives
+under `/ja`. Collections keep one file per language:
+
+- The English entry is the plain filename (`hello.md`) and needs no extra
+  frontmatter.
+- Its Japanese pair is `hello-ja.md` with `lang: "ja"` and
+  `routeSlug: "hello"`. The two share a URL slug and, with it, one comment
+  thread and one set of reaction counts.
+
+The suffix cannot be `.en`/`.ja` before the extension: the glob loader strips
+punctuation when it derives entry ids, and a frontmatter key named `slug` is
+read as an id override, which silently collapses translations into one entry.
+
+## Comments and reactions
+
+Both are served by Pages Functions in `functions/api/`, backed by a D1 database
+(`portfolio-interactions`, bound as `DB` in `wrangler.jsonc`). Visitors are
+anonymous; a salted hash of address and user agent limits one reaction per kind
+per visitor and caps comments at five per hour. That salt is a Pages secret:
+
+```bash
+wrangler pages secret put INTERACTION_SALT --project-name 97kuek
+```
+
+Schema changes go in `migrations/` and are applied with:
+
+```bash
+wrangler d1 execute portfolio-interactions --remote --file=migrations/<file>.sql
+```
+
+To hide a comment without deleting it, set `visible = 0` on its row. The
+endpoints only run on Pages, so during `pnpm dev` the widgets render and report
+that they could not load.
 
 ## Commands
 

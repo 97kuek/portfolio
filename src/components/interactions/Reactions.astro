@@ -1,0 +1,170 @@
+---
+import { getUIStrings } from "@/lib/ui-strings"
+
+interface Props {
+  /** `blog:hello`, `projects:wasa-chat` — shared by every translation. */
+  target: string
+}
+
+const { target } = Astro.props
+const ui = getUIStrings(Astro.url.pathname)
+
+/* Kinds are duplicated in functions/api/_lib.ts, which validates them. Keeping
+   the emoji out of the database means the set can be restyled or renamed here
+   without a migration. */
+const REACTIONS = [
+  { kind: "like", emoji: "👍", label: ui.reactionLike },
+  { kind: "love", emoji: "❤️", label: ui.reactionLove },
+  { kind: "insight", emoji: "💡", label: ui.reactionInsight },
+  { kind: "celebrate", emoji: "🎉", label: ui.reactionCelebrate },
+]
+---
+
+<post-reactions data-target={target} class="reactions">
+  <h2 class="sr-only">{ui.reactions}</h2>
+  <ul class="reaction-list">
+    {REACTIONS.map(({ kind, emoji, label }) => (
+      <li>
+        <button
+          type="button"
+          class="reaction"
+          data-kind={kind}
+          aria-pressed="false"
+          title={label}
+        >
+          <span class="reaction-emoji" aria-hidden="true">{emoji}</span>
+          <span class="sr-only">{label}</span>
+          <span class="reaction-count" data-count>0</span>
+        </button>
+      </li>
+    ))}
+  </ul>
+</post-reactions>
+
+<style>
+  .reactions {
+    display: block;
+  }
+
+  .reaction-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .reaction {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3xs);
+    min-block-size: var(--control-size-compact);
+    padding-inline: var(--space-2xs);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    background: var(--background);
+    color: var(--muted-foreground);
+    font-size: var(--step--1);
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    transition:
+      background-color var(--motion-duration-fast) var(--motion-ease),
+      border-color var(--motion-duration-fast) var(--motion-ease),
+      color var(--motion-duration-fast) var(--motion-ease);
+  }
+
+  .reaction:is(:hover, :focus-visible) {
+    border-color: var(--accent);
+    color: var(--foreground);
+  }
+
+  .reaction[aria-pressed="true"] {
+    border-color: var(--accent);
+    background: color-mix(in oklab, var(--accent) 12%, transparent);
+    color: var(--foreground);
+  }
+
+  .reaction[disabled] {
+    cursor: progress;
+    opacity: 0.6;
+  }
+
+  .reaction-emoji {
+    font-size: var(--step-0);
+    line-height: 1;
+  }
+</style>
+
+<script>
+  interface ReactionState {
+    counts: Record<string, number>
+    mine: string[]
+  }
+
+  class PostReactions extends HTMLElement {
+    private target = ""
+    private buttons: HTMLButtonElement[] = []
+
+    connectedCallback() {
+      this.target = this.dataset.target ?? ""
+      this.buttons = [...this.querySelectorAll<HTMLButtonElement>(".reaction")]
+      if (!this.target || this.buttons.length === 0) return
+
+      for (const button of this.buttons) {
+        button.addEventListener("click", () => this.toggle(button))
+      }
+      void this.load()
+    }
+
+    private render(state: ReactionState) {
+      for (const button of this.buttons) {
+        const kind = button.dataset.kind ?? ""
+        const count = state.counts[kind] ?? 0
+        const countEl = button.querySelector<HTMLElement>("[data-count]")
+        if (countEl) countEl.textContent = String(count)
+        button.setAttribute(
+          "aria-pressed",
+          state.mine.includes(kind) ? "true" : "false",
+        )
+      }
+    }
+
+    private async load() {
+      try {
+        const response = await fetch(
+          `/api/reactions?target=${encodeURIComponent(this.target)}`,
+        )
+        if (!response.ok) return
+        this.render((await response.json()) as ReactionState)
+      } catch {
+        /* Counts stay at zero; the buttons still work once the API returns. */
+      }
+    }
+
+    private async toggle(button: HTMLButtonElement) {
+      const kind = button.dataset.kind
+      if (!kind) return
+
+      for (const other of this.buttons) other.disabled = true
+      try {
+        const response = await fetch("/api/reactions", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ target: this.target, kind }),
+        })
+        if (response.ok) {
+          this.render((await response.json()) as ReactionState)
+        }
+      } catch {
+        /* Leave the previous tally in place rather than inventing one. */
+      } finally {
+        for (const other of this.buttons) other.disabled = false
+      }
+    }
+  }
+
+  if (!customElements.get("post-reactions")) {
+    customElements.define("post-reactions", PostReactions)
+  }
+</script>

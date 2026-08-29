@@ -4,6 +4,9 @@ import Dropdown from "@/components/base/Dropdown.astro"
 import Icon from "@/components/base/Icon.astro"
 
 import ThemeOptions from "./ThemeOptions.astro"
+import { getUIStrings } from "@/lib/ui-strings"
+
+const ui = getUIStrings(Astro.url.pathname)
 ---
 
 <Dropdown align="end" id="theme-dropdown">
@@ -11,7 +14,7 @@ import ThemeOptions from "./ThemeOptions.astro"
     slot="trigger"
     variant="ghost"
     size="square"
-    title="Theme"
+    title={ui.theme}
     data-dropdown-trigger
   >
     <div class="theme-icon-stack" aria-hidden="true">

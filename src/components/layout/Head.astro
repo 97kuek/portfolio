@@ -30,9 +30,13 @@ const {
   section,
 } = Astro.props
 const locale = getSiteLocale(Astro.url.pathname)
-const localizedSiteTitle = locale === "en" ? "Keitaro Ueki" : SITE.title
+const japaneseName = Array.isArray(PROFILE.othernames)
+  ? PROFILE.othernames[0]
+  : PROFILE.othernames
+const localizedSiteTitle =
+  locale === "en" ? SITE.title : japaneseName || SITE.title
 const localizedTagline =
-  locale === "en" ? "AI Engineer / Waseda University, CCE B3" : PROFILE.tagline
+  locale === "en" ? PROFILE.tagline : PROFILE.taglineJa || PROFILE.tagline
 
 // SEO title optimization
 const fullTitle = title

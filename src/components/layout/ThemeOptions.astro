@@ -1,18 +1,21 @@
 ---
 import Icon from "@/components/base/Icon.astro"
+import { getUIStrings } from "@/lib/ui-strings"
+
+const ui = getUIStrings(Astro.url.pathname)
 ---
 
 <button data-dropdown-item data-theme-value="light">
   <Icon name="mingcute:sun-line" size="1.25rem" />
-  Light
+  {ui.themeLight}
 </button>
 <button data-dropdown-item data-theme-value="dark">
   <Icon name="mingcute:moon-line" size="1.25rem" />
-  Dark
+  {ui.themeDark}
 </button>
 <button data-dropdown-item data-theme-value="auto">
   <Icon name="monitor" size="1.25rem" />
-  Auto
+  {ui.themeAuto}
 </button>
 
 <style>

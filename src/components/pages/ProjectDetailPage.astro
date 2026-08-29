@@ -1,12 +1,19 @@
 ---
+import { Image } from "astro:assets"
 import { render } from "astro:content"
 
 import CommonLayout from "@/layouts/CommonLayout.astro"
 import Icon from "@/components/base/Icon.astro"
 import Link from "@/components/base/Link.astro"
+import Comments from "@/components/interactions/Comments.astro"
+import Reactions from "@/components/interactions/Reactions.astro"
 import DateRange from "@/components/projects/DateRange.astro"
 import ProjectNavigation from "@/components/projects/ProjectNavigation.astro"
-import { getContentLocale, isContentInLocale } from "@/lib/content-locale"
+import {
+  getContentLocale,
+  getContentSlug,
+  isContentInLocale,
+} from "@/lib/content-locale"
 import { localizedPath } from "@/lib/i18n"
 import {
   getProjectLinks,
@@ -20,7 +27,8 @@ interface Props {
 }
 
 const { project } = Astro.props
-const { title, description, fromDate, toDate, types, skills } = project.data
+const { title, description, image, fromDate, toDate, types, skills } =
+  project.data
 
 const locale = getContentLocale(project.data)
 const isEnglish = locale === "en"
@@ -33,6 +41,8 @@ const links = getProjectLinks(
   project.data.url,
   project.data.release,
 )
+const interactionTarget = `projects:${getContentSlug(project.id, project.data)}`
+
 const { prev, next } = await getProjectNavigation(project.id, (candidate) =>
   isContentInLocale(candidate.data, locale),
 )
@@ -43,6 +53,7 @@ const { prev, next } = await getProjectNavigation(project.id, (candidate) =>
   description={description}
   prose={false}
   type="article"
+  image={image?.src}
   breadcrumbs={[
     {
       label: isEnglish ? "Projects" : "プロジェクト",
@@ -52,6 +63,17 @@ const { prev, next } = await getProjectNavigation(project.id, (candidate) =>
     { label: title },
   ]}
 >
+  {image && (
+      <Image
+        src={image}
+        alt={title}
+        widths={[640, 960, 1280]}
+        sizes="(max-width: 48rem) 100vw, 48rem"
+        class="project-hero"
+        loading="eager"
+      />
+    )}
+
   <section class="project-meta">
     <DateRange
       fromDate={fromDate}
@@ -90,10 +112,20 @@ const { prev, next } = await getProjectNavigation(project.id, (candidate) =>
       </section>
     )}
 
+  <Reactions target={interactionTarget} />
+
+  <Comments target={interactionTarget} />
+
   <ProjectNavigation prev={prev} next={next} />
 </CommonLayout>
 
 <style>
+  :global(.project-hero) {
+    inline-size: 100%;
+    block-size: auto;
+    border-radius: var(--radius-lg);
+  }
+
   .project-meta {
     display: flex;
     flex-wrap: wrap;

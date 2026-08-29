@@ -3,6 +3,7 @@ import { Image } from "astro:assets"
 
 import { getStageVariant } from "@/lib/blog/stage"
 import { getContentHref } from "@/lib/content-locale"
+import { getUIStrings } from "@/lib/ui-strings"
 import type { PostMeta } from "@/lib/blog/types"
 import Badge from "@/components/base/Badge.astro"
 import Icon from "@/components/base/Icon.astro"
@@ -20,13 +21,14 @@ interface Props {
 }
 
 const { metadata } = Astro.props
+const ui = getUIStrings(Astro.url.pathname)
 const tags = metadata.tags
 const hasBadges = metadata.stage || (tags && tags.length > 0)
 ---
 
 <Card
   href={getContentHref("blog", metadata.id, metadata)}
-  label={`Post: ${metadata.title}`}
+  label={ui.postLabel(metadata.title)}
   class="preview-card"
   data-has-image={metadata.image ? "true" : "false"}
 >

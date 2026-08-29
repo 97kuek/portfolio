@@ -87,31 +87,34 @@ const people = defineCollection({
 
 const projects = defineCollection({
   loader: glob({ base: "./src/content/projects", pattern: "**/!(*README).md" }),
-  schema: z
-    .object({
-      ...localeFields,
-      title: z.string().max(75),
-      selected: z.boolean().default(false),
-      fromDate: yearMonthDateSchema.optional(),
-      toDate: yearMonthDateSchema.optional(),
-      code: z.url().optional(),
-      doc: z.url().optional(),
-      paper: z.url().optional(),
-      url: z.url().optional(),
-      release: z.url().optional(),
-      types: z.array(ProjectTypeSchema).default([]),
-      skills: z
-        .array(z.string().trim().min(1))
-        .default([])
-        .transform((arr) => dedupPreserveCase(arr)),
-      description: z.string().max(200).optional(),
-    })
-    .refine(
-      (data) => !data.fromDate || !data.toDate || data.toDate >= data.fromDate,
-      {
-        error: "End date must be on or after start date",
-      },
-    ),
+  schema: ({ image }) =>
+    z
+      .object({
+        ...localeFields,
+        title: z.string().max(75),
+        image: image().optional(),
+        selected: z.boolean().default(false),
+        fromDate: yearMonthDateSchema.optional(),
+        toDate: yearMonthDateSchema.optional(),
+        code: z.url().optional(),
+        doc: z.url().optional(),
+        paper: z.url().optional(),
+        url: z.url().optional(),
+        release: z.url().optional(),
+        types: z.array(ProjectTypeSchema).default([]),
+        skills: z
+          .array(z.string().trim().min(1))
+          .default([])
+          .transform((arr) => dedupPreserveCase(arr)),
+        description: z.string().max(200).optional(),
+      })
+      .refine(
+        (data) =>
+          !data.fromDate || !data.toDate || data.toDate >= data.fromDate,
+        {
+          error: "End date must be on or after start date",
+        },
+      ),
 })
 
 const updates = defineCollection({
