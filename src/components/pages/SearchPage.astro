@@ -23,6 +23,7 @@ const ui = getUIStrings(locale)
     data-locale={getLocaleTag(locale)}
     data-empty={ui.searchEmpty}
     data-error={ui.searchUnavailable}
+    data-searching={ui.searching}
     data-result-count={ui.searchResultCount}
     class="search"
   >
@@ -219,6 +220,10 @@ const ui = getUIStrings(locale)
         this.setStatus("")
         return
       }
+
+      /* The index is a wasm download on the first query, which is long enough
+         to look broken without a word. */
+      this.setStatus(this.dataset.searching ?? "")
 
       const pagefind = await this.load()
       if (!pagefind) {
