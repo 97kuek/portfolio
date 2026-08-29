@@ -1,8 +1,8 @@
 ---
-import { Image } from "astro:assets"
 import { render } from "astro:content"
 
 import CommonLayout from "@/layouts/CommonLayout.astro"
+import CoverImage from "@/components/base/CoverImage.astro"
 import Icon from "@/components/base/Icon.astro"
 import Link from "@/components/base/Link.astro"
 import Comments from "@/components/interactions/Comments.astro"
@@ -63,30 +63,21 @@ const { prev, next } = await getProjectNavigation(project.id, (candidate) =>
     { label: title },
   ]}
 >
-  {image && (
-      <Image
-        src={image}
-        alt={title}
-        widths={[640, 960, 1280]}
-        sizes="(max-width: 48rem) 100vw, 48rem"
-        class="project-hero"
-        loading="eager"
-      />
-    )}
-
   <section class="project-meta">
-    <DateRange
-      fromDate={fromDate}
-      toDate={toDate}
-      locale={isEnglish ? "en-US" : "ja-JP"}
-      presentLabel={isEnglish ? "Present" : "現在"}
-      showIcon
-    />
-    {types.length > 0 && (
-        <p class="project-types">
-          {types.map((type) => getProjectTypeLabel(type)).join(" · ")}
-        </p>
-      )}
+    <p class="project-facts">
+      <DateRange
+        fromDate={fromDate}
+        toDate={toDate}
+        locale={isEnglish ? "en-US" : "ja-JP"}
+        presentLabel={isEnglish ? "Present" : "現在"}
+        showIcon
+      />
+      {types.length > 0 && (
+          <span class="project-types">
+            {types.map((type) => getProjectTypeLabel(type)).join(" · ")}
+          </span>
+        )}
+    </p>
     {links.length > 0 && (
         <ul class="project-links">
           {links.map(({ href, icon, label }) => (
@@ -100,6 +91,16 @@ const { prev, next } = await getProjectNavigation(project.id, (candidate) =>
         </ul>
       )}
   </section>
+
+  <div class="project-hero">
+    <CoverImage
+      image={image}
+      seed={getContentSlug(project.id, project.data)}
+      widths={[640, 960, 1280]}
+      sizes="(max-width: 48rem) 100vw, 48rem"
+      loading="eager"
+    />
+  </div>
 
   <prose-content>
     <Content />
@@ -120,31 +121,41 @@ const { prev, next } = await getProjectNavigation(project.id, (candidate) =>
 </CommonLayout>
 
 <style>
-  :global(.project-hero) {
+  .project-hero {
     inline-size: 100%;
-    block-size: auto;
+    aspect-ratio: 16 / 9;
     border-radius: var(--radius-lg);
+    overflow: clip;
   }
 
+  /* The facts sit on their own line and the links on the next, so a project
+     with five links never pushes the dates out of view on a narrow screen. */
   .project-meta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-2xs) var(--space-s);
-    padding-block-end: var(--space-s);
-    border-block-end: 1px solid var(--border);
+    display: grid;
+    gap: var(--space-2xs);
+    padding-block-start: var(--space-2xs);
+    border-block-start: 1px solid var(--border);
     color: var(--muted-foreground);
     font-size: var(--step--1);
   }
 
-  .project-types {
+  .project-facts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2xs) var(--space-s);
     margin: 0;
+  }
+
+  .project-types {
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
   }
 
   .project-links {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-2xs) var(--space-s);
+    gap: var(--space-2xs);
     margin: 0;
     padding: 0;
     list-style: none;
@@ -154,6 +165,16 @@ const { prev, next } = await getProjectNavigation(project.id, (candidate) =>
     display: inline-flex;
     align-items: center;
     gap: var(--space-3xs);
+    min-block-size: var(--control-size-compact);
+    padding-inline: var(--space-2xs);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    color: var(--muted-foreground);
+  }
+
+  :global(.project-link:is(:hover, :focus-visible)) {
+    border-color: var(--accent);
+    color: var(--foreground);
   }
 
   .project-skills h2 {

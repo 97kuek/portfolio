@@ -16,7 +16,10 @@ export function headingAnchors() {
             : slugger.slug(ctx.textContent(node))
         if (!id) return
         if (existing !== id) ctx.setProperty(node, "id", id)
-        ctx.appendChild(
+        // Prepended, not appended: the link reads and renders before the
+        // heading text, and CSS lifts it into the gutter so the text itself
+        // stays flush with the prose.
+        ctx.prependChild(
           node,
           h("a", {
             dataHeadingAnchor: "",

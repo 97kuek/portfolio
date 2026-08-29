@@ -1,7 +1,8 @@
 ---
 import type { CollectionEntry } from "astro:content"
 
-import { getContentHref } from "@/lib/content-locale"
+import CoverImage from "@/components/base/CoverImage.astro"
+import { getContentHref, getContentSlug } from "@/lib/content-locale"
 import { getUIStrings } from "@/lib/ui-strings"
 import { getProjectLinks } from "@/lib/projects"
 import { slugify } from "@/lib/string-manipulation"
@@ -13,7 +14,8 @@ interface Props {
 }
 
 const { project } = Astro.props
-const { title, selected, code, doc, paper, url, release, skills } = project.data
+const { title, selected, image, code, doc, paper, url, release, skills } =
+  project.data
 
 const ui = getUIStrings(Astro.url.pathname)
 const links = getProjectLinks(code, doc, paper, url, release)
@@ -31,18 +33,27 @@ const titleHref = hasDetailPage
   class:list={["project-row", { "is-highlighted": selected }]}
   data-project-skills={skills.map((skill) => slugify(skill)).join(",")}
 >
-  <div class="project-row-head">
-    <h3 class="project-row-title">
-      {selected && <span class="sr-only">{ui.featuredProject}</span>}
-      {titleHref ? (
+  <div class="project-row-thumb">
+    <CoverImage
+      image={image}
+      seed={getContentSlug(project.id, project.data)}
+      sizes="(max-width: 40rem) 100vw, 12rem"
+    />
+  </div>
+
+  <div class="project-row-body">
+    <div class="project-row-head">
+      <h3 class="project-row-title">
+        {selected && <span class="sr-only">{ui.featuredProject}</span>}
+        {titleHref ? (
           <Link href={titleHref} underline>
             {title}
           </Link>
         ) : (
           title
         )}
-    </h3>
-    {links.length > 0 && (
+      </h3>
+      {links.length > 0 && (
         <ul class="project-row-links">
           {links.map(({ href, icon, label }) => (
             <li>
@@ -54,21 +65,55 @@ const titleHref = hasDetailPage
           ))}
         </ul>
       )}
-  </div>
+    </div>
 
-  {project.data.description && (
+    {project.data.description && (
       <p class="project-row-description">{project.data.description}</p>
     )}
 
-  {skills.length > 0 && <p class="project-row-skills">{skills.join(" · ")}</p>}
+    {skills.length > 0 && <p class="project-row-skills">{skills.join(" · ")}</p>}
+  </div>
 </article>
 
 <style>
   .project-row {
     display: flex;
     flex-direction: column;
-    gap: var(--space-3xs);
+    gap: var(--space-2xs);
     padding-block: var(--space-2xs);
+  }
+
+  .project-row-body {
+    display: flex;
+    min-inline-size: 0;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--space-3xs);
+  }
+
+  /* A fixed ratio keeps every row's thumbnail the same shape, so the titles
+     below them stay on one grid however the source photos are cropped. */
+  .project-row-thumb {
+    inline-size: 100%;
+    aspect-ratio: 16 / 10;
+    flex-shrink: 0;
+    border-radius: var(--radius-lg);
+    overflow: clip;
+    outline: 1px solid light-dark(oklch(0 0 0 / 10%), oklch(1 0 0 / 10%));
+    outline-offset: -1px;
+  }
+
+  @media (width >= 40rem) {
+    .project-row {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: var(--space-s);
+    }
+
+    .project-row-thumb {
+      inline-size: 12rem;
+      aspect-ratio: 16 / 11;
+    }
   }
 
   .project-row[hidden] {

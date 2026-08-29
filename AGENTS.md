@@ -1,89 +1,83 @@
-# My Scholar Agent Guide
+# AGENTS.md
 
-This repository is an Astro theme for academic portfolios and research blogs.
-Preserve its static-first, Markdown-first design and keep it reusable beyond the
-sample personal site.
+植木敬太郎の個人ポートフォリオ（Astro / Cloudflare Pages）で作業するエージェント向けの指針。
 
-## Installation
+- 公開URL: <https://97kuek.pages.dev/>
+- ベース: Apache-2.0 の [My Scholar](https://github.com/mychiffonn/myscholar) テンプレート
+- 静的出力を維持する。サーバーアダプタは、要求された機能が本当に必要とするときだけ追加する
 
-- Read `package.json`, `astro.config.ts`, and `docs/INSTALL.md` before changing
-  dependencies, scripts, adapters, or deployment behavior.
-- Use Node.js `>=22.12.0` and pnpm because the repository has a
-  `pnpm-lock.yaml`.
-- For a new site, follow Astro's
-  [starter-template instructions](https://docs.astro.build/en/install-and-setup/#use-a-theme-or-starter-template)
-  and run:
+## 全体像
+
+- Node.js `>=22.12.0` と pnpm を使う（`pnpm-lock.yaml` がある）
+- 主な編集対象
+  - `src/site.config.ts` — サイト情報・プロフィール・ナビ・フッター
+  - `src/content/` — 本文コンテンツ
+  - `src/content.config.ts` / `src/schemas.ts` — コレクションのスキーマ
+  - `src/components/` — ドメイン別のUI部品
+  - `src/lib/` — コンテンツ処理と機能ロジック
+  - `src/styles/` — グローバルトークンと共通スタイル
+  - `functions/` — コメント・リアクションのAPI（Cloudflare Pages Functions）
+  - `migrations/` — 上記APIが使うD1のスキーマ
+- 詳しい設計方針は `DEVELOPMENT.md`、カスタマイズは `docs/CUSTOMIZATION.md` を読む
+
+## 言語（英語がデフォルト）
+
+- 英語がプレフィックスなしのURL（`/`）を持ち、日本語は `/ja` 配下
+- コレクションは1言語1ファイル
+  - 英語版はそのままのファイル名（`hello.md`）。追加のfrontmatterは不要
+  - 日本語版は `hello-ja.md` に `lang: "ja"` と `routeSlug: "hello"` を書く
+  - `routeSlug` が同じもの同士がURLを共有し、コメント欄とリアクションも共有する
+- 拡張子の前に `.en` / `.ja` を置く形は使えない
+  - globローダーがid生成時に記号を落とす
+  - frontmatterの `slug` キーはid上書きとして解釈され、翻訳同士が黙って1件に潰れる
+- UI文言（本文ではないラベル）は `src/lib/ui-strings.ts` に言語別で持つ
+- ページ本文のコピーは、そのページのコンポーネント内で `isEnglish` で切り替える
+- 日本語ページに英語のラベルを残さない。逆も同じ
+
+## コンテンツ
+
+- ブログ記事は `src/content/blog/`、プロジェクトは `src/content/projects/`
+- MDXではなくMarkdownを使う。プロース内に対話的な部品が必要なときだけ例外
+- Sätteriパイプラインで使えるもの
+  - GFM、ディレクティブとcallout、Temmlによる数式、wikilink
+  - コードハイライト、見出しアンカー、外部リンク、サイドノート
+- 画像は `src/assets/photos/` に置き、frontmatterから相対パスで参照する
+  - コミット前に長辺2400px程度へ圧縮する
+  - `image` を省いた場合は `CoverImage.astro` が星空のプレースホルダーを生成する
+- 画像のalt属性は内容を説明するものにする。装飾目的なら空文字にする
+- 事実を勝手に作らない。所属・日付・肩書きは確認できたものだけ書く
+
+## コメントとリアクション
+
+- 実体は `functions/api/` のPages Functions + D1（`portfolio-interactions`、バインド名 `DB`）
+- 訪問者はログイン不要。識別子はIPとUAのソルト付きハッシュで、ブラウザには返さない
+  - リアクションは1種類につき1人1回（もう一度押すと取り消し）
+  - コメントは1時間5件まで
+- コメント本文は必ず `textContent` でDOMに入れる。`innerHTML` は使わない
+- スキーマ変更は `migrations/` に足して適用する
 
 ```bash
-pnpm create astro@latest --template mychiffonn/astro-scholar
+wrangler d1 execute portfolio-interactions --remote --file=migrations/<file>.sql
 ```
 
-- Prefer Astro's native commands and integrations over hand-written setup
-  instructions.
-- Keep the default output static. Add a server adapter only when a requested
-  feature requires on-demand rendering.
+- コメントを隠すときは該当行の `visible = 0` にする
+- `pnpm dev` ではAPIが動かない。ウィジェットは読み込み失敗を表示する（想定内）
 
-## Current Astro guidance
+## 実装の方針
 
-- Astro APIs and integrations change. Consult Astro's
-  [Build with AI guide](https://docs.astro.build/en/guides/build-with-ai/) and
-  current documentation before relying on model memory.
-- When MCP is available, connect the official Astro Docs server at
-  `https://mcp.docs.astro.build/mcp` so agents can retrieve current framework
-  documentation.
-- Before adding an integration, read Astro's
-  [integrations guide](https://docs.astro.build/en/guides/integrations/) and the
-  integration's own documentation.
-- Use `pnpm astro add <integration>` for supported integrations. The command
-  installs dependencies and updates `astro.config.ts`; some community
-  integrations still require manual configuration.
-- Do not add a framework integration or server adapter unless the requested
-  feature needs it.
+- クライアントJSやUIフレームワークより先に、Astro・セマンティックHTML・素のCSSを検討する
+- 色・タイポグラフィ・余白・シェイプ・モーション・カード・ボタンの既存プリミティブを再利用する
+- コンポーネントと関数は単一の目的に保つ
+- 作業ツリーにある未コミットの変更を壊さない。関係のない書き換えをしない
+- 秘密情報、デバッグ出力、コメントアウトしたコード、AIへの帰属表記を入れない
+- コミットのCo-Authored-Byや生成物へのClaudeの記載は禁止
 
-## Customization
+## 検証
 
-- Read `docs/CUSTOMIZATION.md`, `src/site.config.ts`, `src/content.config.ts`,
-  and the relevant schema before editing user-facing configuration or content.
-- Treat `src/site.config.ts`, `src/content/`, `src/assets/`, and `public/` as the
-  primary customization surfaces.
-- Preserve content collection validation and useful schema errors.
-- Reuse existing color, typography, spacing, shape, motion, card, button, and
-  disclosure primitives before introducing new styles.
-- Check both light and dark modes after visual changes.
-
-## Blog: Writing in Markdown
-
-- Blog entries live in `src/content/blog/`; a folder with `index.md` and child
-  posts creates a post/subpost series.
-- Use Markdown rather than MDX unless interactive components inside prose are
-  essential.
-- The configured Sätteri pipeline supports GFM, directives and callouts,
-  LaTeX-style math rendered by Temml, wikilinks, code highlighting, heading
-  anchors, external links, and sidenotes.
-- Keep demo content public, reusable, and free of private personal information.
-- Supply descriptive image alt text and valid author references.
-
-## Development and build
-
-- Read `DEVELOPMENT.md` and follow nearby component patterns.
-- Prefer native Astro, semantic HTML, and native CSS before adding client-side
-  JavaScript or a UI framework.
-- Keep functions and components single-purpose.
-- Preserve existing user changes in a dirty worktree and avoid unrelated
-  rewrites.
-- Do not add hardcoded secrets, debug output, commented-out code, or AI
-  attribution.
-
-## Formatting, linting, and validation
-
-- Biome is the formatter for Astro, JavaScript, TypeScript, CSS, JSON, and other
-  supported repository files.
-- oxlint is the JavaScript and TypeScript linter. It complements Biome; the
-  Biome linter is intentionally disabled.
-- `pnpm lint:styles` enforces the repository's small set of CSS architecture
-  invariants that neither formatter nor oxlint covers.
-- Format touched files, then run the narrowest relevant check. Before handoff,
-  run:
+- Biomeがフォーマッタ（Astro / JS / TS / CSS / JSON）
+- oxlintがリンタ。Biomeのリンタは意図的に無効
+- `pnpm lint:styles` はCSS構成の不変条件を見る（インラインstyle属性の禁止など）
+- 触ったファイルをフォーマットし、関係する最小のチェックを回す。引き渡し前に全部通す
 
 ```bash
 pnpm format:check
@@ -94,18 +88,17 @@ pnpm astro check
 pnpm build
 ```
 
-- For visual work, inspect the affected pages at desktop and mobile widths and
-  verify keyboard, hover, focus, light, and dark states as applicable.
+- 見た目を変えたときは、デスクトップ幅とモバイル幅の両方で確認する
+- ライト・ダーク双方を確認する。`light-dark()` を使うときは両方で意図した色になるか見る
+- リンク切れは、ビルド後の `dist/` のHTMLからhrefを集めて存在を確かめる
 
-## Publishing
+## デプロイ
 
-- Read the theme checklist in `DEVELOPMENT.md` before a release or Astro theme
-  directory submission.
-- Keep `package.json`, the README version badge, screenshots, and release post
-  aligned with the release version.
-- Run the complete validation suite and inspect the production build in both
-  color modes.
-- Do not commit generated output from `dist/`, `.astro/`, `.playwright-cli/`,
-  or `output/`.
-- Use one to four 1600×900 desktop previews for the Astro theme directory; do
-  not substitute tall full-page captures.
+```bash
+pnpm build
+wrangler pages deploy dist --project-name 97kuek --branch main
+```
+
+- `dist/`、`.astro/`、`output/` などの生成物はコミットしない
+- Cloudflareのプロジェクト名は `97kuek`。GitHubリポジトリは `97kuek/portfolio`
+- `upstream` リモートはテンプレート元。pushしない

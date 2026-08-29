@@ -1,8 +1,8 @@
 ---
-import { Image } from "astro:assets"
 import { render } from "astro:content"
 
 import Layout from "@/layouts/Layout.astro"
+import CoverImage from "@/components/base/CoverImage.astro"
 import TaxonomyChip from "@/components/base/TaxonomyChip.astro"
 import Badge from "@/components/base/Badge.astro"
 import Icon from "@/components/base/Icon.astro"
@@ -70,11 +70,6 @@ const olderPost =
 >
   <article>
     <header class="post-header">
-      <h1 id="post-title">{post.data.title}</h1>
-      {post.data.description && (
-          <p class="post-description">{post.data.description}</p>
-        )}
-      <PostMetadata {...metadata} variant="full" />
       {(post.data.stage || post.data.tags.length > 0) && (
           <div class="post-badges">
             {post.data.stage && (
@@ -88,18 +83,22 @@ const olderPost =
             ))}
           </div>
         )}
+      <h1 id="post-title">{post.data.title}</h1>
+      {post.data.description && (
+          <p class="post-description">{post.data.description}</p>
+        )}
+      <PostMetadata {...metadata} variant="full" class="post-meta" />
     </header>
 
-    {post.data.image && (
-        <Image
-          src={post.data.image}
-          alt={post.data.title}
-          widths={[640, 960, 1280]}
-          sizes="(max-width: 48rem) 100vw, 48rem"
-          class="post-cover"
-          loading="eager"
-        />
-      )}
+    <div class="post-cover">
+      <CoverImage
+        image={post.data.image}
+        seed={getContentSlug(post.id, post.data)}
+        widths={[640, 960, 1280]}
+        sizes="(max-width: 48rem) 100vw, 48rem"
+        loading="eager"
+      />
+    </div>
 
     <prose-content>
       <Content />
@@ -121,11 +120,16 @@ const olderPost =
 </Layout>
 
 <style>
+  article {
+    display: grid;
+    gap: var(--space-m);
+  }
+
+  /* Tags read as an eyebrow above the title, which leaves the byline as the
+     last line before the cover instead of a third band competing with it. */
   .post-header {
     display: grid;
-    gap: var(--space-2xs);
-    padding-block-end: var(--space-s);
-    border-block-end: 1px solid var(--border);
+    gap: var(--space-3xs);
   }
 
   .post-header h1 {
@@ -133,11 +137,20 @@ const olderPost =
     font-size: var(--step-2);
     font-weight: var(--font-weight-medium);
     line-height: calc(var(--leading-offset) + 1em);
+    text-wrap: balance;
   }
 
   .post-description {
     margin: 0;
+    max-inline-size: 68ch;
     color: var(--muted-foreground);
+    text-wrap: pretty;
+  }
+
+  :global(.post-meta) {
+    margin-block-start: var(--space-2xs);
+    padding-block-start: var(--space-2xs);
+    border-block-start: 1px solid var(--border);
   }
 
   .post-badges {
@@ -145,12 +158,14 @@ const olderPost =
     flex-wrap: wrap;
     align-items: center;
     gap: var(--space-2xs);
+    margin-block-end: var(--space-3xs);
   }
 
-  :global(.post-cover) {
+  .post-cover {
     inline-size: 100%;
-    block-size: auto;
+    aspect-ratio: 16 / 9;
     border-radius: var(--radius-lg);
+    overflow: clip;
   }
 
   :global(.post-share) {

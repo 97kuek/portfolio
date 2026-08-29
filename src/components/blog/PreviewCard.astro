@@ -1,14 +1,14 @@
 ---
-import { Image } from "astro:assets"
-
 import { getStageVariant } from "@/lib/blog/stage"
-import { getContentHref } from "@/lib/content-locale"
+import { getContentHref, getContentSlug } from "@/lib/content-locale"
 import { getUIStrings } from "@/lib/ui-strings"
 import type { PostMeta } from "@/lib/blog/types"
 import Badge from "@/components/base/Badge.astro"
+import CoverImage from "@/components/base/CoverImage.astro"
 import Icon from "@/components/base/Icon.astro"
 import TaxonomyChip from "@/components/base/TaxonomyChip.astro"
 import Card from "@/components/base/card/Card.astro"
+import CardMedia from "@/components/base/card/CardMedia.astro"
 import CardContent from "@/components/base/card/CardContent.astro"
 import CardDescription from "@/components/base/card/CardDescription.astro"
 import CardFooter from "@/components/base/card/CardFooter.astro"
@@ -30,19 +30,15 @@ const hasBadges = metadata.stage || (tags && tags.length > 0)
   href={getContentHref("blog", metadata.id, metadata)}
   label={ui.postLabel(metadata.title)}
   class="preview-card"
-  data-has-image={metadata.image ? "true" : "false"}
+  orientation="inline"
 >
-  {metadata.image && (
-      <Image
-        src={metadata.image}
-        alt={metadata.title}
-        width={1200}
-        height={630}
-        sizes="(max-width: 768px) 100vw, 60vw"
-        class="cover-image"
-        loading="lazy"
-      />
-    )}
+  <CardMedia class="preview-card-media">
+    <CoverImage
+      image={metadata.image}
+      seed={getContentSlug(metadata.id, metadata)}
+      sizes="(max-width: 40rem) 100vw, 14rem"
+    />
+  </CardMedia>
 
   <CardContent class="preview-card-content">
     <CardTitle>{metadata.title}</CardTitle>
@@ -67,29 +63,35 @@ const hasBadges = metadata.stage || (tags && tags.length > 0)
 </Card>
 
 <style>
-  .preview-card:hover {
-    background-color: oklch(from var(--muted) l c h / 0.5);
-  }
-
   .preview-card {
     position: relative;
+    align-items: stretch;
     overflow: hidden;
   }
 
   .preview-card-content {
     position: relative;
     z-index: 1;
+    justify-content: center;
     transition: color var(--motion-duration-fast) var(--motion-ease);
   }
 
-  .preview-card[data-has-image="true"] .preview-card-content {
-    @media (width >= 48rem) {
-      max-inline-size: 80%;
-    }
+  /* A fixed ratio keeps a row of cards aligned whatever shape the source
+     image is, and stops a tall photo from setting the card's height. */
+  :global(.preview-card-media) {
+    display: block;
+    inline-size: 100%;
+    aspect-ratio: 16 / 10;
+    border-radius: var(--radius-lg);
+    overflow: clip;
+  }
 
-    @media (width < 48rem) {
-      padding-block-start: 6rem;
-    }
+  :global(.preview-card-media) :global(.cover) {
+    transition: transform var(--motion-duration-slow) var(--motion-ease);
+  }
+
+  .preview-card:hover :global(.preview-card-media) :global(.cover) {
+    transform: scale(1.03);
   }
 
   .preview-card :global([data-slot="card-title"]) {
@@ -110,28 +112,23 @@ const hasBadges = metadata.stage || (tags && tags.length > 0)
     display: none;
   }
 
-  .cover-image {
-    position: absolute;
-    inset-block: 0;
-    inset-inline-end: 0;
-    z-index: 0;
-    inline-size: 60%;
-    block-size: 100%;
-    object-fit: cover;
-    opacity: 0.3;
-    mask: linear-gradient(to right, transparent 0%, black 100%);
-    transition: opacity var(--motion-duration-slow) var(--motion-ease);
+  @media (width < 40rem) {
+    .preview-card {
+      flex-direction: column;
+    }
   }
 
-  .preview-card:hover .cover-image {
-    opacity: 0.5;
+  @media (width >= 40rem) {
+    :global(.preview-card-media) {
+      inline-size: 14rem;
+      flex-shrink: 0;
+      aspect-ratio: 16 / 11;
+    }
   }
 
-  @media (width < 48rem) {
-    .cover-image {
-      inline-size: 100%;
-      block-size: 66%;
-      mask: linear-gradient(to top, transparent 0%, black 100%);
+  @media (prefers-reduced-motion: reduce) {
+    .preview-card:hover :global(.preview-card-media) :global(.cover) {
+      transform: none;
     }
   }
 </style>

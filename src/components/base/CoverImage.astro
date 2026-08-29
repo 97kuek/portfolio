@@ -1,0 +1,184 @@
+---
+import { Image } from "astro:assets"
+
+interface Props {
+  /** Cover from frontmatter; a generated placeholder stands in when absent. */
+  image?: ImageMetadata
+  /** Stable string (the route slug) the placeholder derives its shape from. */
+  seed: string
+  /** Alt text. Decorative covers beside their own title should pass "". */
+  alt?: string
+  widths?: number[]
+  sizes?: string
+  loading?: "eager" | "lazy"
+  class?: string
+}
+
+const {
+  image,
+  seed,
+  alt = "",
+  widths = [320, 480, 640],
+  sizes,
+  loading = "lazy",
+  class: className,
+} = Astro.props
+
+/**
+ * Small deterministic hash. Two entries with different slugs get different
+ * placeholders, and the same entry keeps its placeholder across builds — which
+ * matters more here than distribution quality.
+ */
+const hash = (value: string): number => {
+  let result = 0
+  for (const char of value) {
+    result = (result * 31 + char.codePointAt(0)!) >>> 0
+  }
+  return result
+}
+
+const VARIANTS = 5
+const seedHash = hash(seed)
+const variant = seedHash % VARIANTS
+
+/* The placeholder is drawn on a 100x62 canvas: a night sky over a horizon,
+   the same motif as the site's backdrop, with a star field placed from the
+   same hash so an entry keeps its own sky. */
+const WIDTH = 100
+const HEIGHT = 62
+
+/**
+ * Seeded xorshift. The plain hash alone is not enough: two seeds that differ
+ * by one character produce neighbouring values, and a star field read straight
+ * off them lands every star in the same spot.
+ */
+const createRandom = (seedValue: number) => {
+  let state = seedValue >>> 0 || 1
+  return () => {
+    state ^= state << 13
+    state >>>= 0
+    state ^= state >>> 17
+    state ^= state << 5
+    state >>>= 0
+    return state / 0x1_0000_0000
+  }
+}
+
+const random = createRandom(seedHash)
+const STAR_COUNT = 26
+const stars = Array.from({ length: STAR_COUNT }, () => {
+  const x = random()
+  const y = random()
+  const size = random()
+  const glow = random()
+  return {
+    cx: x * WIDTH,
+    // Stars thin out towards the horizon rather than filling the whole frame.
+    cy: y ** 1.4 * (HEIGHT * 0.72),
+    r: 0.35 + size * 0.9,
+    opacity: 0.4 + glow * 0.5,
+  }
+})
+
+const horizon = HEIGHT * 0.74 + (seedHash % 7)
+const ridge = [
+  `M0 ${horizon}`,
+  `Q ${WIDTH * 0.25} ${horizon - 6 - ((seedHash >> 3) % 7)} ${WIDTH * 0.5} ${horizon - 2}`,
+  `T ${WIDTH} ${horizon - 4 - ((seedHash >> 6) % 6)}`,
+  `L${WIDTH} ${HEIGHT} L0 ${HEIGHT} Z`,
+].join(" ")
+
+const gradientId = `cover-sky-${seedHash.toString(36)}`
+---
+
+{image ? (
+    <Image
+      src={image}
+      alt={alt}
+      widths={widths}
+      sizes={sizes}
+      loading={loading}
+      class:list={["cover", className]}
+    />
+  ) : (
+    <svg
+      class:list={["cover", "cover-fallback", className]}
+      data-variant={variant}
+      viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
+      preserveAspectRatio="xMidYMid slice"
+      role="img"
+      aria-label={alt || undefined}
+      aria-hidden={alt ? undefined : "true"}
+    >
+      <defs>
+        <linearGradient id={gradientId} x1="0" y1="0" x2="0.35" y2="1">
+          <stop offset="0" class="cover-stop-top" />
+          <stop offset="1" class="cover-stop-bottom" />
+        </linearGradient>
+      </defs>
+      <rect width={WIDTH} height={HEIGHT} fill={`url(#${gradientId})`} />
+      {stars.map((star) => (
+        <circle
+          class="cover-fallback-star"
+          cx={star.cx}
+          cy={star.cy}
+          r={star.r}
+          opacity={star.opacity}
+        />
+      ))}
+      <path class="cover-fallback-ridge" d={ridge} />
+    </svg>
+  )}
+
+<style>
+  .cover {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+
+  .cover-fallback {
+    --cover-ink: var(--primary);
+
+    background: var(--muted);
+  }
+
+  .cover-fallback[data-variant="1"] {
+    --cover-ink: var(--accent);
+  }
+
+  .cover-fallback[data-variant="2"] {
+    --cover-ink: color-mix(in oklab, var(--primary) 60%, var(--accent));
+  }
+
+  .cover-fallback[data-variant="3"] {
+    --cover-ink: color-mix(in oklab, var(--accent) 70%, var(--foreground));
+  }
+
+  .cover-fallback[data-variant="4"] {
+    --cover-ink: color-mix(in oklab, var(--primary) 45%, var(--foreground));
+  }
+
+  /* Weighted towards --background so the sky follows the theme instead of
+     landing on the same tint in both. */
+  .cover-stop-top {
+    stop-color: color-mix(in oklab, var(--cover-ink) 26%, var(--background));
+  }
+
+  .cover-stop-bottom {
+    stop-color: color-mix(in oklab, var(--cover-ink) 8%, var(--background));
+  }
+
+  .cover-fallback-star {
+    fill: light-dark(
+      color-mix(in oklab, var(--foreground) 45%, var(--background)),
+      color-mix(in oklab, var(--background) 25%, var(--foreground))
+    );
+  }
+
+  .cover-fallback-ridge {
+    fill: color-mix(in oklab, var(--cover-ink) 55%, var(--foreground));
+    opacity: 0.42;
+  }
+</style>

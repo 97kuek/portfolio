@@ -33,8 +33,14 @@ prose-content {
 }
 
 prose-content :is(h2, h3, h4, h5, h6) {
+  position: relative;
+
+  /* Parked in the gutter so revealing it on hover never reflows the heading,
+     and every heading starts on the same vertical line as the body text. */
   [data-heading-anchor] {
-    margin-inline-start: 0.5ch;
+    position: absolute;
+    inset-inline-end: 100%;
+    padding-inline-end: 0.35ch;
     color: var(--muted-foreground);
     text-decoration-line: none;
     opacity: 0;
