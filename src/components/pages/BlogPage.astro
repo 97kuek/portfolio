@@ -1,0 +1,52 @@
+---
+import CommonLayout from "@/layouts/CommonLayout.astro"
+import Icon from "@/components/base/Icon.astro"
+import { getSiteLocale } from "@/lib/i18n"
+
+const isEnglish = getSiteLocale(Astro.url.pathname) === "en"
+---
+
+<CommonLayout
+  title={isEnglish ? "Blog" : "ブログ"}
+  description={isEnglish
+    ? "Notes on AI engineering, learning, and building software."
+    : "AIエンジニアリング、学び、ソフトウェア開発について記録します。"}
+  prose={false}
+  breadcrumbs={[{ label: isEnglish ? "Blog" : "ブログ", icon: "blog" }]}
+>
+  <section class="blog-empty">
+    <Icon name="blog" size="2rem" />
+    <h2>
+      {isEnglish ? "First post coming soon" : "最初の記事を準備しています"}
+    </h2>
+    <p>
+      {isEnglish
+        ? "I will share what I learn and build here."
+        : "学んだことや開発したものを、ここで発信していきます。"}
+    </p>
+  </section>
+</CommonLayout>
+
+<style>
+  .blog-empty {
+    display: flex;
+    min-block-size: 18rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-s);
+    padding: var(--space-l);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-lg);
+    text-align: center;
+  }
+
+  .blog-empty h2,
+  .blog-empty p {
+    margin: 0;
+  }
+
+  .blog-empty p {
+    color: var(--muted-foreground);
+  }
+</style>

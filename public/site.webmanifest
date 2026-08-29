@@ -1,0 +1,21 @@
+{
+  "name": "植木 敬太郎 | Keitaro Ueki",
+  "short_name": "Keitaro Ueki",
+  "icons": [
+    {
+      "src": "/web-app-manifest-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "theme_color": "#0b1739",
+  "background_color": "#0b1739",
+  "display": "standalone"
+}

@@ -1,0 +1,15 @@
+[
+  {
+    "id": "waseda-cce-b3",
+    "category": "education",
+    "title": "学士課程 B3",
+    "titleEn": "Undergraduate, Year 3",
+    "org": "早稲田大学 基幹理工学部 情報通信学科",
+    "orgEn": "Department of Communications and Computer Engineering, Waseda University",
+    "orgUrl": "https://www.waseda.jp/fsci/",
+    "startDate": "2024-04",
+    "location": "Tokyo, Japan",
+    "description": "情報通信とコンピュータ工学を学びながら、AI・機械学習とソフトウェア開発に取り組んでいます。",
+    "descriptionEn": "Studying communications and computer engineering with a focus on AI, machine learning, and software development."
+  }
+]

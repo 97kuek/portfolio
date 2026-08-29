@@ -1,0 +1,60 @@
+---
+import CommonLayout from "@/layouts/CommonLayout.astro"
+import Button from "@/components/base/Button.astro"
+import Icon from "@/components/base/Icon.astro"
+import { getSiteLocale } from "@/lib/i18n"
+
+const isEnglish = getSiteLocale(Astro.url.pathname) === "en"
+---
+
+<CommonLayout
+  title={isEnglish ? "Projects" : "プロジェクト"}
+  description={isEnglish
+    ? "Projects in AI, machine learning, and software engineering will be published here."
+    : "AI・機械学習・ソフトウェア開発のプロジェクトを掲載していきます。"}
+  prose={false}
+  breadcrumbs={[{
+    label: isEnglish ? "Projects" : "プロジェクト",
+    icon: "folder-open",
+  }]}
+>
+  <section class="project-empty">
+    <Icon name="folder-open" size="2rem" />
+    <h2>{isEnglish ? "Work in progress" : "準備中です"}</h2>
+    <p>
+      {isEnglish
+        ? "I am organizing the projects I can share publicly. In the meantime, visit my GitHub profile."
+        : "公開できるプロジェクトを整理しています。最新の活動はGitHubからご覧いただけます。"}
+    </p>
+    <Button href="https://github.com/97kuek" external variant="outline">
+      <Icon name="mingcute:github-line" />
+      GitHub
+    </Button>
+  </section>
+</CommonLayout>
+
+<style>
+  .project-empty {
+    display: flex;
+    min-block-size: 18rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-s);
+    padding: var(--space-l);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: color-mix(in oklab, var(--muted) 35%, transparent);
+    text-align: center;
+  }
+
+  .project-empty h2,
+  .project-empty p {
+    margin: 0;
+  }
+
+  .project-empty p {
+    max-inline-size: 38rem;
+    color: var(--muted-foreground);
+  }
+</style>
