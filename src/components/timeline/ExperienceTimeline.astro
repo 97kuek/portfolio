@@ -19,11 +19,15 @@ interface Props {
 const { entries, limit, itemClass } = Astro.props
 const isEnglish = getSiteLocale(Astro.url.pathname) === "en"
 
+/* Ordered by when each entry began. Sorting by end date first put a finished
+   two-week internship below a degree that is still running, which reads as
+   out of sequence next to its own dates. */
 const sorted = [...entries].sort((a, b) => {
+  const startDiff = b.data.startDate.getTime() - a.data.startDate.getTime()
+  if (startDiff !== 0) return startDiff
   const endA = a.data.endDate?.getTime() ?? Infinity
   const endB = b.data.endDate?.getTime() ?? Infinity
-  if (endB !== endA) return endB - endA
-  return b.data.startDate.getTime() - a.data.startDate.getTime()
+  return endB - endA
 })
 
 const displayed = typeof limit === "number" ? sorted.slice(0, limit) : sorted

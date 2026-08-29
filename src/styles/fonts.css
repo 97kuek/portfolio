@@ -22,15 +22,6 @@
 }
 
 @font-face {
-  font-family: "Noto Sans CJK SC";
-  src: url("/fonts/NotoSansSC.woff2") format("woff2-variations");
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-  unicode-range: U+4E00-9FFF, U+3400-4DBF, U+20000-2A6DF;
-}
-
-@font-face {
   font-family: "STIX Two Math";
   src: url("/fonts/STIXTwoMath-Regular.woff2") format("woff2");
   font-weight: 400;
@@ -47,11 +38,16 @@
 }
 
 :root {
+  /* Latin comes from DM Sans; Japanese falls through to whichever face the
+     reader's system already has. The alternative — shipping a CJK webfont —
+     cost 7.6MB on every page, and the one that was here was a Simplified
+     Chinese face whose kanji are drawn with the wrong glyph shapes for
+     Japanese, with kana left outside its unicode-range entirely. */
   --font-sans:
-    -apple-system, BlinkMacSystemFont, "DM Sans", "Noto Sans CJK SC",
-    "PingFang SC", "PingFang TC", "Hiragino Sans GB", "Microsoft YaHei",
-    "Segoe UI", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
-    "Segoe UI Emoji";
+    "DM Sans", -apple-system, BlinkMacSystemFont, "Hiragino Sans",
+    "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP",
+    "Meiryo", "Segoe UI", system-ui, ui-sans-serif, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji";
   --font-mono:
     "Lilex", "SF Mono", "Monaco", "Cascadia Code", "Roboto Mono", ui-monospace,
     "Menlo", "Consolas", "Liberation Mono", "Courier New", monospace;

@@ -1,0 +1,65 @@
+---
+import CommonLayout from "@/layouts/CommonLayout.astro"
+import Icon from "@/components/base/Icon.astro"
+import TaxonomyChip from "@/components/base/TaxonomyChip.astro"
+import { getTaxonomyEntries, taxonomyPath } from "@/lib/blog/taxonomy"
+import { getSiteLocale, localizedPath } from "@/lib/i18n"
+
+const locale = getSiteLocale(Astro.url.pathname)
+const isEnglish = locale === "en"
+const tags = await getTaxonomyEntries(locale, "tag")
+---
+
+<CommonLayout
+  title={isEnglish ? "Tags" : "タグ"}
+  description={isEnglish
+    ? "Every tag used across the blog."
+    : "ブログで使っているタグの一覧です。"}
+  prose={false}
+  breadcrumbs={[
+    {
+      label: isEnglish ? "Blog" : "ブログ",
+      href: localizedPath("/blog", locale),
+      icon: "blog",
+    },
+    { label: isEnglish ? "Tags" : "タグ", icon: "tags" },
+  ]}
+>
+  {tags.length > 0 ? (
+      <ul class="tag-list">
+        {tags.map(({ value, count }) => (
+          <li>
+            <TaxonomyChip
+              label={value}
+              count={count}
+              countNoun={isEnglish ? "post" : "件"}
+              href={taxonomyPath("tag", value, locale)}
+            />
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="tag-empty">
+        <Icon name="tags" />
+        {isEnglish ? "No tags yet." : "まだタグはありません。"}
+      </p>
+    )}
+</CommonLayout>
+
+<style>
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .tag-empty {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    color: var(--muted-foreground);
+  }
+</style>

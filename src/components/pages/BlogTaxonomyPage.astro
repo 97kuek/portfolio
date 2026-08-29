@@ -1,0 +1,76 @@
+---
+import CommonLayout from "@/layouts/CommonLayout.astro"
+import PreviewCard from "@/components/blog/PreviewCard.astro"
+import { PostManager } from "@/lib/blog"
+import { getStageConfig } from "@/lib/blog/stage"
+import type { TaxonomyKind } from "@/lib/blog/taxonomy"
+import { getPostsByTaxonomy, tagsIndexPath } from "@/lib/blog/taxonomy"
+import { getSiteLocale, localizedPath } from "@/lib/i18n"
+
+interface Props {
+  kind: TaxonomyKind
+  value: string
+}
+
+const { kind, value } = Astro.props
+const locale = getSiteLocale(Astro.url.pathname)
+const isEnglish = locale === "en"
+
+const posts = await getPostsByTaxonomy(locale, kind, value)
+const metadata = await PostManager.getInstance().getBatchMetadata(
+  posts.map((post) => post.id),
+)
+
+const isTag = kind === "tag"
+const heading = isTag ? `#${value}` : value
+const stageDescription = isTag ? undefined : getStageConfig(value)?.description
+const description =
+  stageDescription ??
+  (isEnglish
+    ? `Posts tagged ${value}.`
+    : `${value} タグの付いた記事の一覧です。`)
+---
+
+<CommonLayout
+  title={heading}
+  description={description}
+  prose={false}
+  breadcrumbs={[
+    {
+      label: isEnglish ? "Blog" : "ブログ",
+      href: localizedPath("/blog", locale),
+      icon: "blog",
+    },
+    ...(isTag
+      ? [
+          {
+            label: isEnglish ? "Tags" : "タグ",
+            href: tagsIndexPath(locale),
+            icon: "tags",
+          },
+        ]
+      : []),
+    { label: heading },
+  ]}
+>
+  <ul class="post-list">
+    {posts.map((post) => {
+      const meta = metadata.get(post.id)
+      return meta ? (
+        <li>
+          <PreviewCard metadata={meta} />
+        </li>
+      ) : null
+    })}
+  </ul>
+</CommonLayout>
+
+<style>
+  .post-list {
+    display: grid;
+    gap: var(--space-s);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+</style>

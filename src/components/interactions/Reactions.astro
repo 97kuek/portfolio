@@ -20,7 +20,11 @@ const REACTIONS = [
 ]
 ---
 
-<post-reactions data-target={target} class="reactions">
+<post-reactions
+  data-target={target}
+  data-count-label={ui.reactionCount}
+  class="reactions"
+>
   <h2 class="sr-only">{ui.reactions}</h2>
   <ul class="reaction-list">
     {REACTIONS.map(({ kind, emoji, label }) => (
@@ -39,6 +43,7 @@ const REACTIONS = [
       </li>
     ))}
   </ul>
+  <p class="sr-only" data-reaction-status role="status" aria-live="polite"></p>
 </post-reactions>
 
 <style>
@@ -105,10 +110,12 @@ const REACTIONS = [
   class PostReactions extends HTMLElement {
     private target = ""
     private buttons: HTMLButtonElement[] = []
+    private status: HTMLElement | null = null
 
     connectedCallback() {
       this.target = this.dataset.target ?? ""
       this.buttons = [...this.querySelectorAll<HTMLButtonElement>(".reaction")]
+      this.status = this.querySelector("[data-reaction-status]")
       if (!this.target || this.buttons.length === 0) return
 
       for (const button of this.buttons) {
@@ -128,6 +135,18 @@ const REACTIONS = [
           state.mine.includes(kind) ? "true" : "false",
         )
       }
+    }
+
+    /* A button whose label and count both change silently tells a screen
+       reader nothing about what the press did. */
+    private announce(button: HTMLButtonElement, state: ReactionState) {
+      if (!this.status) return
+      const kind = button.dataset.kind ?? ""
+      const label = button.getAttribute("title") ?? kind
+      const template = this.dataset.countLabel ?? "{label}: {count}"
+      this.status.textContent = template
+        .replace("{label}", label)
+        .replace("{count}", String(state.counts[kind] ?? 0))
     }
 
     private async load() {
@@ -154,7 +173,9 @@ const REACTIONS = [
           body: JSON.stringify({ target: this.target, kind }),
         })
         if (response.ok) {
-          this.render((await response.json()) as ReactionState)
+          const state = (await response.json()) as ReactionState
+          this.render(state)
+          this.announce(button, state)
         }
       } catch {
         /* Leave the previous tally in place rather than inventing one. */

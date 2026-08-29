@@ -2,6 +2,7 @@ import {
   error,
   getClientHash,
   isSameOrigin,
+  isModerated,
   isValidTarget,
   json,
   readJson,
@@ -73,11 +74,19 @@ export const onRequestPost = async ({ request, env }: RequestContext) => {
     return error("Too many comments in a short time", 429)
   }
 
+  const pending = isModerated(env)
   await env.DB.prepare(
-    "INSERT INTO comments (target, author, body, created_at, client_hash) VALUES (?, ?, ?, ?, ?)",
+    "INSERT INTO comments (target, author, body, created_at, client_hash, visible) VALUES (?, ?, ?, ?, ?, ?)",
   )
-    .bind(target, author, body, new Date().toISOString(), clientHash)
+    .bind(
+      target,
+      author,
+      body,
+      new Date().toISOString(),
+      clientHash,
+      pending ? 0 : 1,
+    )
     .run()
 
-  return json({ comments: await listComments(env, target) }, 201)
+  return json({ comments: await listComments(env, target), pending }, 201)
 }

@@ -45,6 +45,8 @@
   - コミット前に長辺2400px程度へ圧縮する
   - `image` を省いた場合は `CoverImage.astro` が星空のプレースホルダーを生成する
 - 画像のalt属性は内容を説明するものにする。装飾目的なら空文字にする
+- タグとstageは言語ごとに集計され、`/blog/tags/*` と `/blog/stages/*` に一覧がある
+- RSSは言語別（`/rss.xml` と `/ja/rss.xml`）
 - 事実を勝手に作らない。所属・日付・肩書きは確認できたものだけ書く
 
 ## コメントとリアクション
@@ -60,8 +62,18 @@
 wrangler d1 execute portfolio-interactions --remote --file=migrations/<file>.sql
 ```
 
-- コメントを隠すときは該当行の `visible = 0` にする
-- `pnpm dev` ではAPIが動かない。ウィジェットは読み込み失敗を表示する（想定内）
+- モデレーションは `pnpm comments <list|hide|show|delete|backup>` を使う
+  - 破壊的な操作の前に `pnpm comments backup` を取る
+- 既定では投稿即公開。Pagesの環境変数 `COMMENT_MODERATION=1` で承認制になる
+- `pnpm dev` ではAPIが動かない。ローカルで試すときは `pnpm dev:pages`
+
+## フォント
+
+- 欧文は自前ホストのDM Sans、和文は読み手のシステムフォントに任せる
+- CJKのWebフォントを足さない。以前は7.6MBを全ページで配っていた
+  - しかも簡体字フォントで、漢字が日本語と違う字形だった
+  - かなが `unicode-range` から漏れ、かなと漢字で別のフォントになっていた
+- どうしても必要ならサブセット化し、かなの範囲を必ず含める
 
 ## 実装の方針
 
@@ -93,6 +105,10 @@ pnpm build
 - リンク切れは、ビルド後の `dist/` のHTMLからhrefを集めて存在を確かめる
 
 ## デプロイ
+
+- `main` にpushすると `.github/workflows/deploy.yml` が検証・ビルド・デプロイする
+  - `CLOUDFLARE_API_TOKEN` と `CLOUDFLARE_ACCOUNT_ID` のsecretが揃うまでは動かない
+- 手動でデプロイする場合
 
 ```bash
 pnpm build

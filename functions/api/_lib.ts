@@ -22,7 +22,16 @@ export interface Env {
   DB: D1Database
   /** Set with `wrangler pages secret put INTERACTION_SALT`. */
   INTERACTION_SALT?: string
+  /**
+   * When "1" or "true", new comments are stored hidden and only appear once
+   * someone runs `pnpm comments show <id>`. Off by default: a portfolio with
+   * a handful of readers is better served by comments that appear at once.
+   */
+  COMMENT_MODERATION?: string
 }
+
+export const isModerated = (env: Env): boolean =>
+  env.COMMENT_MODERATION === "1" || env.COMMENT_MODERATION === "true"
 
 export interface RequestContext {
   request: Request

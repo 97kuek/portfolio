@@ -19,6 +19,7 @@ const ui = getUIStrings(locale)
   data-empty={ui.commentEmpty}
   data-load-failed={ui.commentLoadFailed}
   data-failed={ui.commentFailed}
+  data-pending={ui.commentPending}
   data-rate-limited={ui.commentRateLimited}
   data-submit={ui.commentSubmit}
   data-submitting={ui.commentSubmitting}
@@ -27,7 +28,13 @@ const ui = getUIStrings(locale)
   <h2 class="comments-title">{ui.comments}</h2>
 
   <ol class="comment-list" data-list></ol>
-  <p class="comment-status" data-status hidden></p>
+  <p
+    class="comment-status"
+    data-status
+    role="status"
+    aria-live="polite"
+    hidden
+  ></p>
 
   <form class="comment-form" data-form>
     <label class="comment-field">
@@ -299,9 +306,13 @@ const ui = getUIStrings(locale)
         })
 
         if (response.ok) {
-          const payload = (await response.json()) as { comments: Comment[] }
+          const payload = (await response.json()) as {
+            comments: Comment[]
+            pending?: boolean
+          }
           this.render(payload.comments)
           this.form.reset()
+          if (payload.pending) this.setStatus(this.dataset.pending ?? null)
         } else {
           this.setStatus(
             response.status === 429

@@ -2,7 +2,12 @@
 import { ClientRouter } from "astro:transitions"
 
 import { PROFILE, SITE } from "@site-config"
-import { getLocaleTag, getSiteLocale } from "@/lib/i18n"
+import {
+  getLocaleTag,
+  getSiteLocale,
+  hasTranslation,
+  localizedPath,
+} from "@/lib/i18n"
 
 interface Props {
   title?: string
@@ -79,6 +84,28 @@ const canonicalURL = new URL(
 ).toString()
 
 // JSON-LD structured data for better SEO
+/* Both languages only exist for content pages; claiming a pair for the
+   palette preview or 404 would point search engines at a page that is not a
+   translation of anything. */
+const siteOrigin = Astro.site || SITE.href
+const translatedPath = Astro.url.pathname.replace(/^\/ja(?=\/|$)/, "") || "/"
+const languageAlternates = hasTranslation(Astro.url.pathname)
+  ? [
+      { hreflang: "en", href: new URL(translatedPath, siteOrigin).toString() },
+      {
+        hreflang: "ja",
+        href: new URL(
+          localizedPath(translatedPath, "ja"),
+          siteOrigin,
+        ).toString(),
+      },
+      {
+        hreflang: "x-default",
+        href: new URL(translatedPath, siteOrigin).toString(),
+      },
+    ]
+  : []
+
 const structuredData = {
   "@context": "https://schema.org",
   "@type": type === "article" ? "BlogPosting" : "WebSite",
@@ -124,6 +151,9 @@ const structuredData = {
   <title>{seoTitle}</title>
   <meta name="description" content={description}>
   <link rel="canonical" href={canonicalURL}>
+  {languageAlternates.map(({ hreflang, href }) => (
+    <link rel="alternate" hreflang={hreflang} href={href} />
+  ))}
   {noindex && <meta name="robots" content="noindex, nofollow" />}
   {!noindex && <meta name="robots" content="index, follow" />}
 
@@ -187,7 +217,7 @@ const structuredData = {
     rel="alternate"
     type="application/rss+xml"
     title={SITE.title}
-    href={`${SITE.href}rss.xml`}
+    href={new URL(localizedPath("/rss.xml", locale), siteOrigin).toString()}
   >
 
   <ClientRouter />

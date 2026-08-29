@@ -1,6 +1,8 @@
 ---
 import { getStageVariant } from "@/lib/blog/stage"
+import { taxonomyPath } from "@/lib/blog/taxonomy"
 import { getContentHref, getContentSlug } from "@/lib/content-locale"
+import { getSiteLocale } from "@/lib/i18n"
 import { getUIStrings } from "@/lib/ui-strings"
 import type { PostMeta } from "@/lib/blog/types"
 import Badge from "@/components/base/Badge.astro"
@@ -21,7 +23,8 @@ interface Props {
 }
 
 const { metadata } = Astro.props
-const ui = getUIStrings(Astro.url.pathname)
+const locale = getSiteLocale(Astro.url.pathname)
+const ui = getUIStrings(locale)
 const tags = metadata.tags
 const hasBadges = metadata.stage || (tags && tags.length > 0)
 ---
@@ -49,7 +52,10 @@ const hasBadges = metadata.stage || (tags && tags.length > 0)
     {hasBadges && (
         <CardFooter class="preview-card-badges">
           {metadata.stage && (
-              <Badge variant={getStageVariant(metadata.stage)}>
+              <Badge
+                variant={getStageVariant(metadata.stage)}
+                href={taxonomyPath("stage", metadata.stage, locale)}
+              >
                 <Icon name={metadata.stage} />
                 {metadata.stage}
               </Badge>

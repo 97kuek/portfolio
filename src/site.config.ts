@@ -13,8 +13,8 @@ export const SITE: SiteConfig = {
   href: "https://97kuek.pages.dev/",
   author: "Keitaro Ueki",
   dir: "ltr",
-  defaultPageImage: "/img/social-preview.png",
-  defaultPostImage: "/img/social-preview.png",
+  defaultPageImage: "/img/social-preview.jpg",
+  defaultPostImage: "/img/social-preview.jpg",
 
   locale: {
     lang: "en-US",

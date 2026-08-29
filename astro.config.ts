@@ -29,10 +29,14 @@ export default defineConfig({
   },
   integrations: [
     sitemap({
+      // The palette is a development reference for the theme's own tokens,
+      // not a page anyone should reach from a search result.
       filter: (page) =>
         !/\/blog\/[^/]+\/[^/]+\/?$/.test(page) &&
         !/\/people\/[^/]+\/?$/.test(page) &&
-        !page.includes("/blog/tags/"),
+        !page.includes("/blog/tags/") &&
+        !page.includes("/blog/stages/") &&
+        !page.includes("/palette"),
     }),
   ],
   server: { port: 4321, host: true },

@@ -1,11 +1,21 @@
 ---
 import Layout from "@/layouts/Layout.astro"
+import Link from "@/components/base/Link.astro"
 ---
 
 <Layout title="404" noindex breadcrumbs={[{ label: "404", icon: "question" }]}>
   <prose-content>
     <h1>404</h1>
-    <p>このページは見つかりませんでした。</p>
-    <p>This page does not exist.</p>
+    <p>
+      This page does not exist. Try the<Link href="/" underline
+        >home page</Link
+      > or the<Link href="/blog" underline>blog</Link>
+      .
+    </p>
+    <p>
+      このページは見つかりませんでした。<Link href="/ja" underline>ホーム</Link>
+      または<Link href="/ja/blog" underline>ブログ</Link>
+      をご覧ください。
+    </p>
   </prose-content>
 </Layout>

@@ -13,6 +13,7 @@ import PostNavigation from "@/components/blog/PostNavigation.astro"
 import ShareActions from "@/components/blog/ShareActions.astro"
 import { PostManager } from "@/lib/blog"
 import { getStageVariant } from "@/lib/blog/stage"
+import { taxonomyPath } from "@/lib/blog/taxonomy"
 import type { Post } from "@/lib/blog/types"
 import {
   getContentLocale,
@@ -73,13 +74,16 @@ const olderPost =
       {(post.data.stage || post.data.tags.length > 0) && (
           <div class="post-badges">
             {post.data.stage && (
-                <Badge variant={getStageVariant(post.data.stage)}>
+                <Badge
+                  variant={getStageVariant(post.data.stage)}
+                  href={taxonomyPath("stage", post.data.stage, locale)}
+                >
                   <Icon name={post.data.stage} />
                   {post.data.stage}
                 </Badge>
               )}
             {post.data.tags.map((tag) => (
-              <TaxonomyChip label={tag} static />
+              <TaxonomyChip label={tag} href={taxonomyPath("tag", tag, locale)} />
             ))}
           </div>
         )}

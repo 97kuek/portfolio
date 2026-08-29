@@ -40,6 +40,18 @@ plain CSS that is easy to inspect.
 - `functions/`: Cloudflare Pages Functions backing comments and reactions.
 - `migrations/`: SQL applied to the D1 database behind those endpoints.
 
+## Deployment
+
+Pushing to `main` runs `.github/workflows/deploy.yml`, which validates, builds,
+and deploys to Cloudflare Pages. It is skipped until the repository has both
+`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets; until then, deploy
+by hand:
+
+```bash
+pnpm build
+wrangler pages deploy dist --project-name 97kuek --branch main
+```
+
 ## Bilingual content
 
 English is the default language and owns the unprefixed routes; Japanese lives
@@ -72,9 +84,35 @@ Schema changes go in `migrations/` and are applied with:
 wrangler d1 execute portfolio-interactions --remote --file=migrations/<file>.sql
 ```
 
-To hide a comment without deleting it, set `visible = 0` on its row. The
-endpoints only run on Pages, so during `pnpm dev` the widgets render and report
-that they could not load.
+Moderation goes through a small wrapper around wrangler:
+
+```bash
+pnpm comments list [target]   # newest 100, with their visibility
+pnpm comments hide <id>       # keeps the row, drops it from the API
+pnpm comments show <id>
+pnpm comments delete <id>     # unrecoverable
+pnpm comments backup [file]   # d1 export, run this before anything destructive
+```
+
+Comments publish immediately by default. Setting the `COMMENT_MODERATION`
+environment variable on the Pages project to `1` stores new ones hidden
+instead, and the form tells the writer their comment is awaiting review.
+
+The endpoints only run on Pages, so `pnpm dev` renders the widgets and reports
+that they could not load. To exercise them locally:
+
+```bash
+pnpm dev:pages
+```
+
+## Fonts
+
+Latin comes from a self-hosted DM Sans; Japanese is left to the reader's system
+fonts. A CJK webfont used to ship here and cost 7.6MB on every page — English
+pages included, because the profile carries the name in kanji. It was also a
+Simplified Chinese face, so kanji rendered with the wrong glyph shapes for
+Japanese while kana fell outside its `unicode-range` and came from a different
+font entirely. If a webfont ever comes back, subset it and cover kana.
 
 ## Commands
 
