@@ -30,15 +30,13 @@ export const SITE: SiteConfig = {
   tocMaxDepth: 3,
 
   blog: {
-    featuredPostCount: 0,
-    postsPerPage: 8,
     shareActions: ["x"],
   },
 
   home: {
     careerHighlightCount: 3,
-    updateCount: 0,
-    publicationCount: 0,
+    projectCount: 3,
+    postCount: 2,
   },
 
   favicon: "/favicon.ico",

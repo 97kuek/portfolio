@@ -156,6 +156,13 @@ export const getProcessedProfileLinks = (
 }
 
 /**
+ * The resolved URL behind a profile link key, since a link may be configured
+ * either as a plain URL or as `{ href, label }`.
+ */
+export const getProfileLinkHref = (key: string): string | undefined =>
+  getProcessedProfileLinks(PROFILE.links, [key])[0]?.href
+
+/**
  * Return the email in the desired variant, display or encoded
  * @param email The email to transform
  * @param variant The variant to return, display or encoded

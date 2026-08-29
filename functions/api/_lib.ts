@@ -1,3 +1,12 @@
+export {
+  COMMENT_AUTHOR_MAX_LENGTH,
+  COMMENT_MAX_LENGTH,
+  isValidKind,
+  isValidTarget,
+  REACTION_KINDS,
+  type ReactionKind,
+} from "../../src/lib/interactions"
+
 /**
  * Shared plumbing for the interaction endpoints.
  *
@@ -38,19 +47,6 @@ export interface RequestContext {
   env: Env
 }
 
-/** `blog:hello`, `projects:wasa-chat` — collection and shared route slug. */
-const TARGET_PATTERN = /^(blog|projects):[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/
-
-export const isValidTarget = (target: unknown): target is string =>
-  typeof target === "string" && TARGET_PATTERN.test(target)
-
-export const REACTION_KINDS = ["like", "love", "insight", "celebrate"] as const
-export type ReactionKind = (typeof REACTION_KINDS)[number]
-
-export const isValidKind = (kind: unknown): kind is ReactionKind =>
-  typeof kind === "string" &&
-  (REACTION_KINDS as readonly string[]).includes(kind)
-
 export const json = (data: unknown, status = 200): Response =>
   new Response(JSON.stringify(data), {
     status,
@@ -85,6 +81,10 @@ export const isSameOrigin = (request: Request): boolean => {
  * Cloudflare already sees. Salted and hashed so the stored value cannot be
  * turned back into an address, and never sent to the browser.
  */
+/* Used only when the secret is missing, so a misconfigured preview still
+   works; the deployed project sets INTERACTION_SALT. */
+const FALLBACK_SALT = "97kuek-portfolio"
+
 export const getClientHash = async (
   request: Request,
   env: Env,
@@ -94,7 +94,7 @@ export const getClientHash = async (
     request.headers.get("x-forwarded-for") ??
     "unknown"
   const agent = request.headers.get("user-agent") ?? "unknown"
-  const salt = env.INTERACTION_SALT ?? "97kuek-portfolio"
+  const salt = env.INTERACTION_SALT ?? FALLBACK_SALT
 
   const digest = await crypto.subtle.digest(
     "SHA-256",

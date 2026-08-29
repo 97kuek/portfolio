@@ -5,6 +5,7 @@ import CoverImage from "@/components/base/CoverImage.astro"
 import Icon from "@/components/base/Icon.astro"
 import Link from "@/components/base/Link.astro"
 import { getContentHref, getContentSlug } from "@/lib/content-locale"
+import { CONTENT_THUMB_SIZES } from "@/lib/layout"
 import { getProjectLinks } from "@/lib/projects"
 import { slugify } from "@/lib/string-manipulation"
 import { getUIStrings } from "@/lib/ui-strings"
@@ -39,7 +40,7 @@ const titleHref = hasDetailPage
     <CoverImage
       image={image}
       seed={getContentSlug(project.id, project.data)}
-      sizes="(max-width: 40rem) 100vw, 12rem"
+      sizes={CONTENT_THUMB_SIZES}
     />
   </div>
 

@@ -1,6 +1,5 @@
-import { PostManager } from "@/lib/blog"
+import { getPostsInLocale } from "@/lib/blog/listing"
 import type { Post } from "@/lib/blog/types"
-import { isContentInLocale } from "@/lib/content-locale"
 import { localizedPath, type SiteLocale } from "@/lib/i18n"
 
 export type TaxonomyKind = "tag" | "stage"
@@ -9,11 +8,6 @@ export interface TaxonomyEntry {
   value: string
   count: number
 }
-
-const postsInLocale = async (locale: SiteLocale): Promise<Post[]> =>
-  (await PostManager.getInstance().getMainPosts()).filter((post) =>
-    isContentInLocale(post.data, locale),
-  )
 
 const valuesOf = (post: Post, kind: TaxonomyKind): string[] =>
   kind === "tag" ? post.data.tags : post.data.stage ? [post.data.stage] : []
@@ -24,7 +18,7 @@ export const getTaxonomyEntries = async (
   kind: TaxonomyKind,
 ): Promise<TaxonomyEntry[]> => {
   const counts = new Map<string, number>()
-  for (const post of await postsInLocale(locale)) {
+  for (const post of await getPostsInLocale(locale)) {
     for (const value of valuesOf(post, kind)) {
       counts.set(value, (counts.get(value) ?? 0) + 1)
     }
@@ -40,7 +34,7 @@ export const getPostsByTaxonomy = async (
   kind: TaxonomyKind,
   value: string,
 ): Promise<Post[]> =>
-  (await postsInLocale(locale)).filter((post) =>
+  (await getPostsInLocale(locale)).filter((post) =>
     valuesOf(post, kind).includes(value),
   )
 
@@ -53,6 +47,3 @@ export const taxonomyPath = (
     kind === "tag" ? `/blog/tags/${value}` : `/blog/stages/${value}`,
     locale,
   )
-
-export const tagsIndexPath = (locale: SiteLocale): string =>
-  localizedPath("/blog/tags", locale)

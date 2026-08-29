@@ -8,6 +8,7 @@ import Link from "@/components/base/Link.astro"
 import ReadingTime from "@/components/base/ReadingTime.astro"
 import AuthorAvatar from "@/components/people/AuthorAvatar.astro"
 import { getSiteLocale, localizedPath } from "@/lib/i18n"
+import { AUTHOR_AVATAR_WIDTH } from "@/lib/layout"
 import { getUIStrings } from "@/lib/ui-strings"
 
 interface Props extends PostMeta {
@@ -54,8 +55,8 @@ const authorHref = `${localizedPath("/", locale)}#profile`
               author={author}
               displayName={getAuthorName(author, locale)}
               class="post-meta-avatar"
-              width={64}
-              height={64}
+              width={AUTHOR_AVATAR_WIDTH}
+              height={AUTHOR_AVATAR_WIDTH}
             />
             {isCard ? (
               <span>{getAuthorName(author, locale)}</span>

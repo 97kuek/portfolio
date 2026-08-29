@@ -2,6 +2,8 @@ import type { APIRoute } from "astro"
 
 import { PROFILE, SITE } from "@site-config"
 
+import { getProfileLinkHref } from "@/components/profile/helper"
+
 const llmsTxt = `
 # LLMs.txt
 
@@ -36,7 +38,7 @@ For a complete list of pages, see: ${new URL("sitemap-index.xml", SITE.href).hre
 
 ## Profile
 
-GitHub: https://github.com/97kuek
+GitHub: ${getProfileLinkHref("github") ?? ""}
 `.trim()
 
 export const GET: APIRoute = () =>

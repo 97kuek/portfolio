@@ -1,4 +1,6 @@
 import {
+  COMMENT_AUTHOR_MAX_LENGTH,
+  COMMENT_MAX_LENGTH,
   error,
   getClientHash,
   isSameOrigin,
@@ -17,8 +19,6 @@ interface CommentRow {
   created_at: string
 }
 
-const MAX_BODY = 2000
-const MAX_AUTHOR = 40
 const MAX_PER_HOUR = 5
 const PAGE_SIZE = 200
 
@@ -56,11 +56,13 @@ export const onRequestPost = async ({ request, env }: RequestContext) => {
 
   const body = typeof payload.body === "string" ? payload.body.trim() : ""
   if (!body) return error("Comment is empty", 400)
-  if (body.length > MAX_BODY) return error("Comment is too long", 400)
+  if (body.length > COMMENT_MAX_LENGTH) return error("Comment is too long", 400)
 
   const rawAuthor =
     typeof payload.author === "string" ? payload.author.trim() : ""
-  const author = rawAuthor ? rawAuthor.slice(0, MAX_AUTHOR) : null
+  const author = rawAuthor
+    ? rawAuthor.slice(0, COMMENT_AUTHOR_MAX_LENGTH)
+    : null
 
   const clientHash = await getClientHash(request, env)
   const anHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString()

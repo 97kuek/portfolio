@@ -13,6 +13,8 @@ import PostNavigation from "@/components/blog/PostNavigation.astro"
 import ShareActions from "@/components/blog/ShareActions.astro"
 import { PostManager } from "@/lib/blog"
 import { getStageVariant } from "@/lib/blog/stage"
+import { interactionTarget } from "@/lib/interactions"
+import { COVER_SIZES, COVER_WIDTHS } from "@/lib/layout"
 import { taxonomyPath } from "@/lib/blog/taxonomy"
 import type { Post } from "@/lib/blog/types"
 import {
@@ -20,7 +22,7 @@ import {
   getContentSlug,
   isContentInLocale,
 } from "@/lib/content-locale"
-import { localizedPath } from "@/lib/i18n"
+import { sectionCrumb } from "@/lib/sections"
 
 interface Props {
   post: Post
@@ -28,7 +30,6 @@ interface Props {
 
 const { post } = Astro.props
 const locale = getContentLocale(post.data)
-const isEnglish = locale === "en"
 
 const postManager = PostManager.getInstance()
 const metadata = await postManager.getMetadata(post.id)
@@ -38,7 +39,7 @@ const { Content } = await render(post)
 // previous Japanese post, not whichever translation happens to sit next to it.
 // Reactions and comments follow the writing, not the translation, so both
 // language versions of a post share one thread.
-const interactionTarget = `blog:${getContentSlug(post.id, post.data)}`
+const target = interactionTarget("blog", getContentSlug(post.id, post.data))
 
 const localePosts = (await postManager.getMainPosts()).filter((entry) =>
   isContentInLocale(entry.data, locale),
@@ -60,14 +61,7 @@ const olderPost =
   modifiedTime={post.data.updatedAt}
   author={metadata.authors[0]?.name}
   tags={post.data.tags}
-  breadcrumbs={[
-    {
-      label: isEnglish ? "Blog" : "ブログ",
-      href: localizedPath("/blog", locale),
-      icon: "blog",
-    },
-    { label: post.data.title },
-  ]}
+  breadcrumbs={[sectionCrumb("blog", locale), { label: post.data.title }]}
 >
   <article>
     <header class="post-header">
@@ -98,8 +92,8 @@ const olderPost =
       <CoverImage
         image={post.data.image}
         seed={getContentSlug(post.id, post.data)}
-        widths={[640, 960, 1280]}
-        sizes="(max-width: 48rem) 100vw, 48rem"
+        widths={COVER_WIDTHS}
+        sizes={COVER_SIZES}
         loading="eager"
       />
     </div>
@@ -108,7 +102,7 @@ const olderPost =
       <Content />
     </prose-content>
 
-    <Reactions target={interactionTarget} />
+    <Reactions target={target} />
 
     <ShareActions
       title={post.data.title}
@@ -118,7 +112,7 @@ const olderPost =
     />
   </article>
 
-  <Comments target={interactionTarget} />
+  <Comments target={target} />
 
   <PostNavigation prevPost={olderPost} nextPost={newerPost} />
 </Layout>
@@ -167,7 +161,7 @@ const olderPost =
 
   .post-cover {
     inline-size: 100%;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: var(--aspect-video);
     border-radius: var(--radius-lg);
     overflow: clip;
   }

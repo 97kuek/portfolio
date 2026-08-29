@@ -76,6 +76,21 @@ wrangler d1 execute portfolio-interactions --remote --file=migrations/<file>.sql
   - かなが `unicode-range` から漏れ、かなと漢字で別のフォントになっていた
 - どうしても必要ならサブセット化し、かなの範囲を必ず含める
 
+## 共通化の置き場
+
+- 値を2か所以上に書きそうになったら、先にここを見る
+  - `src/lib/sections.ts` — セクション名・アイコン・パス（見出し、パンくず、ナビ）
+  - `src/lib/ui-strings.ts` — 本文ではないUI文言（言語別）
+  - `src/lib/layout.ts` — 画像の `sizes` と書き出し幅。CSSの数値と対で持つ
+  - `src/lib/interactions.ts` — リアクション種別・APIパス・コメントの上限
+    - `functions/api/_lib.ts` が相対パスで読む。ページとAPIで定義を分けない
+  - `src/lib/blog/listing.ts` — 記事一覧の取得とメタデータの結合
+  - `src/styles/shape.css` — 角丸・モーション・コントロール寸法・pillトークン
+  - `src/styles/content-row.css` — プロジェクトと記事で共通の行レイアウト
+- バッジとチップは `--pill-*` トークンで見た目を揃える。片方だけ数値を書かない
+- ホームに出す件数は `SITE.home.*`。コンポーネント側に数値を書かない
+- 縦横比は `--aspect-video` / `--aspect-thumbnail` を使う
+
 ## 実装の方針
 
 - クライアントJSやUIフレームワークより先に、Astro・セマンティックHTML・素のCSSを検討する

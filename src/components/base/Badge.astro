@@ -36,13 +36,14 @@ const { variant = "default", href, class: className, ...rest } = Astro.props
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.25rem;
+    gap: var(--pill-gap);
     inline-size: fit-content;
     max-inline-size: 100%;
+    min-block-size: var(--pill-block-size);
     flex-shrink: 0;
-    padding: 0.125rem 0.5rem;
+    padding-inline: var(--pill-padding-inline);
     border: 1px solid transparent;
-    border-radius: var(--radius-md);
+    border-radius: var(--pill-radius);
     font-size: var(--step--1);
     line-height: 1.25;
     font-weight: var(--font-weight-medium);

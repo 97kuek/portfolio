@@ -2,10 +2,12 @@
 import CommonLayout from "@/layouts/CommonLayout.astro"
 import Button from "@/components/base/Button.astro"
 import Icon from "@/components/base/Icon.astro"
+import { getProfileLinkHref } from "@/components/profile/helper"
 import DateRange from "@/components/projects/DateRange.astro"
 import ProjectRow from "@/components/projects/ProjectRow.astro"
 import { isContentInLocale } from "@/lib/content-locale"
 import { getSiteLocale } from "@/lib/i18n"
+import { sectionCrumb, sectionLabel } from "@/lib/sections"
 import { getProjects } from "@/lib/projects"
 
 import "@/styles/content-row.css"
@@ -19,15 +21,12 @@ const projects = await getProjects((project) =>
 ---
 
 <CommonLayout
-  title={isEnglish ? "Projects" : "プロジェクト"}
+  title={sectionLabel("projects", locale)}
   description={isEnglish
     ? "Projects in AI, machine learning, and software engineering."
     : "AI・機械学習・ソフトウェア開発のプロジェクトを掲載しています。"}
   prose={false}
-  breadcrumbs={[{
-    label: isEnglish ? "Projects" : "プロジェクト",
-    icon: "folder-open",
-  }]}
+  breadcrumbs={[sectionCrumb("projects", locale, { current: true })]}
 >
   {projects.length > 0 ? (
       <ul class="content-list">
@@ -54,7 +53,7 @@ const projects = await getProjects((project) =>
             ? "I am organizing the projects I can share publicly. In the meantime, visit my GitHub profile."
             : "公開できるプロジェクトを整理しています。最新の活動はGitHubからご覧いただけます。"}
         </p>
-        <Button href="https://github.com/97kuek" external variant="outline">
+        <Button href={getProfileLinkHref("github")} external variant="outline">
           <Icon name="mingcute:github-line" />
           GitHub
         </Button>

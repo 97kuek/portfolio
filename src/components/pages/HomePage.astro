@@ -9,10 +9,11 @@ import Profile from "@/components/profile/Profile.astro"
 import DateRange from "@/components/projects/DateRange.astro"
 import ProjectRow from "@/components/projects/ProjectRow.astro"
 import ExperienceTimeline from "@/components/timeline/ExperienceTimeline.astro"
-import { PROFILE } from "@site-config"
-import { PostManager } from "@/lib/blog"
+import { PROFILE, SITE } from "@site-config"
+import { getPostsInLocale, withMetadata } from "@/lib/blog/listing"
 import { isContentInLocale } from "@/lib/content-locale"
-import { getSiteLocale, localizedPath } from "@/lib/i18n"
+import { getSiteLocale } from "@/lib/i18n"
+import { sectionLabel, sectionPath } from "@/lib/sections"
 import { getProjects } from "@/lib/projects"
 
 import "@/styles/content-row.css"
@@ -23,14 +24,10 @@ const experience = await getCollection("experience")
 
 const projects = (
   await getProjects((project) => isContentInLocale(project.data, locale))
-).slice(0, 3)
+).slice(0, SITE.home.projectCount)
 
-const postManager = PostManager.getInstance()
-const latestPosts = (await postManager.getMainPosts())
-  .filter((post) => isContentInLocale(post.data, locale))
-  .slice(0, 2)
-const latestPostMetadata = await postManager.getBatchMetadata(
-  latestPosts.map((post) => post.id),
+const latestPosts = await withMetadata(
+  (await getPostsInLocale(locale)).slice(0, SITE.home.postCount),
 )
 ---
 
@@ -69,8 +66,8 @@ const latestPostMetadata = await postManager.getBatchMetadata(
 
   {projects.length > 0 && (
       <Section
-        title={isEnglish ? "Projects" : "プロジェクト"}
-        moreLink={localizedPath("/projects", locale)}
+        title={sectionLabel("projects", locale)}
+        moreLink={sectionPath("projects", locale)}
         moreText={isEnglish ? "All projects →" : "すべて見る →"}
       >
         <ul class="content-list">
@@ -92,32 +89,32 @@ const latestPostMetadata = await postManager.getBatchMetadata(
     )}
 
   <Section
-    title={isEnglish ? "Experience" : "経歴"}
-    moreLink={localizedPath("/experience", locale)}
+    title={sectionLabel("experience", locale)}
+    moreLink={sectionPath("experience", locale)}
     moreText={isEnglish ? "View details →" : "詳しく見る →"}
   >
-    <ExperienceTimeline entries={experience} limit={3} />
+    <ExperienceTimeline
+      entries={experience}
+      limit={SITE.home.careerHighlightCount}
+    />
   </Section>
 
   {latestPosts.length > 0 && (
       <Section
         title={isEnglish ? "Latest posts" : "最新の記事"}
-        moreLink={localizedPath("/blog", locale)}
+        moreLink={sectionPath("blog", locale)}
         moreText={isEnglish ? "All posts →" : "すべて見る →"}
       >
         <ul class="content-list">
-          {latestPosts.map((post) => {
-            const metadata = latestPostMetadata.get(post.id)
-            return metadata ? (
-              <li>
-                <FormattedDate
-                  date={post.data.createdAt}
-                  class="content-list-date"
-                />
-                <PostRow metadata={metadata} />
-              </li>
-            ) : null
-          })}
+          {latestPosts.map(({ post, meta }) => (
+            <li>
+              <FormattedDate
+                date={post.data.createdAt}
+                class="content-list-date"
+              />
+              <PostRow metadata={meta} />
+            </li>
+          ))}
         </ul>
       </Section>
     )}

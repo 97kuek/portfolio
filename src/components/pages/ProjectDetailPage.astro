@@ -14,7 +14,9 @@ import {
   getContentSlug,
   isContentInLocale,
 } from "@/lib/content-locale"
-import { localizedPath } from "@/lib/i18n"
+import { sectionCrumb } from "@/lib/sections"
+import { interactionTarget } from "@/lib/interactions"
+import { COVER_SIZES, COVER_WIDTHS } from "@/lib/layout"
 import {
   getProjectLinks,
   getProjectNavigation,
@@ -39,7 +41,10 @@ const links = getProjectLinks(
   project.data.url,
   project.data.release,
 )
-const interactionTarget = `projects:${getContentSlug(project.id, project.data)}`
+const target = interactionTarget(
+  "projects",
+  getContentSlug(project.id, project.data),
+)
 
 const { prev, next } = await getProjectNavigation(project.id, (candidate) =>
   isContentInLocale(candidate.data, locale),
@@ -52,14 +57,7 @@ const { prev, next } = await getProjectNavigation(project.id, (candidate) =>
   prose={false}
   type="article"
   image={image?.src}
-  breadcrumbs={[
-    {
-      label: isEnglish ? "Projects" : "プロジェクト",
-      href: localizedPath("/projects", locale),
-      icon: "folder-open",
-    },
-    { label: title },
-  ]}
+  breadcrumbs={[sectionCrumb("projects", locale), { label: title }]}
 >
   <section class="project-meta">
     <p class="project-facts">
@@ -89,8 +87,8 @@ const { prev, next } = await getProjectNavigation(project.id, (candidate) =>
     <CoverImage
       image={image}
       seed={getContentSlug(project.id, project.data)}
-      widths={[640, 960, 1280]}
-      sizes="(max-width: 48rem) 100vw, 48rem"
+      widths={COVER_WIDTHS}
+      sizes={COVER_SIZES}
       loading="eager"
     />
   </div>
@@ -106,9 +104,9 @@ const { prev, next } = await getProjectNavigation(project.id, (candidate) =>
       </section>
     )}
 
-  <Reactions target={interactionTarget} />
+  <Reactions target={target} />
 
-  <Comments target={interactionTarget} />
+  <Comments target={target} />
 
   <ProjectNavigation prev={prev} next={next} />
 </CommonLayout>
@@ -116,7 +114,7 @@ const { prev, next } = await getProjectNavigation(project.id, (candidate) =>
 <style>
   .project-hero {
     inline-size: 100%;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: var(--aspect-video);
     border-radius: var(--radius-lg);
     overflow: clip;
   }

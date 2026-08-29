@@ -14,6 +14,7 @@ import { getDisplayName, getProfileLinkPlacement } from "./helper"
 import { Content as AboutContent } from "@/content/about.md"
 import { Content as AboutEnglishContent } from "@/content/about-en.md"
 import { getSiteLocale } from "@/lib/i18n"
+import { PROFILE_AVATAR_WIDTH } from "@/lib/layout"
 
 import "@/styles/callout.css"
 
@@ -39,8 +40,8 @@ const tagline = isEnglish
       alt={displayName}
       fallback={isEnglish ? "KU" : "植"}
       data-slot="profile-avatar"
-      width={288}
-      height={288}
+      width={PROFILE_AVATAR_WIDTH}
+      height={PROFILE_AVATAR_WIDTH}
       loading="eager"
       fetchpriority="high"
       class="profile-avatar"

@@ -1,5 +1,10 @@
 ---
 import { getLocaleTag, getSiteLocale } from "@/lib/i18n"
+import {
+  COMMENT_AUTHOR_MAX_LENGTH,
+  COMMENT_MAX_LENGTH,
+  COMMENTS_ENDPOINT,
+} from "@/lib/interactions"
 import { getUIStrings } from "@/lib/ui-strings"
 
 interface Props {
@@ -14,6 +19,7 @@ const ui = getUIStrings(locale)
 
 <post-comments
   data-target={target}
+  data-endpoint={COMMENTS_ENDPOINT}
   data-locale={getLocaleTag(locale)}
   data-anonymous={ui.commentNamePlaceholder}
   data-empty={ui.commentEmpty}
@@ -42,7 +48,7 @@ const ui = getUIStrings(locale)
       <input
         type="text"
         name="author"
-        maxlength="40"
+        maxlength={COMMENT_AUTHOR_MAX_LENGTH}
         autocomplete="nickname"
         placeholder={ui.commentNamePlaceholder}
       >
@@ -52,7 +58,7 @@ const ui = getUIStrings(locale)
       <textarea
         name="body"
         rows="4"
-        maxlength="2000"
+        maxlength={COMMENT_MAX_LENGTH}
         required
         placeholder={ui.commentPlaceholder}
       ></textarea>
@@ -270,7 +276,7 @@ const ui = getUIStrings(locale)
     private async load() {
       try {
         const response = await fetch(
-          `/api/comments?target=${encodeURIComponent(this.target)}`,
+          `${this.dataset.endpoint}?target=${encodeURIComponent(this.target)}`,
         )
         if (!response.ok) throw new Error(String(response.status))
         const data = (await response.json()) as { comments: Comment[] }
@@ -295,7 +301,7 @@ const ui = getUIStrings(locale)
       }
 
       try {
-        const response = await fetch("/api/comments", {
+        const response = await fetch(this.dataset.endpoint ?? "", {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({

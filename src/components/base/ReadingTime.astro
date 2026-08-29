@@ -24,8 +24,11 @@ const {
 
 const ui = getUIStrings(Astro.url.pathname)
 
-// Calculate reading time in minutes (220 words per minute)
-const calculateMinutes = (words: number) => Math.max(1, Math.round(words / 220))
+/** Average adult reading speed, and the floor of one minute for short posts. */
+const WORDS_PER_MINUTE = 220
+
+const calculateMinutes = (words: number) =>
+  Math.max(1, Math.round(words / WORDS_PER_MINUTE))
 
 const primaryMinutes = calculateMinutes(wordCount)
 const primaryText = customSuffix

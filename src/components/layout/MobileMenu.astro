@@ -5,12 +5,8 @@ import Dropdown from "@/components/base/Dropdown.astro"
 import Icon from "@/components/base/Icon.astro"
 
 import ThemeOptions from "./ThemeOptions.astro"
-import {
-  DEFAULT_LOCALE,
-  localizedPath,
-  navLabel,
-  type SiteLocale,
-} from "@/lib/i18n"
+import { DEFAULT_LOCALE, localizedPath, type SiteLocale } from "@/lib/i18n"
+import { navLabel } from "@/lib/sections"
 import { getUIStrings } from "@/lib/ui-strings"
 
 interface Props {

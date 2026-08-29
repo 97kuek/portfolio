@@ -3,6 +3,12 @@
    muted line underneath. Both listings share this shape so a reader moving
    between them is not relearning the layout. */
 
+:root {
+  /* The row breakpoint and thumbnail width are mirrored by CONTENT_THUMB_SIZES
+     in src/lib/layout.ts, which tells the image which candidate to download. */
+  --content-thumb-size: 12rem;
+}
+
 .content-list {
   display: grid;
   gap: var(--space-m);
@@ -51,7 +57,7 @@
    below them stay on one grid however the source images are cropped. */
 .content-row-thumb {
   inline-size: 100%;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: var(--aspect-thumbnail);
   flex-shrink: 0;
   border-radius: var(--radius-lg);
   overflow: clip;
@@ -82,6 +88,14 @@
   padding: 0;
   margin: 0;
   list-style: none;
+}
+
+/* Flex list items, so each pill's box is the item's box. As list items they
+   pick up a text line's leading instead, which drops a badge a pixel below a
+   chip whose tap target makes its own item taller. */
+.content-row-aside > li {
+  display: flex;
+  align-items: center;
 }
 
 .content-row-aside a {
@@ -119,7 +133,6 @@
   }
 
   .content-row-thumb {
-    inline-size: 12rem;
-    aspect-ratio: 16 / 11;
+    inline-size: var(--content-thumb-size);
   }
 }

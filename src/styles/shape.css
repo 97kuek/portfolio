@@ -18,6 +18,17 @@
   --blur-3xl: 64px;
 
   --aspect-video: 16 / 9;
+  /* Listing thumbnails, so a row of them lines up whatever shape the source
+     images are. Heroes and covers use --aspect-video. */
+  --aspect-thumbnail: 16 / 10;
+
+  /* Badges and taxonomy chips are the same pill in two components; these keep
+     the visible box identical between them. The tap target is separate: an
+     interactive chip stays --control-size-compact tall around this box. */
+  --pill-block-size: 1.625rem;
+  --pill-padding-inline: 0.5rem;
+  --pill-gap: 0.25rem;
+  --pill-radius: var(--radius-md);
 
   --motion-duration-fast: 180ms;
   --motion-duration: 260ms;

@@ -11,8 +11,18 @@
  *   pnpm comments backup [file.sql]
  */
 import { spawnSync } from "node:child_process"
+import { readFileSync } from "node:fs"
 
-const DATABASE = "portfolio-interactions"
+/* Read from the deployment config so the name is written down once. */
+const wrangler = JSON.parse(
+  readFileSync(new URL("../wrangler.jsonc", import.meta.url), "utf8"),
+)
+const DATABASE = wrangler.d1_databases?.[0]?.database_name
+
+if (!DATABASE) {
+  console.error("No d1_databases entry in wrangler.jsonc")
+  process.exit(1)
+}
 const [command, ...args] = process.argv.slice(2)
 
 const run = (wranglerArgs) => {

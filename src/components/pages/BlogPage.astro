@@ -3,44 +3,37 @@ import CommonLayout from "@/layouts/CommonLayout.astro"
 import Icon from "@/components/base/Icon.astro"
 import FormattedDate from "@/components/base/FormattedDate.astro"
 import PostRow from "@/components/blog/PostRow.astro"
-import { PostManager } from "@/lib/blog"
-import { isContentInLocale } from "@/lib/content-locale"
+import { getPostsInLocale, withMetadata } from "@/lib/blog/listing"
 import { getSiteLocale } from "@/lib/i18n"
+import { sectionCrumb, sectionLabel } from "@/lib/sections"
 
 import "@/styles/content-row.css"
 
 const locale = getSiteLocale(Astro.url.pathname)
 const isEnglish = locale === "en"
 
-const postManager = PostManager.getInstance()
-const posts = (await postManager.getMainPosts()).filter((post) =>
-  isContentInLocale(post.data, locale),
-)
-const metadata = await postManager.getBatchMetadata(posts.map((p) => p.id))
+const entries = await withMetadata(await getPostsInLocale(locale))
 ---
 
 <CommonLayout
-  title={isEnglish ? "Blog" : "ブログ"}
+  title={sectionLabel("blog", locale)}
   description={isEnglish
     ? "Notes on AI engineering, learning, and building software."
     : "AIエンジニアリング、学び、ソフトウェア開発について記録します。"}
   prose={false}
-  breadcrumbs={[{ label: isEnglish ? "Blog" : "ブログ", icon: "blog" }]}
+  breadcrumbs={[sectionCrumb("blog", locale, { current: true })]}
 >
-  {posts.length > 0 ? (
+  {entries.length > 0 ? (
       <ul class="content-list">
-        {posts.map((post) => {
-          const meta = metadata.get(post.id)
-          return meta ? (
-            <li>
-              <FormattedDate
-                date={post.data.createdAt}
-                class="content-list-date"
-              />
-              <PostRow metadata={meta} />
-            </li>
-          ) : null
-        })}
+        {entries.map(({ post, meta }) => (
+          <li>
+            <FormattedDate
+              date={post.data.createdAt}
+              class="content-list-date"
+            />
+            <PostRow metadata={meta} />
+          </li>
+        ))}
       </ul>
     ) : (
       <section class="blog-empty">

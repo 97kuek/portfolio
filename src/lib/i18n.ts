@@ -47,12 +47,3 @@ export const alternateLanguagePath = (pathname: string) => {
     ? localizedPath(pathname, PREFIXED_LOCALE)
     : LOCALE_PREFIX
 }
-
-const japaneseNavLabels: Record<string, string> = {
-  "/projects": "プロジェクト",
-  "/experience": "経歴",
-  "/blog": "ブログ",
-}
-
-export const navLabel = (href: string, label: string, locale: SiteLocale) =>
-  locale === "en" ? label : (japaneseNavLabels[href] ?? label)

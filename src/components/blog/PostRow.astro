@@ -9,6 +9,7 @@ import { getStageVariant } from "@/lib/blog/stage"
 import { taxonomyPath } from "@/lib/blog/taxonomy"
 import type { PostMeta } from "@/lib/blog/types"
 import { getContentHref, getContentSlug } from "@/lib/content-locale"
+import { CONTENT_THUMB_SIZES } from "@/lib/layout"
 import { getSiteLocale } from "@/lib/i18n"
 
 import "@/styles/content-row.css"
@@ -27,7 +28,7 @@ const tags = metadata.tags ?? []
     <CoverImage
       image={metadata.image}
       seed={getContentSlug(metadata.id, metadata)}
-      sizes="(max-width: 40rem) 100vw, 12rem"
+      sizes={CONTENT_THUMB_SIZES}
     />
   </div>
 

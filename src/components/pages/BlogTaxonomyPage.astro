@@ -2,11 +2,12 @@
 import CommonLayout from "@/layouts/CommonLayout.astro"
 import FormattedDate from "@/components/base/FormattedDate.astro"
 import PostRow from "@/components/blog/PostRow.astro"
-import { PostManager } from "@/lib/blog"
 import { getStageConfig } from "@/lib/blog/stage"
 import type { TaxonomyKind } from "@/lib/blog/taxonomy"
-import { getPostsByTaxonomy, tagsIndexPath } from "@/lib/blog/taxonomy"
-import { getSiteLocale, localizedPath } from "@/lib/i18n"
+import { withMetadata } from "@/lib/blog/listing"
+import { getPostsByTaxonomy } from "@/lib/blog/taxonomy"
+import { getSiteLocale } from "@/lib/i18n"
+import { sectionCrumb } from "@/lib/sections"
 
 import "@/styles/content-row.css"
 
@@ -19,9 +20,8 @@ const { kind, value } = Astro.props
 const locale = getSiteLocale(Astro.url.pathname)
 const isEnglish = locale === "en"
 
-const posts = await getPostsByTaxonomy(locale, kind, value)
-const metadata = await PostManager.getInstance().getBatchMetadata(
-  posts.map((post) => post.id),
+const entries = await withMetadata(
+  await getPostsByTaxonomy(locale, kind, value),
 )
 
 const isTag = kind === "tag"
@@ -39,32 +39,17 @@ const description =
   description={description}
   prose={false}
   breadcrumbs={[
-    {
-      label: isEnglish ? "Blog" : "ブログ",
-      href: localizedPath("/blog", locale),
-      icon: "blog",
-    },
-    ...(isTag
-      ? [
-          {
-            label: isEnglish ? "Tags" : "タグ",
-            href: tagsIndexPath(locale),
-            icon: "tags",
-          },
-        ]
-      : []),
+    sectionCrumb("blog", locale),
+    ...(isTag ? [sectionCrumb("tags", locale)] : []),
     { label: heading },
   ]}
 >
   <ul class="content-list">
-    {posts.map((post) => {
-      const meta = metadata.get(post.id)
-      return meta ? (
-        <li>
-          <FormattedDate date={post.data.createdAt} class="content-list-date" />
-          <PostRow metadata={meta} />
-        </li>
-      ) : null
-    })}
+    {entries.map(({ post, meta }) => (
+      <li>
+        <FormattedDate date={post.data.createdAt} class="content-list-date" />
+        <PostRow metadata={meta} />
+      </li>
+    ))}
   </ul>
 </CommonLayout>
