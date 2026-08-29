@@ -18,7 +18,6 @@ import { localizedPath } from "@/lib/i18n"
 import {
   getProjectLinks,
   getProjectNavigation,
-  getProjectTypeLabel,
   type Project,
 } from "@/lib/projects"
 
@@ -27,8 +26,7 @@ interface Props {
 }
 
 const { project } = Astro.props
-const { title, description, image, fromDate, toDate, types, skills } =
-  project.data
+const { title, description, image, fromDate, toDate, skills } = project.data
 
 const locale = getContentLocale(project.data)
 const isEnglish = locale === "en"
@@ -72,11 +70,6 @@ const { prev, next } = await getProjectNavigation(project.id, (candidate) =>
         presentLabel={isEnglish ? "Present" : "現在"}
         showIcon
       />
-      {types.length > 0 && (
-          <span class="project-types">
-            {types.map((type) => getProjectTypeLabel(type)).join(" · ")}
-          </span>
-        )}
     </p>
     {links.length > 0 && (
         <ul class="project-links">
@@ -145,11 +138,6 @@ const { prev, next } = await getProjectNavigation(project.id, (candidate) =>
     align-items: center;
     gap: var(--space-2xs) var(--space-s);
     margin: 0;
-  }
-
-  .project-types {
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
   }
 
   .project-links {

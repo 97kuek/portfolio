@@ -135,39 +135,6 @@ const titleHref = hasDetailPage
     line-height: calc(var(--leading-offset) + 1em);
   }
 
-  /* Featured rows get a star in the gutter rather than a badge, echoing the
-     one on section headings. Positioned absolutely so the marker never shifts
-     the title and every row keeps the same left edge to scan down. */
-  .project-row.is-highlighted .project-row-title::before {
-    content: "";
-    position: absolute;
-    inset-block-start: 0.525rem;
-    inset-inline-start: -1rem;
-    inline-size: 0.6rem;
-    block-size: 0.6rem;
-    background: var(--primary);
-    clip-path: polygon(
-      50% 0,
-      58% 40%,
-      100% 50%,
-      58% 60%,
-      50% 100%,
-      42% 60%,
-      0 50%,
-      42% 40%
-    );
-    opacity: 0.75;
-    transition:
-      opacity var(--motion-duration) var(--motion-ease),
-      transform var(--motion-duration) var(--motion-ease);
-  }
-
-  .project-row:hover .project-row-title::before,
-  .project-row:focus-within .project-row-title::before {
-    opacity: 1;
-    transform: scale(1.5) rotate(25deg);
-  }
-
   .project-row-links {
     display: flex;
     flex-wrap: wrap;

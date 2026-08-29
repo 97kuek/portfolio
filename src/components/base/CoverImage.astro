@@ -65,7 +65,7 @@ const createRandom = (seedValue: number) => {
 }
 
 const random = createRandom(seedHash)
-const STAR_COUNT = 26
+const STAR_COUNT = 34
 const stars = Array.from({ length: STAR_COUNT }, () => {
   const x = random()
   const y = random()
@@ -75,7 +75,9 @@ const stars = Array.from({ length: STAR_COUNT }, () => {
     cx: x * WIDTH,
     // Stars thin out towards the horizon rather than filling the whole frame.
     cy: y ** 1.4 * (HEIGHT * 0.72),
-    r: 0.35 + size * 0.9,
+    // Kept small: the same drawing is a 12rem thumbnail and a full-width
+    // banner, and anything larger reads as blobs once it is scaled up.
+    r: 0.22 + size * 0.5,
     opacity: 0.4 + glow * 0.5,
   }
 })
