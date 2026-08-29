@@ -27,7 +27,7 @@ const dateSchema = z
  * filename, because the glob loader strips punctuation when it derives ids.
  */
 const localeFields = {
-  lang: z.enum(["ja", "en"]).default("en"),
+  lang: z.enum(["ja", "en"]).default("ja"),
   routeSlug: z
     .string()
     .optional()
@@ -72,6 +72,8 @@ const people = defineCollection({
     z.object({
       id: z.string(),
       name: z.string(),
+      /** Japanese form of the name, shown on the Japanese pages. */
+      nameJa: z.string().optional(),
       pronouns: z.string().optional(),
       avatar: z
         .union([z.url(), z.string().startsWith("/"), image()])

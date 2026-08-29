@@ -4,6 +4,8 @@ import Avatar from "@/components/base/Avatar.astro"
 
 interface Props {
   author: AuthorData
+  /** Overrides the author's own name, for pages in another language. */
+  displayName?: string
   class?: string
   "data-slot"?: string
   fallbackStyle?: "first-initial" | "all-initials"
@@ -12,13 +14,14 @@ interface Props {
 
 const {
   author,
+  displayName,
   class: className,
   "data-slot": dataSlot = "author-avatar",
   fallbackStyle = "first-initial",
   ...imageProps
 } = Astro.props
 
-const authorName = author?.name || author?.id || "Unknown"
+const authorName = displayName || author?.name || author?.id || "Unknown"
 const authorAvatar = author?.avatar || ""
 
 // Generate fallback text based on style

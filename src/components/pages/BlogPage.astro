@@ -1,10 +1,13 @@
 ---
 import CommonLayout from "@/layouts/CommonLayout.astro"
 import Icon from "@/components/base/Icon.astro"
-import PreviewCard from "@/components/blog/PreviewCard.astro"
+import FormattedDate from "@/components/base/FormattedDate.astro"
+import PostRow from "@/components/blog/PostRow.astro"
 import { PostManager } from "@/lib/blog"
 import { isContentInLocale } from "@/lib/content-locale"
 import { getSiteLocale } from "@/lib/i18n"
+
+import "@/styles/content-row.css"
 
 const locale = getSiteLocale(Astro.url.pathname)
 const isEnglish = locale === "en"
@@ -25,12 +28,16 @@ const metadata = await postManager.getBatchMetadata(posts.map((p) => p.id))
   breadcrumbs={[{ label: isEnglish ? "Blog" : "ブログ", icon: "blog" }]}
 >
   {posts.length > 0 ? (
-      <ul class="post-list">
+      <ul class="content-list">
         {posts.map((post) => {
           const meta = metadata.get(post.id)
           return meta ? (
             <li>
-              <PreviewCard metadata={meta} />
+              <FormattedDate
+                date={post.data.createdAt}
+                class="content-list-date"
+              />
+              <PostRow metadata={meta} />
             </li>
           ) : null
         })}
@@ -51,14 +58,6 @@ const metadata = await postManager.getBatchMetadata(posts.map((p) => p.id))
 </CommonLayout>
 
 <style>
-  .post-list {
-    display: grid;
-    gap: var(--space-s);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
   .blog-empty {
     display: flex;
     min-block-size: 18rem;

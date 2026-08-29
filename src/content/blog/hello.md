@@ -1,6 +1,6 @@
 ---
-title: "Introduction"
-description: "My portfolio is live. An introduction to who I am, what I am building right now, and what I plan to write about here."
+title: "自己紹介"
+description: "ポートフォリオを公開しました。自己紹介と、いま作っているもの、そしてこのブログで何を書いていくかについて。"
 createdAt: 2026-08-29
 tags:
   - "intro"
@@ -10,52 +10,47 @@ image: "../../assets/photos/wasa-night.jpg"
 stage: "seedling"
 ---
 
-Hello — I'm Keitaro Ueki.
+こんにちは、植木敬太郎です！
 
-I kept wondering what the first post here should be, so I decided to just introduce myself.
+記念すべき最初の記事をどうしようかなぁと思ったので、
+とりあえず自己紹介を書いておきます。
 
-I'm a third-year undergraduate in the Department of Communications and Computer Engineering at
-Waseda University, and I also work as an AI engineering intern.
+私は現在、早稲田大学 基幹理工学部 情報通信学科の学部3年生です。
+AIエンジニアとしてインターンもしております。
 
-## What I'm studying
 
-My department covers a wide range, from deep learning topics such as Transformers through
-communications technology and embedded systems.
+## いま学んでいること
 
-My own interest leans toward AI, and I keep learning about it outside of coursework and through my
-internship.
+学科では、Transformerといった深層学習の分野から通信技術・組み込みまで手広く学んでいます。
 
-## What I'm building
+私は、どちらかというとAI系の分野に興味があり、学校外での勉強やインターンでの活動を通して勉強をしています。
 
-Most of my time right now goes to [WASA Chat](/projects/wasa-chat), a chatbot that answers
-natural-language questions across the handover wiki and public documents of WASA, Waseda's
-human-powered aircraft project.
+## 作っているもの
 
-![A WASA human-powered aircraft during a test flight, with the crew running alongside](../../assets/photos/wasa-test-flight.jpg)
+いま一番時間を使っているのは、[WASA Chat](/projects/wasa-chat)です。
+早稲田大学の鳥人間プロジェクトWASAの引き継ぎWikiと公開資料を横断して、自然言語で質問できるチャットボットを開発しています。
 
-What makes it interesting is that the hard part is not producing clever answers — it's not producing
-wrong ones. People read the handover documents and then build an aircraft based on what they read, so
-a plausible-sounding fabrication is the worst possible failure. That's why every answer carries its
-sources and links back to the original document.
+![滑走路を走るWASAの人力飛行機のテストフライト](../../assets/photos/wasa-test-flight.jpg)
 
-The other one is [HRS](/projects/hrs), a hotel reservation system from my software engineering
-course. It was my first proper experience of doing UML analysis and design first and implementing
-afterwards. Implementing exactly what the design says turned out to be harder than expected, and I
-redrew the line between "decided in the diagram" and "decided in the code" several times.
+このプロジェクトで面白いのは、技術的な難しさが「賢い回答を作ること」よりも「間違った回答を出さないこと」に寄っている点です。
+引き継ぎ資料は、読んだ人がそれを信じて機体を作るためのものなので、もっともらしい嘘が一番困ります。
+だから回答には必ず出典を付けて、もとの資料へ戻れるようにしました。
 
-## What I'll write here
+もう一つは、ソフトウェア工学の授業で作った[HRS](/projects/hrs)というホテル予約システムです。
+UMLで分析・設計をしてから実装する、という進め方を初めてきちんと経験しました。
+設計どおりに実装するのは思ったより難しく、どこまでを図で決めてどこからをコードで決めるのか、という線引きを何度も引き直しました。
 
-Roughly three things:
+## このブログで書くこと
 
-1. **Records of what I build** — less about what I made, more about why it is designed that way. The
-   reasoning is what I forget first.
-2. **Notes on what I learn** — a place to rewrite what I understood from a lecture or a paper in my
-   own words.
-3. **Things that didn't work** — failed implementations and options I decided against. That kind of
-   write-up is hard to find by searching, which is exactly why it seems worth writing.
+書こうと思っているのは、だいたい次の3つです。
 
-I can't promise a schedule yet, but I'll write when I have something to say.
+1. **作ったものの記録** — 何を作ったかより、なぜその設計にしたかを残しておきたいです。時間が経つと理由のほうから先に忘れるので。
+2. **学んだことの整理** — 講義や論文で理解したことを、自分の言葉で書き直す場所として使います。
+3. **うまくいかなかったこと** — 動かなかった実装や、選ばなかった選択肢についても書きます。この手の話は検索してもあまり出てこないので、書く価値があると思っています。
 
-## Contact
+更新頻度は正直まだ分かりませんが、書けるときに書いていきます。
 
-My work and code live on [GitHub](https://github.com/97kuek). Feel free to reach out there.
+## 連絡先
+
+制作物やコードは[GitHub](https://github.com/97kuek)に置いています。
+気になることがあれば、そちらから声をかけてください。

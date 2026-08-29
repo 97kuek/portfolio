@@ -1,6 +1,6 @@
 ---
-title: "HRS — Hotel Reservation System"
-description: "A hotel booking web app where guests handle everything from reservation to check-out themselves, built from UML analysis and design through implementation."
+title: "HRS — ホテル予約システム"
+description: "予約からチェックアウトまでを利用者自身で完結できるホテル予約Webアプリ。UMLによる分析・設計と実装を通しで担当しました。"
 fromDate: "2026-06"
 toDate: "2026-07"
 code: "https://github.com/97kuek/HRS"
@@ -20,38 +20,35 @@ skills:
 selected: true
 ---
 
-## Overview
+## 概要
 
-HRS is a hotel reservation system built as a team project for the Software Engineering A course.
-Guests can book a room, look up or cancel a reservation, check in, and check out entirely on their
-own, without going through the front desk.
+大学の授業の一環として制作した、ホテル予約システムです。
+予約、予約確認、キャンセル、チェックイン、チェックアウトまでを、フロント係を介さず利用者自身の操作で完結できます。
 
-The point of the assignment was object-oriented analysis and design in UML, and then implementing
-exactly what that design described. The repository therefore keeps the design documents and the
-implementation side by side.
+課題の主眼はUMLによるオブジェクト指向分析・設計と、その設計どおりに実装できるかという点にありました。
+そのためリポジトリでは、設計ドキュメントと実装を同じ場所で管理しています。
 
-## Features
+## 機能
 
-| Feature | Description |
+| 機能 | 内容 |
 | --- | --- |
-| Reservation | Book by entering dates, room, and guest details |
-| Lookup | Retrieve a reservation by number and lead guest name |
-| Cancellation | Cancel a reservation by number and lead guest name |
-| Check-in | Verify the reservation and assign a room |
-| Check-out | Confirm charges and payment method, then complete the stay |
-| Email | Sent on booking, cancellation, the day before arrival, and at check-out |
+| 予約 | 日程・客室・宿泊者情報を入力して予約 |
+| 予約確認 | 予約番号と代表者氏名で予約内容を照会 |
+| キャンセル | 予約番号と代表者氏名で予約を取り消し |
+| チェックイン | 予約情報を照合し、部屋を割り当て |
+| チェックアウト | 料金と支払い方法を確認して宿泊を完了 |
+| メール通知 | 予約・キャンセル・前日・チェックアウト時に送信 |
 
-The day-before reminder runs as a Vercel Cron Job every day at 9:00 JST.
+チェックイン前日の通知は、Vercel Cron Jobで毎日9:00 JSTに実行しています。
 
-## Stack
+## 技術構成
 
-The application is TypeScript on Next.js App Router and React, with Route Handlers for the API,
-Prisma for data access, and PostgreSQL (Neon or Docker) as the database. Email goes through Resend,
-tests run on Vitest, and deployment is Vercel plus Neon.
+アプリケーションはNext.js App RouterとReact、APIはRoute Handlers、データアクセスはPrisma、
+データベースはPostgreSQL（NeonまたはDocker）という構成です。
+メール送信はResend、テストはVitest、デプロイはVercelとNeonを使っています。
 
-## What I worked on
+## 取り組んだこと
 
-The question I spent the most time on was how to keep the implementation from drifting away from the
-design. The responsibilities settled in the class and sequence diagrams became the module boundaries
-directly, and the rules that matter to the specification — such as matching a reservation by number
-and guest name — are pinned down by tests.
+設計と実装のずれをどう防ぐかが、このプロジェクトで一番考えた点でした。
+クラス図とシーケンス図で決めた責務をそのままモジュール分割に落とし込み、
+予約番号と氏名による照合のように、仕様上重要な条件はテストで固定しています。

@@ -2,11 +2,14 @@
 import { ClientRouter } from "astro:transitions"
 
 import { PROFILE, SITE } from "@site-config"
+import { getDisplayName } from "@/components/profile/helper"
 import {
+  DEFAULT_LOCALE,
   getLocaleTag,
   getSiteLocale,
   hasTranslation,
   localizedPath,
+  stripLocalePrefix,
 } from "@/lib/i18n"
 
 interface Props {
@@ -35,11 +38,7 @@ const {
   section,
 } = Astro.props
 const locale = getSiteLocale(Astro.url.pathname)
-const japaneseName = Array.isArray(PROFILE.othernames)
-  ? PROFILE.othernames[0]
-  : PROFILE.othernames
-const localizedSiteTitle =
-  locale === "en" ? SITE.title : japaneseName || SITE.title
+const localizedSiteTitle = getDisplayName(locale)
 const localizedTagline =
   locale === "en" ? PROFILE.tagline : PROFILE.taglineJa || PROFILE.tagline
 
@@ -88,21 +87,14 @@ const canonicalURL = new URL(
    palette preview or 404 would point search engines at a page that is not a
    translation of anything. */
 const siteOrigin = Astro.site || SITE.href
-const translatedPath = Astro.url.pathname.replace(/^\/ja(?=\/|$)/, "") || "/"
+const unprefixedPath = stripLocalePrefix(Astro.url.pathname)
+const alternateUrl = (target: typeof locale) =>
+  new URL(localizedPath(unprefixedPath, target), siteOrigin).toString()
 const languageAlternates = hasTranslation(Astro.url.pathname)
   ? [
-      { hreflang: "en", href: new URL(translatedPath, siteOrigin).toString() },
-      {
-        hreflang: "ja",
-        href: new URL(
-          localizedPath(translatedPath, "ja"),
-          siteOrigin,
-        ).toString(),
-      },
-      {
-        hreflang: "x-default",
-        href: new URL(translatedPath, siteOrigin).toString(),
-      },
+      { hreflang: "ja", href: alternateUrl("ja") },
+      { hreflang: "en", href: alternateUrl("en") },
+      { hreflang: "x-default", href: alternateUrl(DEFAULT_LOCALE) },
     ]
   : []
 
@@ -216,7 +208,7 @@ const structuredData = {
   <link
     rel="alternate"
     type="application/rss+xml"
-    title={SITE.title}
+    title={localizedSiteTitle}
     href={new URL(localizedPath("/rss.xml", locale), siteOrigin).toString()}
   >
 

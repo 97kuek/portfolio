@@ -7,9 +7,9 @@ import type {
 } from "@/types"
 
 export const SITE: SiteConfig = {
-  title: "Keitaro Ueki",
+  title: "植木 敬太郎",
   description:
-    "Portfolio of Keitaro Ueki, an AI engineer studying communications and computer engineering at Waseda University.",
+    "早稲田大学で情報通信を学ぶAIエンジニア、植木敬太郎のポートフォリオ。",
   href: "https://97kuek.pages.dev/",
   author: "Keitaro Ueki",
   dir: "ltr",
@@ -17,7 +17,7 @@ export const SITE: SiteConfig = {
   defaultPostImage: "/img/social-preview.jpg",
 
   locale: {
-    lang: "en-US",
+    lang: "ja-JP",
     options: {
       day: "numeric",
       month: "short",
@@ -53,7 +53,7 @@ export const SITE: SiteConfig = {
 
 export const PROFILE: ProfileConfig = {
   name: SITE.title,
-  othernames: "植木 敬太郎",
+  othernames: "Keitaro Ueki",
   tagline: "AI Engineer / Waseda University, Comm B3",
   taglineJa: "早稲田大学 情報通信学科 B3 / AIエンジニア",
   email: "ueki.keitaro@gmail.com",

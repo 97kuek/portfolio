@@ -1,0 +1,125 @@
+/* Projects and blog posts are the same kind of thing in a list: a thumbnail, a
+   linked title with a few inline affordances beside it, a description, and one
+   muted line underneath. Both listings share this shape so a reader moving
+   between them is not relearning the layout. */
+
+.content-list {
+  display: grid;
+  gap: var(--space-m);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.content-list > li {
+  display: grid;
+  gap: var(--space-2xs);
+  padding-block-end: var(--space-m);
+  border-block-end: 1px solid var(--border);
+}
+
+.content-list > li:last-child {
+  padding-block-end: 0;
+  border-block-end: none;
+}
+
+.content-list-date {
+  color: var(--muted-foreground);
+  font-size: var(--step--1);
+}
+
+.content-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  padding-block: var(--space-2xs);
+}
+
+.content-row[hidden] {
+  display: none;
+}
+
+.content-row-body {
+  display: flex;
+  min-inline-size: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-3xs);
+}
+
+/* A fixed ratio keeps every row's thumbnail the same shape, so the titles
+   below them stay on one grid however the source images are cropped. */
+.content-row-thumb {
+  inline-size: 100%;
+  aspect-ratio: 16 / 10;
+  flex-shrink: 0;
+  border-radius: var(--radius-lg);
+  overflow: clip;
+  outline: 1px solid light-dark(oklch(0 0 0 / 10%), oklch(1 0 0 / 10%));
+  outline-offset: -1px;
+}
+
+.content-row-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-3xs) var(--space-xs);
+}
+
+.content-row-title {
+  position: relative;
+  margin: 0;
+  font-size: var(--step-0);
+  font-weight: var(--font-weight-medium);
+  line-height: calc(var(--leading-offset) + 1em);
+}
+
+.content-row-aside {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2xs);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.content-row-aside a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  color: var(--muted-foreground);
+  font-size: var(--step--1);
+}
+
+.content-row-aside a svg {
+  inline-size: 0.875em;
+  block-size: 0.875em;
+}
+
+.content-row-description {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: var(--step--1);
+  line-height: calc(var(--leading-offset) + 1em);
+}
+
+.content-row-meta {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: var(--step--1);
+  opacity: 0.75;
+}
+
+@media (width >= 40rem) {
+  .content-row {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--space-s);
+  }
+
+  .content-row-thumb {
+    inline-size: 12rem;
+    aspect-ratio: 16 / 11;
+  }
+}

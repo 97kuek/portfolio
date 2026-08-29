@@ -8,6 +8,8 @@ import { isContentInLocale } from "@/lib/content-locale"
 import { getSiteLocale } from "@/lib/i18n"
 import { getProjects } from "@/lib/projects"
 
+import "@/styles/content-row.css"
+
 const locale = getSiteLocale(Astro.url.pathname)
 const isEnglish = locale === "en"
 
@@ -28,7 +30,7 @@ const projects = await getProjects((project) =>
   }]}
 >
   {projects.length > 0 ? (
-      <ul class="project-list">
+      <ul class="content-list">
         {projects.map((project) => (
           <li>
             <DateRange
@@ -37,7 +39,7 @@ const projects = await getProjects((project) =>
               locale={isEnglish ? "en-US" : "ja-JP"}
               presentLabel={isEnglish ? "Present" : "現在"}
               showIcon
-              class="project-list-date"
+              class="content-list-date"
             />
             <ProjectRow project={project} />
           </li>
@@ -61,30 +63,6 @@ const projects = await getProjects((project) =>
 </CommonLayout>
 
 <style>
-  .project-list {
-    display: grid;
-    gap: var(--space-m);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .project-list > li {
-    display: grid;
-    gap: var(--space-2xs);
-    padding-block-end: var(--space-m);
-    border-block-end: 1px solid var(--border);
-  }
-
-  .project-list > li:last-child {
-    padding-block-end: 0;
-    border-block-end: none;
-  }
-
-  :global(.project-list-date) {
-    font-size: var(--step--1);
-  }
-
   .project-empty {
     display: flex;
     min-block-size: 18rem;

@@ -1,3 +1,5 @@
+import type { SiteLocale } from "@/lib/i18n"
+
 import { getCollection, getEntry } from "astro:content"
 
 import { PROFILE, SITE } from "@site-config"
@@ -65,3 +67,9 @@ export async function resolveAuthors(
     )
     .map((result) => result.value)
 }
+
+/** Author name in the language of the page, mirroring the profile's rule. */
+export const getAuthorName = (
+  author: { name: string; nameJa?: string },
+  locale: SiteLocale,
+): string => (locale === "en" ? author.name : author.nameJa || author.name)

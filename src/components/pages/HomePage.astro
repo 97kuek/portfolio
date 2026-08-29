@@ -3,8 +3,10 @@ import { getCollection } from "astro:content"
 
 import Layout from "@/layouts/Layout.astro"
 import Section from "@/components/layout/Section.astro"
-import PreviewCard from "@/components/blog/PreviewCard.astro"
+import FormattedDate from "@/components/base/FormattedDate.astro"
+import PostRow from "@/components/blog/PostRow.astro"
 import Profile from "@/components/profile/Profile.astro"
+import DateRange from "@/components/projects/DateRange.astro"
 import ProjectRow from "@/components/projects/ProjectRow.astro"
 import ExperienceTimeline from "@/components/timeline/ExperienceTimeline.astro"
 import { PROFILE } from "@site-config"
@@ -12,6 +14,8 @@ import { PostManager } from "@/lib/blog"
 import { isContentInLocale } from "@/lib/content-locale"
 import { getSiteLocale, localizedPath } from "@/lib/i18n"
 import { getProjects } from "@/lib/projects"
+
+import "@/styles/content-row.css"
 
 const locale = getSiteLocale(Astro.url.pathname)
 const isEnglish = locale === "en"
@@ -69,9 +73,17 @@ const latestPostMetadata = await postManager.getBatchMetadata(
         moreLink={localizedPath("/projects", locale)}
         moreText={isEnglish ? "All projects →" : "すべて見る →"}
       >
-        <ul class="home-project-list">
+        <ul class="content-list">
           {projects.map((project) => (
             <li>
+              <DateRange
+                fromDate={project.data.fromDate}
+                toDate={project.data.toDate}
+                locale={isEnglish ? "en-US" : "ja-JP"}
+                presentLabel={isEnglish ? "Present" : "現在"}
+                showIcon
+                class="content-list-date"
+              />
               <ProjectRow project={project} />
             </li>
           ))}
@@ -93,12 +105,16 @@ const latestPostMetadata = await postManager.getBatchMetadata(
         moreLink={localizedPath("/blog", locale)}
         moreText={isEnglish ? "All posts →" : "すべて見る →"}
       >
-        <ul class="home-post-list">
+        <ul class="content-list">
           {latestPosts.map((post) => {
             const metadata = latestPostMetadata.get(post.id)
             return metadata ? (
               <li>
-                <PreviewCard metadata={metadata} />
+                <FormattedDate
+                  date={post.data.createdAt}
+                  class="content-list-date"
+                />
+                <PostRow metadata={metadata} />
               </li>
             ) : null
           })}
@@ -108,20 +124,6 @@ const latestPostMetadata = await postManager.getBatchMetadata(
 </Layout>
 
 <style>
-  .home-project-list,
-  .home-post-list {
-    display: grid;
-    gap: var(--space-s);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .home-project-list > li:not(:last-child) {
-    padding-block-end: var(--space-s);
-    border-block-end: 1px solid var(--border);
-  }
-
   .focus-grid {
     display: grid;
     gap: var(--space-s);

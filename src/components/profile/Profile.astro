@@ -10,9 +10,9 @@ import Icon from "@/components/base/Icon.astro"
 import EmailLink from "./EmailLink.astro"
 import Pronunciation from "./Pronunciation.astro"
 import ProfileLinks from "./ProfileLinks.astro"
-import { getProfileLinkPlacement } from "./helper"
+import { getDisplayName, getProfileLinkPlacement } from "./helper"
 import { Content as AboutContent } from "@/content/about.md"
-import { Content as AboutJapaneseContent } from "@/content/about-ja.md"
+import { Content as AboutEnglishContent } from "@/content/about-en.md"
 import { getSiteLocale } from "@/lib/i18n"
 
 import "@/styles/callout.css"
@@ -26,11 +26,7 @@ const { profile } = Astro.props
 const aboutLinks = getProfileLinkPlacement("about")
 const locale = getSiteLocale(Astro.url.pathname)
 const isEnglish = locale === "en"
-const japaneseName = Array.isArray(profile.othernames)
-  ? profile.othernames[0]
-  : profile.othernames
-const displayName = isEnglish ? profile.name : japaneseName || profile.name
-const alternateName = isEnglish ? japaneseName : profile.name
+const displayName = getDisplayName(locale)
 const tagline = isEnglish
   ? profile.tagline
   : profile.taglineJa || profile.tagline
@@ -43,8 +39,8 @@ const tagline = isEnglish
       alt={displayName}
       fallback={isEnglish ? "KU" : "植"}
       data-slot="profile-avatar"
-      width={320}
-      height={320}
+      width={288}
+      height={288}
       loading="eager"
       fetchpriority="high"
       class="profile-avatar"
@@ -60,7 +56,6 @@ const tagline = isEnglish
               </Badge>
             )}
         </h1>
-        {alternateName && <p class="profile-othernames">{alternateName}</p>}
         <p class="profile-tagline">{tagline}</p>
       </div>
 
@@ -87,7 +82,7 @@ const tagline = isEnglish
 </article>
 
 <prose-content>
-  {isEnglish ? <AboutContent /> : <AboutJapaneseContent />}
+  {isEnglish ? <AboutEnglishContent /> : <AboutContent />}
 </prose-content>
 
 {aboutLinks.length > 0 && (
@@ -108,9 +103,9 @@ const tagline = isEnglish
     margin-block-start: var(--space-s);
   }
 
-  .profile-avatar {
-    inline-size: 5.5rem;
-    block-size: 5.5rem;
+  :global(.profile-avatar) {
+    inline-size: 6rem;
+    block-size: 6rem;
     align-self: center;
   }
 
@@ -152,11 +147,6 @@ const tagline = isEnglish
     font-size: var(--step--1);
   }
 
-  .profile-othernames {
-    color: var(--muted-foreground);
-    font-size: var(--step--1);
-  }
-
   .profile-tagline {
     color: var(--foreground);
   }
@@ -189,9 +179,9 @@ const tagline = isEnglish
       align-items: flex-start;
     }
 
-    .profile-avatar {
-      inline-size: 8.5rem;
-      block-size: 8.5rem;
+    :global(.profile-avatar) {
+      inline-size: 9rem;
+      block-size: 9rem;
       align-self: flex-start;
     }
 

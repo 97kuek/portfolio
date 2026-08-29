@@ -175,7 +175,7 @@ export const ProfileConfigSchema = z.object({
    * Max 50 characters
    */
   tagline: z.string().max(50),
-  /** (Optional) Japanese rendering of the tagline, used on the /ja pages */
+  /** (Optional) Japanese rendering of the tagline, for the Japanese pages */
   taglineJa: z.string().max(50).optional(),
   /** Optional public contact email address */
   email: z.email().optional(),

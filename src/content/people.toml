@@ -1,6 +1,7 @@
 [keitaro]
 id          = "keitaro"
 name        = "Keitaro Ueki"
+nameJa      = "植木 敬太郎"
 bio         = "AI engineer and undergraduate student at Waseda University"
 affiliation = "Waseda University"
 avatar      = "../assets/avatar.jpg"

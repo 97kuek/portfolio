@@ -2,6 +2,7 @@ import rss from "@astrojs/rss"
 import type { APIContext } from "astro"
 
 import { SITE } from "@site-config"
+import { getDisplayName } from "@/components/profile/helper"
 import { PostManager } from "@/lib/blog"
 import { getContentHref, isContentInLocale } from "@/lib/content-locale"
 import type { SiteLocale } from "@/lib/i18n"
@@ -16,7 +17,7 @@ export const buildFeed = async (context: APIContext, locale: SiteLocale) => {
   )
 
   return rss({
-    title: SITE.title,
+    title: getDisplayName(locale),
     description:
       locale === "en"
         ? SITE.description

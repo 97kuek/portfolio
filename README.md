@@ -1,6 +1,6 @@
 # Keitaro Ueki — Portfolio
 
-植木敬太郎の個人ポートフォリオです。日本語と英語に対応しています。
+植木敬太郎の個人ポートフォリオです。日本語がデフォルトで、英語は `/en` 配下にあります。
 
 This is the bilingual personal portfolio of Keitaro Ueki.
 

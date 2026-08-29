@@ -10,7 +10,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
   const posts = await PostManager.getInstance().getAllPostsAndSubposts()
 
   return posts
-    .filter((post) => isContentInLocale(post.data, "en"))
+    .filter((post) => isContentInLocale(post.data, "ja"))
     .map((post) => ({
       params: { id: getContentSlug(post.id, post.data) },
       props: { post },

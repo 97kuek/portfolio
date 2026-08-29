@@ -1,9 +1,9 @@
 export type SiteLocale = "ja" | "en"
 
-/** English is the site's default language and owns the unprefixed routes. */
-export const DEFAULT_LOCALE: SiteLocale = "en"
-const PREFIXED_LOCALE: SiteLocale = "ja"
-const LOCALE_PREFIX = "/ja"
+/** Japanese is the site's default language and owns the unprefixed routes. */
+export const DEFAULT_LOCALE: SiteLocale = "ja"
+const PREFIXED_LOCALE: SiteLocale = "en"
+const LOCALE_PREFIX = "/en"
 
 /** BCP 47 tags for Intl formatting and the `lang` attribute. */
 const LOCALE_TAGS: Record<SiteLocale, string> = {
@@ -23,9 +23,9 @@ export const localizedPath = (href: string, locale: SiteLocale) => {
   return href === "/" ? LOCALE_PREFIX : `${LOCALE_PREFIX}${href}`
 }
 
-/** Path with the `/ja` prefix removed, whatever locale it came in as. */
-const stripPrefix = (pathname: string) =>
-  pathname.replace(/^\/ja(?=\/|$)/, "") || "/"
+/** Path with the locale prefix removed, whatever locale it came in as. */
+export const stripLocalePrefix = (pathname: string) =>
+  pathname.replace(/^\/en(?=\/|$)/, "") || "/"
 
 /**
  * Whether both languages actually build this page. The palette preview and
@@ -33,7 +33,7 @@ const stripPrefix = (pathname: string) =>
  * `hreflang` pair claiming a translation that is not there.
  */
 export const hasTranslation = (pathname: string): boolean => {
-  const path = stripPrefix(pathname)
+  const path = stripLocalePrefix(pathname)
   return (
     ["/", "/projects", "/experience", "/blog"].includes(path) ||
     /^\/(projects|blog)\/[^/]+$/.test(path)
@@ -41,7 +41,8 @@ export const hasTranslation = (pathname: string): boolean => {
 }
 
 export const alternateLanguagePath = (pathname: string) => {
-  if (getSiteLocale(pathname) === PREFIXED_LOCALE) return stripPrefix(pathname)
+  if (getSiteLocale(pathname) === PREFIXED_LOCALE)
+    return stripLocalePrefix(pathname)
   return hasTranslation(pathname)
     ? localizedPath(pathname, PREFIXED_LOCALE)
     : LOCALE_PREFIX

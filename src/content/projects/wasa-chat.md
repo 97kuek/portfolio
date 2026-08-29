@@ -1,7 +1,7 @@
 ---
 title: "WASA Chat"
 image: "../../assets/photos/wasa-test-flight.jpg"
-description: "A citation-backed RAG chatbot that answers questions across an internal wiki and public documents, running on Cloudflare Pages and Cloud Run."
+description: "部内Wikiと公開資料を横断して質問できる、出典付きのRAGチャットボット。Cloudflare PagesとCloud Runで運用しています。"
 fromDate: "2026-08"
 code: "https://github.com/97kuek/wasa-chat"
 url: "https://wasa-chat.pages.dev/"
@@ -21,39 +21,38 @@ skills:
 selected: true
 ---
 
-## Overview
+## 概要
 
-WASA, the human-powered aircraft project at Waseda University, keeps its knowledge spread across a
-handover wiki and a set of public documents. Finding the right page was the bottleneck, so I am
-building a chatbot that answers questions about all of it in natural language.
+私が所属していた人力飛行機製作サークル・WASAでは、機体設計から大会運営までの知識が引き継ぎWikiと公開資料に分散しています。
 
-Every answer carries its sources, and the numbered links in the text lead back to the original
-document. The index currently covers the handover wiki, the official site, and the flight simulator
-guide (FEE).
+WASAは40年以上の歴史があり、代ごとに引き継ぎ資料が積み重なっていきます。
 
-## Features
+引き継ぎの時に大切な要素は、部員が知りたい情報に素早くアクセスできることだと考えました。
 
-- Citation-backed chat, including questions with attached images
-- A shared assistant and up to 30 conversations of history
-- An admin view for usage, estimated API budget, document updates, and audit logs
-- Admin rights granted to individual wiki accounts instead of one shared account
+そこで、自然言語で質問できるチャットボットを開発しています。
 
-## Architecture
+回答には必ず出典が付き、本文中の番号リンクからもとの資料を確認できます。
+現在は引き継ぎWiki、公式サイト、フライトシミュレータガイド（FEE）を索引へ取り込んでいます。
 
-The interface runs on Cloudflare Pages, while authentication, retrieval, answer generation, and the
-admin API run on Cloud Run. The index — which contains wiki text — lives in a private Cloud Storage
-bucket, and history and usage data go to Firestore.
+## 主な機能
 
-Rather than fetching from the wiki on every question, the system searches an index built ahead of
-time. That keeps answers fast and keeps load and cost on external services low. Admins can check for
-changed documents from the dashboard, but rebuilding the index and shipping it to production stays a
-deliberate, human-reviewed step.
+- 出典付きのチャット回答と、画像添付による質問
+- 共有アシスタントと、最大30件の会話履歴
+- 管理画面からの利用状況・APIの推定残量・資料更新・監査ログの確認
+- 共有アカウントを使わず、個人のWikiアカウントへ管理者ロールを付与する権限設計
 
-## Status
+## システム構成
 
-The project is in production and in an accuracy-improvement phase. Because it will be handed over to
-future members, the reasoning behind each design decision and the operational runbooks are kept as
-documentation in the repository.
+画面はCloudflare Pages、認証・検索・回答生成・管理APIはCloud Runが担当します。
+Wiki本文を含む索引は非公開のCloud Storageに置き、履歴や利用状況はFirestoreへ保存します。
 
-The code is MIT licensed; the wiki content and retrieved data belong to the WASA project and are not
-covered by that license.
+質問のたびにWikiへ取りに行くのではなく、事前に構築した索引を検索する設計にしました。
+応答が速くなるだけでなく、外部サービスへの負荷と費用を抑えられます。
+資料の変更確認は管理画面から行えますが、索引の再構築と本番反映は、人が内容を確認したうえで実行します。
+
+## 現在の状況
+
+本番運用と精度改善のフェーズに入っています。
+引き継ぎを前提としたプロジェクトなので、設計判断の理由や運用手順をリポジトリのドキュメントとして残しています。
+
+なお、コードはMIT Licenseで公開していますが、Wikiの内容と取得データはWASA鳥人間プロジェクトに帰属します。

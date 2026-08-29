@@ -1,12 +1,15 @@
 ---
-import { NAV_LINKS, SITE } from "@site-config"
+import { NAV_LINKS } from "@site-config"
 import Button from "@/components/base/Button.astro"
 import Icon from "@/components/base/Icon.astro"
 import Link from "@/components/base/Link.astro"
 import MobileMenu from "@/components/layout/MobileMenu.astro"
 import ThemeToggle from "@/components/layout/ThemeToggle.astro"
 import ProfileLinks from "@/components/profile/ProfileLinks.astro"
-import { getProfileLinkPlacement } from "@/components/profile/helper"
+import {
+  getDisplayName,
+  getProfileLinkPlacement,
+} from "@/components/profile/helper"
 import {
   alternateLanguagePath,
   getSiteLocale,
@@ -21,6 +24,7 @@ const locale = getSiteLocale(Astro.url.pathname)
 const homeHref = localizedPath("/", locale)
 const languageHref = alternateLanguagePath(Astro.url.pathname)
 const ui = getUIStrings(locale)
+const displayName = getDisplayName(locale)
 ---
 
 <header class="site-header">
@@ -31,15 +35,15 @@ const ui = getUIStrings(locale)
           variant="ghost"
           size="square"
           class="site-home"
-          title={SITE.title}
-          aria-label={SITE.title}
+          title={displayName}
+          aria-label={displayName}
           transition:persist
         >
           <Icon name="home" size="1.5rem" />
         </Button>
       ) : (
         <Link href={homeHref} class="site-title" transition:persist>
-          <span>{SITE.title}</span>
+          <span>{displayName}</span>
         </Link>
       )}
     {hasHeaderLinks && (

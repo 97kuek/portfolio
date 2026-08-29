@@ -1,6 +1,8 @@
 import { PROFILE_ICON_MAP, type ProfileLinkType } from "@icon-config"
 import { PROFILE, SITE } from "@site-config"
 
+import { DEFAULT_LOCALE, type SiteLocale } from "@/lib/i18n"
+
 export type ProfileLinkConfig = {
   [K in ProfileLinkType]?:
     | string
@@ -11,6 +13,20 @@ export type ProfileLinkConfig = {
 }
 
 export type EmailVariant = "encoded" | "display"
+
+/**
+ * The name a page shows. Each language uses one form of it and never repeats
+ * the other underneath: `name` is the name in the site's default language,
+ * `othernames` carries the other. Written against DEFAULT_LOCALE so flipping
+ * which language owns the root does not need this rule rewritten.
+ */
+export const getDisplayName = (locale: SiteLocale): string => {
+  if (locale === DEFAULT_LOCALE) return PROFILE.name
+  const otherName = Array.isArray(PROFILE.othernames)
+    ? PROFILE.othernames[0]
+    : PROFILE.othernames
+  return otherName || PROFILE.name
+}
 
 export type ProfileLinkLocation = "header" | "about" | "footer"
 

@@ -1,5 +1,6 @@
 ---
 import type { PostMeta } from "@/lib/blog/types"
+import { getAuthorName } from "@/lib/blog/author"
 import { formatSubpostCount } from "@/lib/blog/utils"
 import FormattedDate from "@/components/base/FormattedDate.astro"
 import Icon from "@/components/base/Icon.astro"
@@ -11,6 +12,8 @@ import { getUIStrings } from "@/lib/ui-strings"
 
 interface Props extends PostMeta {
   variant?: "card" | "full"
+  /** Off where the listing already prints the date above the row. */
+  showDate?: boolean
   class?: string
 }
 
@@ -23,6 +26,7 @@ const {
   hasSubposts,
   subpostCount,
   variant = "full",
+  showDate = true,
   class: className,
 } = Astro.props
 const isCard = variant === "card"
@@ -46,12 +50,18 @@ const authorHref = `${localizedPath("/", locale)}#profile`
       <post-meta-group>
         {authors.map((author) => (
           <post-meta-item>
-            <AuthorAvatar author={author} class="post-meta-avatar" width={64} height={64} />
+            <AuthorAvatar
+              author={author}
+              displayName={getAuthorName(author, locale)}
+              class="post-meta-avatar"
+              width={64}
+              height={64}
+            />
             {isCard ? (
-              <span>{author.name}</span>
+              <span>{getAuthorName(author, locale)}</span>
             ) : (
               <Link href={authorHref} underline class="post-meta-author-link">
-                {author.name}
+                {getAuthorName(author, locale)}
               </Link>
             )}
           </post-meta-item>
@@ -59,12 +69,14 @@ const authorHref = `${localizedPath("/", locale)}#profile`
       </post-meta-group>
     )}
 
-  <post-meta-item>
-    <Icon name="publish" title={ui.published} />
-    <FormattedDate date={createdAt} />
-  </post-meta-item>
+  {showDate && (
+      <post-meta-item>
+        <Icon name="publish" title={ui.published} />
+        <FormattedDate date={createdAt} />
+      </post-meta-item>
+    )}
 
-  {updatedAt && (
+  {showDate && updatedAt && (
       <post-meta-item>
         <Icon name="edit" title={ui.updated} />
         <FormattedDate date={updatedAt} />

@@ -54,14 +54,17 @@ wrangler pages deploy dist --project-name 97kuek --branch main
 
 ## Bilingual content
 
-English is the default language and owns the unprefixed routes; Japanese lives
-under `/ja`. Collections keep one file per language:
+Japanese is the default language and owns the unprefixed routes; English lives
+under `/en`. Collections keep one file per language:
 
-- The English entry is the plain filename (`hello.md`) and needs no extra
+- The Japanese entry is the plain filename (`hello.md`) and needs no extra
   frontmatter.
-- Its Japanese pair is `hello-ja.md` with `lang: "ja"` and
+- Its English pair is `hello-en.md` with `lang: "en"` and
   `routeSlug: "hello"`. The two share a URL slug and, with it, one comment
   thread and one set of reaction counts.
+
+Which language owns the root is `DEFAULT_LOCALE` in `src/lib/i18n.ts`; every
+other piece of routing, formatting and naming derives from it.
 
 The suffix cannot be `.en`/`.ja` before the extension: the glob loader strips
 punctuation when it derives entry ids, and a frontmatter key named `slug` is

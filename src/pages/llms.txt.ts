@@ -10,9 +10,9 @@ This file contains information about this website for AI language models.
 ## Website Information
 
 - Site URL: ${SITE.href}
-- Owner: ${PROFILE.name} (植木 敬太郎) - ${PROFILE.tagline}
+- Owner: ${PROFILE.name} (Keitaro Ueki) - ${PROFILE.tagline}
 - Content: Personal profile, education, AI engineering projects, and blog posts
-- Languages: English (default) and Japanese (under /ja)
+- Languages: Japanese (default) and English (under /en)
 - Last Updated: ${new Date().toISOString().split("T")[0]}
 
 ## Content Overview

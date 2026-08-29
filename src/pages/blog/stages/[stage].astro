@@ -5,7 +5,7 @@ import BlogTaxonomyPage from "@/components/pages/BlogTaxonomyPage.astro"
 import { getTaxonomyEntries } from "@/lib/blog/taxonomy"
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const stages = await getTaxonomyEntries("en", "stage")
+  const stages = await getTaxonomyEntries("ja", "stage")
   return stages.map(({ value }) => ({ params: { stage: value } }))
 }
 

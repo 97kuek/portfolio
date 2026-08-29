@@ -2,12 +2,14 @@
 import type { CollectionEntry } from "astro:content"
 
 import CoverImage from "@/components/base/CoverImage.astro"
-import { getContentHref, getContentSlug } from "@/lib/content-locale"
-import { getUIStrings } from "@/lib/ui-strings"
-import { getProjectLinks } from "@/lib/projects"
-import { slugify } from "@/lib/string-manipulation"
 import Icon from "@/components/base/Icon.astro"
 import Link from "@/components/base/Link.astro"
+import { getContentHref, getContentSlug } from "@/lib/content-locale"
+import { getProjectLinks } from "@/lib/projects"
+import { slugify } from "@/lib/string-manipulation"
+import { getUIStrings } from "@/lib/ui-strings"
+
+import "@/styles/content-row.css"
 
 interface Props {
   project: CollectionEntry<"projects">
@@ -30,10 +32,10 @@ const titleHref = hasDetailPage
 ---
 
 <article
-  class:list={["project-row", { "is-highlighted": selected }]}
+  class="content-row"
   data-project-skills={skills.map((skill) => slugify(skill)).join(",")}
 >
-  <div class="project-row-thumb">
+  <div class="content-row-thumb">
     <CoverImage
       image={image}
       seed={getContentSlug(project.id, project.data)}
@@ -41,133 +43,38 @@ const titleHref = hasDetailPage
     />
   </div>
 
-  <div class="project-row-body">
-    <div class="project-row-head">
-      <h3 class="project-row-title">
+  <div class="content-row-body">
+    <div class="content-row-head">
+      <h3 class="content-row-title">
         {selected && <span class="sr-only">{ui.featuredProject}</span>}
         {titleHref ? (
-          <Link href={titleHref} underline>
-            {title}
-          </Link>
-        ) : (
-          title
-        )}
+            <Link href={titleHref} underline>
+              {title}
+            </Link>
+          ) : (
+            title
+          )}
       </h3>
       {links.length > 0 && (
-        <ul class="project-row-links">
-          {links.map(({ href, icon, label }) => (
-            <li>
-              <Link href={href} class="project-row-link">
-                <Icon name={icon} />
-                <span>{label}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
+          <ul class="content-row-aside">
+            {links.map(({ href, icon, label }) => (
+              <li>
+                <Link href={href}>
+                  <Icon name={icon} />
+                  <span>{label}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
     </div>
 
     {project.data.description && (
-      <p class="project-row-description">{project.data.description}</p>
-    )}
+        <p class="content-row-description">{project.data.description}</p>
+      )}
 
-    {skills.length > 0 && <p class="project-row-skills">{skills.join(" · ")}</p>}
+    {skills.length > 0 && (
+        <p class="content-row-meta">{skills.join(" · ")}</p>
+      )}
   </div>
 </article>
-
-<style>
-  .project-row {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2xs);
-    padding-block: var(--space-2xs);
-  }
-
-  .project-row-body {
-    display: flex;
-    min-inline-size: 0;
-    flex: 1;
-    flex-direction: column;
-    gap: var(--space-3xs);
-  }
-
-  /* A fixed ratio keeps every row's thumbnail the same shape, so the titles
-     below them stay on one grid however the source photos are cropped. */
-  .project-row-thumb {
-    inline-size: 100%;
-    aspect-ratio: 16 / 10;
-    flex-shrink: 0;
-    border-radius: var(--radius-lg);
-    overflow: clip;
-    outline: 1px solid light-dark(oklch(0 0 0 / 10%), oklch(1 0 0 / 10%));
-    outline-offset: -1px;
-  }
-
-  @media (width >= 40rem) {
-    .project-row {
-      flex-direction: row;
-      align-items: flex-start;
-      gap: var(--space-s);
-    }
-
-    .project-row-thumb {
-      inline-size: 12rem;
-      aspect-ratio: 16 / 11;
-    }
-  }
-
-  .project-row[hidden] {
-    display: none;
-  }
-
-  .project-row-head {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: var(--space-3xs) var(--space-xs);
-  }
-
-  .project-row-title {
-    position: relative;
-    margin: 0;
-    font-size: var(--step-0);
-    font-weight: var(--font-weight-medium);
-    line-height: calc(var(--leading-offset) + 1em);
-  }
-
-  .project-row-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2xs);
-    padding: 0;
-    margin: 0;
-    list-style: none;
-  }
-
-  .project-row-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.2rem;
-    color: var(--muted-foreground);
-    font-size: var(--step--1);
-  }
-
-  .project-row-link svg {
-    inline-size: 0.875em;
-    block-size: 0.875em;
-  }
-
-  .project-row-description {
-    margin: 0;
-    color: var(--muted-foreground);
-    font-size: var(--step--1);
-    line-height: calc(var(--leading-offset) + 1em);
-  }
-
-  .project-row-skills {
-    margin: 0;
-    color: var(--muted-foreground);
-    font-size: var(--step--1);
-    opacity: 0.75;
-  }
-</style>

@@ -1,0 +1,86 @@
+---
+import Badge from "@/components/base/Badge.astro"
+import CoverImage from "@/components/base/CoverImage.astro"
+import Icon from "@/components/base/Icon.astro"
+import Link from "@/components/base/Link.astro"
+import TaxonomyChip from "@/components/base/TaxonomyChip.astro"
+import PostMetadata from "@/components/blog/PostMetadata.astro"
+import { getStageVariant } from "@/lib/blog/stage"
+import { taxonomyPath } from "@/lib/blog/taxonomy"
+import type { PostMeta } from "@/lib/blog/types"
+import { getContentHref, getContentSlug } from "@/lib/content-locale"
+import { getSiteLocale } from "@/lib/i18n"
+
+import "@/styles/content-row.css"
+
+interface Props {
+  metadata: PostMeta
+}
+
+const { metadata } = Astro.props
+const locale = getSiteLocale(Astro.url.pathname)
+const tags = metadata.tags ?? []
+---
+
+<article class="content-row">
+  <div class="content-row-thumb">
+    <CoverImage
+      image={metadata.image}
+      seed={getContentSlug(metadata.id, metadata)}
+      sizes="(max-width: 40rem) 100vw, 12rem"
+    />
+  </div>
+
+  <div class="content-row-body">
+    <div class="content-row-head">
+      <h3 class="content-row-title">
+        <Link href={getContentHref("blog", metadata.id, metadata)} underline>
+          {metadata.title}
+        </Link>
+      </h3>
+      {(metadata.stage || tags.length > 0) && (
+          <ul class="content-row-aside post-row-taxonomy">
+            {metadata.stage && (
+                <li>
+                  <Badge
+                    variant={getStageVariant(metadata.stage)}
+                    href={taxonomyPath("stage", metadata.stage, locale)}
+                  >
+                    <Icon name={metadata.stage} />
+                    {metadata.stage}
+                  </Badge>
+                </li>
+              )}
+            {tags.map((tag) => (
+              <li>
+                <TaxonomyChip
+                  label={tag}
+                  href={taxonomyPath("tag", tag, locale)}
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+    </div>
+
+    {metadata.description && (
+        <p class="content-row-description">{metadata.description}</p>
+      )}
+
+    <PostMetadata
+      {...metadata}
+      variant="card"
+      showDate={false}
+      class="content-row-meta"
+    />
+  </div>
+</article>
+
+<style>
+  /* Badges and chips bring their own colour; the shared muted link styling
+     for this row would flatten them. */
+  .post-row-taxonomy :global(a) {
+    color: inherit;
+    font-size: inherit;
+  }
+</style>

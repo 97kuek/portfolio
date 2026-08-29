@@ -1,11 +1,14 @@
 ---
 import CommonLayout from "@/layouts/CommonLayout.astro"
-import PreviewCard from "@/components/blog/PreviewCard.astro"
+import FormattedDate from "@/components/base/FormattedDate.astro"
+import PostRow from "@/components/blog/PostRow.astro"
 import { PostManager } from "@/lib/blog"
 import { getStageConfig } from "@/lib/blog/stage"
 import type { TaxonomyKind } from "@/lib/blog/taxonomy"
 import { getPostsByTaxonomy, tagsIndexPath } from "@/lib/blog/taxonomy"
 import { getSiteLocale, localizedPath } from "@/lib/i18n"
+
+import "@/styles/content-row.css"
 
 interface Props {
   kind: TaxonomyKind
@@ -53,24 +56,15 @@ const description =
     { label: heading },
   ]}
 >
-  <ul class="post-list">
+  <ul class="content-list">
     {posts.map((post) => {
       const meta = metadata.get(post.id)
       return meta ? (
         <li>
-          <PreviewCard metadata={meta} />
+          <FormattedDate date={post.data.createdAt} class="content-list-date" />
+          <PostRow metadata={meta} />
         </li>
       ) : null
     })}
   </ul>
 </CommonLayout>
-
-<style>
-  .post-list {
-    display: grid;
-    gap: var(--space-s);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-</style>

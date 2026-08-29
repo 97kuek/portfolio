@@ -20,12 +20,12 @@
   - `migrations/` — 上記APIが使うD1のスキーマ
 - 詳しい設計方針は `DEVELOPMENT.md`、カスタマイズは `docs/CUSTOMIZATION.md` を読む
 
-## 言語（英語がデフォルト）
+## 言語（日本語がデフォルト）
 
-- 英語がプレフィックスなしのURL（`/`）を持ち、日本語は `/ja` 配下
+- 日本語がプレフィックスなしのURL（`/`）を持ち、英語は `/en` 配下
 - コレクションは1言語1ファイル
-  - 英語版はそのままのファイル名（`hello.md`）。追加のfrontmatterは不要
-  - 日本語版は `hello-ja.md` に `lang: "ja"` と `routeSlug: "hello"` を書く
+  - 日本語版はそのままのファイル名（`hello.md`）。追加のfrontmatterは不要
+  - 英語版は `hello-en.md` に `lang: "en"` と `routeSlug: "hello"` を書く
   - `routeSlug` が同じもの同士がURLを共有し、コメント欄とリアクションも共有する
 - 拡張子の前に `.en` / `.ja` を置く形は使えない
   - globローダーがid生成時に記号を落とす
@@ -33,6 +33,7 @@
 - UI文言（本文ではないラベル）は `src/lib/ui-strings.ts` に言語別で持つ
 - ページ本文のコピーは、そのページのコンポーネント内で `isEnglish` で切り替える
 - 日本語ページに英語のラベルを残さない。逆も同じ
+- 既定言語を入れ替えるときは `src/lib/i18n.ts` の `DEFAULT_LOCALE` から辿る
 
 ## コンテンツ
 
@@ -46,7 +47,7 @@
   - `image` を省いた場合は `CoverImage.astro` が星空のプレースホルダーを生成する
 - 画像のalt属性は内容を説明するものにする。装飾目的なら空文字にする
 - タグとstageは言語ごとに集計され、`/blog/tags/*` と `/blog/stages/*` に一覧がある
-- RSSは言語別（`/rss.xml` と `/ja/rss.xml`）
+- RSSは言語別（`/rss.xml` と `/en/rss.xml`）
 - 事実を勝手に作らない。所属・日付・肩書きは確認できたものだけ書く
 
 ## コメントとリアクション
