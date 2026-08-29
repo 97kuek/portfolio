@@ -2,7 +2,7 @@
 import { ClientRouter } from "astro:transitions"
 
 import { PROFILE, SITE } from "@site-config"
-import { getSiteLocale } from "@/lib/i18n"
+import { getLocaleTag, getSiteLocale } from "@/lib/i18n"
 
 interface Props {
   title?: string
@@ -187,10 +187,7 @@ const structuredData = {
   >
 
   <ClientRouter />
-  <script
-    is:inline
-    define:vars={{ siteLocale: locale === "en" ? "en-US" : SITE.locale.lang }}
-  >
+  <script is:inline define:vars={{ siteLocale: getLocaleTag(locale) }}>
     window.__SITE_LOCALE__ = siteLocale
 
     function loadZoomAssets() {

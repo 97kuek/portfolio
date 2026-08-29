@@ -10,7 +10,7 @@ import MenuBar from "@/components/layout/MenuBar.astro"
 import Breadcrumbs, {
   type BreadcrumbItem,
 } from "@/components/layout/Breadcrumbs.astro"
-import { getSiteLocale } from "@/lib/i18n"
+import { getLocaleTag, getSiteLocale } from "@/lib/i18n"
 
 interface Props {
   class?: string
@@ -45,7 +45,7 @@ const locale = getSiteLocale(Astro.url.pathname)
 ---
 
 <!doctype html>
-<html lang={locale === "en" ? "en" : SITE.locale.lang} dir={SITE.dir}>
+<html lang={getLocaleTag(locale)} dir={SITE.dir}>
   <Head
     title={title}
     description={description}

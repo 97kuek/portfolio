@@ -1,6 +1,6 @@
-早稲田大学 基幹理工学部 情報通信学科の学部3年生です。**AIエンジニア**として、
-機械学習とソフトウェア開発を通じて、アイデアを実際に使える形へ変えることに
-取り組んでいます。
+I am a third-year student in the Department of Communications and Computer
+Engineering at Waseda University. As an **AI engineer**, I enjoy turning ideas
+into useful systems through machine learning and software development.
 
-現在は、情報通信・コンピュータサイエンス・実践的なAI開発を横断しながら、
-基礎と応用の両方を磨いています。
+I am currently building my foundations across information and communication
+technology, computer science, and practical AI engineering.

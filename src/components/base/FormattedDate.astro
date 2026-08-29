@@ -4,6 +4,7 @@ import {
   formatDate,
   formatDateTimeISO,
 } from "@/lib/date-utils"
+import { getLocaleTag, getSiteLocale } from "@/lib/i18n"
 
 interface Props {
   /** Date to format */
@@ -16,7 +17,12 @@ const { date, class: className } = Astro.props
 
 const dateObj = createLocalDate(date)
 const isoDate = formatDateTimeISO(dateObj)
-const displayDate = formatDate(dateObj)
+// Dates follow the page, not the site default, so the Japanese pages keep
+// Japanese formatting once English owns the unprefixed routes.
+const displayDate = formatDate(
+  dateObj,
+  getLocaleTag(getSiteLocale(Astro.url.pathname)),
+)
 ---
 
 <time datetime={isoDate} class={className}>

@@ -9,12 +9,10 @@ interface Props {
   title: string
   url: string
   authors: AuthorData[]
-  /** Raw markdown to offer a "Copy Markdown" button */
-  markdown?: string | null
   class?: string
 }
 
-const { title, url, authors, markdown, class: className } = Astro.props
+const { title, url, authors, class: className } = Astro.props
 const shareActions = getShareActions(
   SITE.blog.shareActions,
   title,
@@ -24,15 +22,6 @@ const shareActions = getShareActions(
 ---
 
 <div class:list={["share-actions", className]} aria-label="Post actions">
-  {markdown && (
-      <CopyButton
-        text={markdown}
-        label="Copy Markdown"
-        title="Copy as Markdown"
-        size="1rem"
-        class="share-action"
-      />
-    )}
   <CopyButton
     text={url}
     label="Copy URL"

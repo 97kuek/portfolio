@@ -1,5 +1,18 @@
 [
   {
+    "id": "neoai-ai-engineer",
+    "category": "work",
+    "title": "AIエンジニア（インターン）",
+    "titleEn": "AI Engineer, Intern",
+    "org": "株式会社neoAI",
+    "orgEn": "neoAI Inc.",
+    "orgUrl": "https://neoai.jp/",
+    "startDate": "2026-07",
+    "location": "Tokyo, Japan",
+    "description": "機械学習とLLMを使ったプロダクト開発に取り組んでいます。",
+    "descriptionEn": "Building products with machine learning and large language models."
+  },
+  {
     "id": "waseda-cce-b3",
     "category": "education",
     "title": "学士課程 B3",
@@ -11,5 +24,17 @@
     "location": "Tokyo, Japan",
     "description": "情報通信とコンピュータ工学を学びながら、AI・機械学習とソフトウェア開発に取り組んでいます。",
     "descriptionEn": "Studying communications and computer engineering with a focus on AI, machine learning, and software development."
+  },
+  {
+    "id": "toin-gakuen-ses",
+    "category": "education",
+    "title": "中等教育学校",
+    "titleEn": "Secondary Education",
+    "org": "桐蔭学園中等教育学校",
+    "orgEn": "Toin Gakuen Secondary Education School",
+    "orgUrl": "https://toin.ac.jp/ses/",
+    "startDate": "2018-04",
+    "endDate": "2024-03",
+    "location": "Kanagawa, Japan"
   }
 ]

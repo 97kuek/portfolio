@@ -2,7 +2,6 @@
 import { render } from "astro:content"
 
 import Layout from "@/layouts/Layout.astro"
-import CopyMarkdown from "@/components/base/CopyMarkdown.astro"
 import TaxonomyChip from "@/components/base/TaxonomyChip.astro"
 import Badge from "@/components/base/Badge.astro"
 import Icon from "@/components/base/Icon.astro"
@@ -14,7 +13,6 @@ import { getStageVariant } from "@/lib/blog/stage"
 import type { Post } from "@/lib/blog/types"
 import { getContentLocale, isContentInLocale } from "@/lib/content-locale"
 import { localizedPath } from "@/lib/i18n"
-import { buildMarkdownDocument } from "@/lib/markdown-document"
 
 interface Props {
   post: Post
@@ -39,13 +37,6 @@ const olderPost =
   currentIndex >= 0 && currentIndex < localePosts.length - 1
     ? localePosts[currentIndex + 1]
     : null
-
-const markdown = buildMarkdownDocument(post.body ?? "", {
-  title: post.data.title,
-  description: post.data.description,
-  path: Astro.url.pathname,
-  date: post.data.updatedAt ?? post.data.createdAt,
-})
 ---
 
 <Layout
@@ -88,8 +79,6 @@ const markdown = buildMarkdownDocument(post.body ?? "", {
         )}
     </header>
 
-    <CopyMarkdown markdown={markdown} class="post-copy-markdown" />
-
     <prose-content>
       <Content />
     </prose-content>
@@ -130,11 +119,6 @@ const markdown = buildMarkdownDocument(post.body ?? "", {
     flex-wrap: wrap;
     align-items: center;
     gap: var(--space-2xs);
-  }
-
-  :global(.post-copy-markdown) {
-    display: flex;
-    justify-content: flex-end;
   }
 
   :global(.post-share) {

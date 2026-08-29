@@ -2,14 +2,12 @@
 import { render } from "astro:content"
 
 import CommonLayout from "@/layouts/CommonLayout.astro"
-import CopyMarkdown from "@/components/base/CopyMarkdown.astro"
 import Icon from "@/components/base/Icon.astro"
 import Link from "@/components/base/Link.astro"
 import DateRange from "@/components/projects/DateRange.astro"
 import ProjectNavigation from "@/components/projects/ProjectNavigation.astro"
 import { getContentLocale, isContentInLocale } from "@/lib/content-locale"
 import { localizedPath } from "@/lib/i18n"
-import { buildMarkdownDocument } from "@/lib/markdown-document"
 import {
   getProjectLinks,
   getProjectNavigation,
@@ -38,13 +36,6 @@ const links = getProjectLinks(
 const { prev, next } = await getProjectNavigation(project.id, (candidate) =>
   isContentInLocale(candidate.data, locale),
 )
-
-const markdown = buildMarkdownDocument(project.body ?? "", {
-  title,
-  description,
-  path: Astro.url.pathname,
-  date: toDate ?? fromDate,
-})
 ---
 
 <CommonLayout
@@ -88,8 +79,6 @@ const markdown = buildMarkdownDocument(project.body ?? "", {
       )}
   </section>
 
-  <CopyMarkdown markdown={markdown} class="project-copy-markdown" />
-
   <prose-content>
     <Content />
   </prose-content>
@@ -105,11 +94,6 @@ const markdown = buildMarkdownDocument(project.body ?? "", {
 </CommonLayout>
 
 <style>
-  :global(.project-copy-markdown) {
-    display: flex;
-    justify-content: flex-end;
-  }
-
   .project-meta {
     display: flex;
     flex-wrap: wrap;

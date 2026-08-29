@@ -1,6 +1,5 @@
 ---
 import Layout from "@/layouts/Layout.astro"
-import CopyMarkdown from "@/components/base/CopyMarkdown.astro"
 import FormattedDate from "@/components/base/FormattedDate.astro"
 import type { BreadcrumbItem } from "@/components/layout/Breadcrumbs.astro"
 
@@ -9,7 +8,6 @@ interface Props {
   description?: string
   modifiedTime?: Date
   prose?: boolean
-  markdown?: string
   breadcrumbs?: BreadcrumbItem[]
   [key: string]: any // Allow any additional props to pass through to Layout
 }
@@ -19,7 +17,6 @@ const {
   description,
   modifiedTime,
   prose = true,
-  markdown,
   breadcrumbs,
   frontmatter,
   ...layoutProps
@@ -44,9 +41,6 @@ const resolvedBreadcrumbs = breadcrumbs ?? frontmatter?.breadcrumbs
       <FormattedDate date={pageModifiedTime} class="page-modified" />
     )}
   </section>
-  {prose && markdown && (
-      <CopyMarkdown markdown={markdown} class="common-copy-markdown" />
-    )}
   {prose ? (
       <prose-content>
         <slot />
@@ -75,11 +69,5 @@ const resolvedBreadcrumbs = breadcrumbs ?? frontmatter?.breadcrumbs
 
   :global(.page-modified) {
     font-size: var(--step--1);
-  }
-
-  :global(.common-copy-markdown) {
-    display: flex;
-    justify-content: flex-end;
-    margin-block: var(--space-s);
   }
 </style>

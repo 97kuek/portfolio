@@ -1,4 +1,4 @@
-import type { SiteLocale } from "@/lib/i18n"
+import { DEFAULT_LOCALE, localizedPath, type SiteLocale } from "@/lib/i18n"
 
 /**
  * Bilingual collections keep one file per language, distinguished by a `lang`
@@ -13,7 +13,7 @@ export interface LocalizedData {
 }
 
 export const getContentLocale = (data: LocalizedData): SiteLocale =>
-  data.lang ?? "ja"
+  data.lang ?? DEFAULT_LOCALE
 
 export const isContentInLocale = (
   data: LocalizedData,
@@ -31,7 +31,5 @@ export const getContentHref = (
   data: LocalizedData,
 ): string => {
   const slug = getContentSlug(id, data)
-  return getContentLocale(data) === "en"
-    ? `/en/${collection}/${slug}`
-    : `/${collection}/${slug}`
+  return localizedPath(`/${collection}/${slug}`, getContentLocale(data))
 }

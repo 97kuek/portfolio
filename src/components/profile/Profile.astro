@@ -12,7 +12,7 @@ import Pronunciation from "./Pronunciation.astro"
 import ProfileLinks from "./ProfileLinks.astro"
 import { getProfileLinkPlacement } from "./helper"
 import { Content as AboutContent } from "@/content/about.md"
-import { Content as AboutEnglishContent } from "@/content/about.en.md"
+import { Content as AboutJapaneseContent } from "@/content/about-ja.md"
 import { getSiteLocale } from "@/lib/i18n"
 
 import "@/styles/callout.css"
@@ -26,14 +26,14 @@ const { profile } = Astro.props
 const aboutLinks = getProfileLinkPlacement("about")
 const locale = getSiteLocale(Astro.url.pathname)
 const isEnglish = locale === "en"
-const englishName = Array.isArray(profile.othernames)
+const japaneseName = Array.isArray(profile.othernames)
   ? profile.othernames[0]
   : profile.othernames
-const displayName = isEnglish ? englishName || profile.name : profile.name
-const alternateName = isEnglish ? profile.name : englishName
+const displayName = isEnglish ? profile.name : japaneseName || profile.name
+const alternateName = isEnglish ? japaneseName : profile.name
 const tagline = isEnglish
-  ? "AI Engineer / Waseda University, CCE B3"
-  : profile.tagline
+  ? profile.tagline
+  : profile.taglineJa || profile.tagline
 ---
 
 <article id="profile">
@@ -43,8 +43,8 @@ const tagline = isEnglish
       alt={displayName}
       fallback={isEnglish ? "KU" : "植"}
       data-slot="profile-avatar"
-      width={400}
-      height={400}
+      width={320}
+      height={320}
       loading="eager"
       fetchpriority="high"
       class="profile-avatar"
@@ -87,7 +87,7 @@ const tagline = isEnglish
 </article>
 
 <prose-content>
-  {isEnglish ? <AboutEnglishContent /> : <AboutContent />}
+  {isEnglish ? <AboutContent /> : <AboutJapaneseContent />}
 </prose-content>
 
 {aboutLinks.length > 0 && (
@@ -109,8 +109,8 @@ const tagline = isEnglish
   }
 
   .profile-avatar {
-    inline-size: 7rem;
-    block-size: 7rem;
+    inline-size: 5.5rem;
+    block-size: 5.5rem;
     align-self: center;
   }
 
@@ -190,8 +190,8 @@ const tagline = isEnglish
     }
 
     .profile-avatar {
-      inline-size: 12.5rem;
-      block-size: 12.5rem;
+      inline-size: 8.5rem;
+      block-size: 8.5rem;
       align-self: flex-start;
     }
 

@@ -7,7 +7,7 @@ import { getContentHref, isContentInLocale } from "@/lib/content-locale"
 
 export async function GET(context: APIContext) {
   const posts = (await PostManager.getInstance().getMainPosts()).filter(
-    (post) => isContentInLocale(post.data, "ja"),
+    (post) => isContentInLocale(post.data, "en"),
   )
 
   return rss({

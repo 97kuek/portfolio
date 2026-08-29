@@ -27,7 +27,7 @@ const dateSchema = z
  * filename, because the glob loader strips punctuation when it derives ids.
  */
 const localeFields = {
-  lang: z.enum(["ja", "en"]).default("ja"),
+  lang: z.enum(["ja", "en"]).default("en"),
   routeSlug: z
     .string()
     .optional()
@@ -122,7 +122,7 @@ const updates = defineCollection({
 const experience = defineCollection({
   loader: file("./src/content/experience.json"),
   schema: z.object({
-    category: z.enum(["research", "education", "teaching"]),
+    category: z.enum(["work", "research", "education", "teaching"]),
     title: z.string(),
     titleEn: z.string().optional(),
     org: z.string(),
