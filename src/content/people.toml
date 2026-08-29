@@ -3,6 +3,7 @@ id          = "keitaro"
 name        = "Keitaro Ueki"
 bio         = "AI engineer and undergraduate student at Waseda University"
 affiliation = "Waseda University"
+avatar      = "../assets/avatar.jpg"
 
 [keitaro.links]
 github = "https://github.com/97kuek"

@@ -19,6 +19,8 @@ interface Props {
   locale?: string
   /** Label used for an open-ended date range */
   presentLabel?: string
+  /** Screen-reader wording for the separator between the two endpoints */
+  toLabel?: string
 }
 
 const {
@@ -28,7 +30,11 @@ const {
   showIcon = false,
   locale,
   presentLabel = "Present",
+  toLabel,
 } = Astro.props
+
+// The dash is decorative; screen readers get a word, in the page's language.
+const separatorLabel = toLabel ?? (locale?.startsWith("ja") ? "から" : "to")
 
 const segments = formatDateRange(fromDate, toDate, undefined, locale)
 if (!segments) return null
@@ -45,7 +51,7 @@ const isOngoing = Boolean(fromDate && !toDate)
       ) : isSeparator ? (
         <>
           <span aria-hidden="true">{text}</span>
-          <span class="sr-only"> to </span>
+          <span class="sr-only"> {separatorLabel} </span>
         </>
       ) : (
         <span>{text}</span>
@@ -56,7 +62,7 @@ const isOngoing = Boolean(fromDate && !toDate)
         <span aria-hidden="true">
           {getDateRangeSeparator(undefined, locale).trimStart()}
         </span>
-        <span class="sr-only"> to </span>
+        <span class="sr-only"> {separatorLabel} </span>
         <span>{presentLabel}</span>
       </>
     )}

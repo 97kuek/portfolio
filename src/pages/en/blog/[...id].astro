@@ -1,0 +1,27 @@
+---
+import type { GetStaticPaths } from "astro"
+
+import BlogPostPage from "@/components/pages/BlogPostPage.astro"
+import { PostManager } from "@/lib/blog"
+import type { Post } from "@/lib/blog/types"
+import { getContentSlug, isContentInLocale } from "@/lib/content-locale"
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const posts = await PostManager.getInstance().getAllPostsAndSubposts()
+
+  return posts
+    .filter((post) => isContentInLocale(post.data, "en"))
+    .map((post) => ({
+      params: { id: getContentSlug(post.id, post.data) },
+      props: { post },
+    }))
+}
+
+interface Props {
+  post: Post
+}
+
+const { post } = Astro.props
+---
+
+<BlogPostPage post={post} />

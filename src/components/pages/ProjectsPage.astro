@@ -2,38 +2,89 @@
 import CommonLayout from "@/layouts/CommonLayout.astro"
 import Button from "@/components/base/Button.astro"
 import Icon from "@/components/base/Icon.astro"
+import DateRange from "@/components/projects/DateRange.astro"
+import ProjectRow from "@/components/projects/ProjectRow.astro"
+import { isContentInLocale } from "@/lib/content-locale"
 import { getSiteLocale } from "@/lib/i18n"
+import { getProjects } from "@/lib/projects"
 
-const isEnglish = getSiteLocale(Astro.url.pathname) === "en"
+const locale = getSiteLocale(Astro.url.pathname)
+const isEnglish = locale === "en"
+
+const projects = await getProjects((project) =>
+  isContentInLocale(project.data, locale),
+)
 ---
 
 <CommonLayout
   title={isEnglish ? "Projects" : "プロジェクト"}
   description={isEnglish
-    ? "Projects in AI, machine learning, and software engineering will be published here."
-    : "AI・機械学習・ソフトウェア開発のプロジェクトを掲載していきます。"}
+    ? "Projects in AI, machine learning, and software engineering."
+    : "AI・機械学習・ソフトウェア開発のプロジェクトを掲載しています。"}
   prose={false}
   breadcrumbs={[{
     label: isEnglish ? "Projects" : "プロジェクト",
     icon: "folder-open",
   }]}
 >
-  <section class="project-empty">
-    <Icon name="folder-open" size="2rem" />
-    <h2>{isEnglish ? "Work in progress" : "準備中です"}</h2>
-    <p>
-      {isEnglish
-        ? "I am organizing the projects I can share publicly. In the meantime, visit my GitHub profile."
-        : "公開できるプロジェクトを整理しています。最新の活動はGitHubからご覧いただけます。"}
-    </p>
-    <Button href="https://github.com/97kuek" external variant="outline">
-      <Icon name="mingcute:github-line" />
-      GitHub
-    </Button>
-  </section>
+  {projects.length > 0 ? (
+      <ul class="project-list">
+        {projects.map((project) => (
+          <li>
+            <DateRange
+              fromDate={project.data.fromDate}
+              toDate={project.data.toDate}
+              locale={isEnglish ? "en-US" : "ja-JP"}
+              presentLabel={isEnglish ? "Present" : "現在"}
+              showIcon
+              class="project-list-date"
+            />
+            <ProjectRow project={project} />
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <section class="project-empty">
+        <Icon name="folder-open" size="2rem" />
+        <h2>{isEnglish ? "Work in progress" : "準備中です"}</h2>
+        <p>
+          {isEnglish
+            ? "I am organizing the projects I can share publicly. In the meantime, visit my GitHub profile."
+            : "公開できるプロジェクトを整理しています。最新の活動はGitHubからご覧いただけます。"}
+        </p>
+        <Button href="https://github.com/97kuek" external variant="outline">
+          <Icon name="mingcute:github-line" />
+          GitHub
+        </Button>
+      </section>
+    )}
 </CommonLayout>
 
 <style>
+  .project-list {
+    display: grid;
+    gap: var(--space-m);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .project-list > li {
+    display: grid;
+    gap: var(--space-2xs);
+    padding-block-end: var(--space-m);
+    border-block-end: 1px solid var(--border);
+  }
+
+  .project-list > li:last-child {
+    padding-block-end: 0;
+    border-block-end: none;
+  }
+
+  :global(.project-list-date) {
+    font-size: var(--step--1);
+  }
+
   .project-empty {
     display: flex;
     min-block-size: 18rem;

@@ -1,5 +1,6 @@
 ---
 import type { Post } from "@/lib/blog/types"
+import { getContentHref } from "@/lib/content-locale"
 import Button from "@/components/base/Button.astro"
 import Icon from "@/components/base/Icon.astro"
 
@@ -15,7 +16,7 @@ const isSubpost = !!parentPost
 
 <nav class="post-navigation" data-subpost={isSubpost ? "true" : "false"}>
   <Button
-    href={nextPost ? `/${nextPost.collection}/${nextPost.id}#post-title` : undefined}
+    href={nextPost ? `${getContentHref(nextPost.collection, nextPost.id, nextPost.data)}#post-title` : undefined}
     variant="outline"
     aria-disabled={!nextPost}
   >
@@ -34,7 +35,7 @@ const isSubpost = !!parentPost
 
   {isSubpost && (
       <Button
-        href={parentPost ? `/${parentPost.collection}/${parentPost.id}#post-title` : undefined}
+        href={parentPost ? `${getContentHref(parentPost.collection, parentPost.id, parentPost.data)}#post-title` : undefined}
         variant="outline"
         aria-disabled={!parentPost}
       >
@@ -51,7 +52,7 @@ const isSubpost = !!parentPost
     )}
 
   <Button
-    href={prevPost ? `/${prevPost.collection}/${prevPost.id}#post-title` : undefined}
+    href={prevPost ? `${getContentHref(prevPost.collection, prevPost.id, prevPost.data)}#post-title` : undefined}
     variant="outline"
     aria-disabled={!prevPost}
   >

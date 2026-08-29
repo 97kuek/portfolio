@@ -3,14 +3,31 @@ import { getCollection } from "astro:content"
 
 import Layout from "@/layouts/Layout.astro"
 import Section from "@/components/layout/Section.astro"
+import PreviewCard from "@/components/blog/PreviewCard.astro"
 import Profile from "@/components/profile/Profile.astro"
+import ProjectRow from "@/components/projects/ProjectRow.astro"
 import ExperienceTimeline from "@/components/timeline/ExperienceTimeline.astro"
 import { PROFILE } from "@site-config"
+import { PostManager } from "@/lib/blog"
+import { isContentInLocale } from "@/lib/content-locale"
 import { getSiteLocale, localizedPath } from "@/lib/i18n"
+import { getProjects } from "@/lib/projects"
 
 const locale = getSiteLocale(Astro.url.pathname)
 const isEnglish = locale === "en"
 const experience = await getCollection("experience")
+
+const projects = (
+  await getProjects((project) => isContentInLocale(project.data, locale))
+).slice(0, 3)
+
+const postManager = PostManager.getInstance()
+const latestPosts = (await postManager.getMainPosts())
+  .filter((post) => isContentInLocale(post.data, locale))
+  .slice(0, 2)
+const latestPostMetadata = await postManager.getBatchMetadata(
+  latestPosts.map((post) => post.id),
+)
 ---
 
 <Layout
@@ -46,6 +63,22 @@ const experience = await getCollection("experience")
     </div>
   </Section>
 
+  {projects.length > 0 && (
+      <Section
+        title={isEnglish ? "Projects" : "プロジェクト"}
+        moreLink={localizedPath("/projects", locale)}
+        moreText={isEnglish ? "All projects →" : "すべて見る →"}
+      >
+        <ul class="home-project-list">
+          {projects.map((project) => (
+            <li>
+              <ProjectRow project={project} />
+            </li>
+          ))}
+        </ul>
+      </Section>
+    )}
+
   <Section
     title={isEnglish ? "Experience" : "経歴"}
     moreLink={localizedPath("/experience", locale)}
@@ -53,9 +86,42 @@ const experience = await getCollection("experience")
   >
     <ExperienceTimeline entries={experience} limit={3} />
   </Section>
+
+  {latestPosts.length > 0 && (
+      <Section
+        title={isEnglish ? "Latest posts" : "最新の記事"}
+        moreLink={localizedPath("/blog", locale)}
+        moreText={isEnglish ? "All posts →" : "すべて見る →"}
+      >
+        <ul class="home-post-list">
+          {latestPosts.map((post) => {
+            const metadata = latestPostMetadata.get(post.id)
+            return metadata ? (
+              <li>
+                <PreviewCard metadata={metadata} />
+              </li>
+            ) : null
+          })}
+        </ul>
+      </Section>
+    )}
 </Layout>
 
 <style>
+  .home-project-list,
+  .home-post-list {
+    display: grid;
+    gap: var(--space-s);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .home-project-list > li:not(:last-child) {
+    padding-block-end: var(--space-s);
+    border-block-end: 1px solid var(--border);
+  }
+
   .focus-grid {
     display: grid;
     gap: var(--space-s);

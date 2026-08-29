@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from "astro:content"
 
+import { getContentHref } from "@/lib/content-locale"
 import { getProjectLinks } from "@/lib/projects"
 import { slugify } from "@/lib/string-manipulation"
 import Icon from "@/components/base/Icon.astro"
@@ -19,7 +20,9 @@ const links = getProjectLinks(code, doc, paper, url, release)
 // people straight to the thing itself, preferring the live URL over a repo.
 const hasDetailPage = !!project.body?.trim()
 const primaryLink = links.find((link) => link.type === "url") ?? links[0]
-const titleHref = hasDetailPage ? `/projects/${project.id}` : primaryLink?.href
+const titleHref = hasDetailPage
+  ? getContentHref("projects", project.id, project.data)
+  : primaryLink?.href
 ---
 
 <article

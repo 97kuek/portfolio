@@ -1,0 +1,145 @@
+---
+import { render } from "astro:content"
+
+import Layout from "@/layouts/Layout.astro"
+import CopyMarkdown from "@/components/base/CopyMarkdown.astro"
+import TaxonomyChip from "@/components/base/TaxonomyChip.astro"
+import Badge from "@/components/base/Badge.astro"
+import Icon from "@/components/base/Icon.astro"
+import PostMetadata from "@/components/blog/PostMetadata.astro"
+import PostNavigation from "@/components/blog/PostNavigation.astro"
+import ShareActions from "@/components/blog/ShareActions.astro"
+import { PostManager } from "@/lib/blog"
+import { getStageVariant } from "@/lib/blog/stage"
+import type { Post } from "@/lib/blog/types"
+import { getContentLocale, isContentInLocale } from "@/lib/content-locale"
+import { localizedPath } from "@/lib/i18n"
+import { buildMarkdownDocument } from "@/lib/markdown-document"
+
+interface Props {
+  post: Post
+}
+
+const { post } = Astro.props
+const locale = getContentLocale(post.data)
+const isEnglish = locale === "en"
+
+const postManager = PostManager.getInstance()
+const metadata = await postManager.getMetadata(post.id)
+const { Content } = await render(post)
+
+// Navigation stays inside one language: the sibling of a Japanese post is the
+// previous Japanese post, not whichever translation happens to sit next to it.
+const localePosts = (await postManager.getMainPosts()).filter((entry) =>
+  isContentInLocale(entry.data, locale),
+)
+const currentIndex = localePosts.findIndex((entry) => entry.id === post.id)
+const newerPost = currentIndex > 0 ? localePosts[currentIndex - 1] : null
+const olderPost =
+  currentIndex >= 0 && currentIndex < localePosts.length - 1
+    ? localePosts[currentIndex + 1]
+    : null
+
+const markdown = buildMarkdownDocument(post.body ?? "", {
+  title: post.data.title,
+  description: post.data.description,
+  path: Astro.url.pathname,
+  date: post.data.updatedAt ?? post.data.createdAt,
+})
+---
+
+<Layout
+  title={post.data.title}
+  description={post.data.description}
+  image={post.data.image?.src}
+  type="article"
+  publishedTime={post.data.createdAt}
+  modifiedTime={post.data.updatedAt}
+  author={metadata.authors[0]?.name}
+  tags={post.data.tags}
+  breadcrumbs={[
+    {
+      label: isEnglish ? "Blog" : "ブログ",
+      href: localizedPath("/blog", locale),
+      icon: "blog",
+    },
+    { label: post.data.title },
+  ]}
+>
+  <article>
+    <header class="post-header">
+      <h1 id="post-title">{post.data.title}</h1>
+      {post.data.description && (
+          <p class="post-description">{post.data.description}</p>
+        )}
+      <PostMetadata {...metadata} variant="full" />
+      {(post.data.stage || post.data.tags.length > 0) && (
+          <div class="post-badges">
+            {post.data.stage && (
+                <Badge variant={getStageVariant(post.data.stage)}>
+                  <Icon name={post.data.stage} />
+                  {post.data.stage}
+                </Badge>
+              )}
+            {post.data.tags.map((tag) => (
+              <TaxonomyChip label={tag} static />
+            ))}
+          </div>
+        )}
+    </header>
+
+    <CopyMarkdown markdown={markdown} class="post-copy-markdown" />
+
+    <prose-content>
+      <Content />
+    </prose-content>
+
+    <ShareActions
+      title={post.data.title}
+      url={new URL(Astro.url.pathname, Astro.site ?? Astro.url).href}
+      authors={metadata.authors}
+      class="post-share"
+    />
+  </article>
+
+  <PostNavigation prevPost={olderPost} nextPost={newerPost} />
+</Layout>
+
+<style>
+  .post-header {
+    display: grid;
+    gap: var(--space-2xs);
+    padding-block-end: var(--space-s);
+    border-block-end: 1px solid var(--border);
+  }
+
+  .post-header h1 {
+    margin: 0;
+    font-size: var(--step-2);
+    font-weight: var(--font-weight-medium);
+    line-height: calc(var(--leading-offset) + 1em);
+  }
+
+  .post-description {
+    margin: 0;
+    color: var(--muted-foreground);
+  }
+
+  .post-badges {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2xs);
+  }
+
+  :global(.post-copy-markdown) {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  :global(.post-share) {
+    margin-block-start: var(--space-m);
+    padding-block-start: var(--space-s);
+    border-block-start: 1px solid var(--border);
+  }
+</style>

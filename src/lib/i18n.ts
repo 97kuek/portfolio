@@ -15,11 +15,12 @@ export const alternateLanguagePath = (pathname: string) => {
     return japanesePath || "/"
   }
 
-  const supportedPath = ["/", "/projects", "/experience", "/blog"].includes(
-    pathname,
-  )
-    ? pathname
-    : "/"
+  // Only paths that actually have an English build are worth linking to; the
+  // rest (the palette preview, 404) fall back to the English home page.
+  const isTranslated =
+    ["/", "/projects", "/experience", "/blog"].includes(pathname) ||
+    /^\/(projects|blog)\/[^/]+$/.test(pathname)
+  const supportedPath = isTranslated ? pathname : "/"
   return supportedPath === "/" ? "/en" : `/en${supportedPath}`
 }
 

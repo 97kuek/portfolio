@@ -21,11 +21,27 @@ const dateSchema = z
     error: "Invalid date format. Must be YYYY-MM-DD or ISO datetime format.",
   })
 
+/**
+ * Bilingual collections keep one file per language. The language and the
+ * shared route slug are declared in frontmatter rather than encoded in the
+ * filename, because the glob loader strips punctuation when it derives ids.
+ */
+const localeFields = {
+  lang: z.enum(["ja", "en"]).default("ja"),
+  routeSlug: z
+    .string()
+    .optional()
+    .describe(
+      "Route slug shared by every translation. Deliberately not named `slug`: the glob loader treats that key as an id override and would collapse translations into one entry.",
+    ),
+}
+
 const blog = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/blog" }),
   schema: ({ image }) =>
     z
       .object({
+        ...localeFields,
         title: z.string(),
         description: z.string().max(200).optional(),
         createdAt: dateSchema,
@@ -73,6 +89,7 @@ const projects = defineCollection({
   loader: glob({ base: "./src/content/projects", pattern: "**/!(*README).md" }),
   schema: z
     .object({
+      ...localeFields,
       title: z.string().max(75),
       selected: z.boolean().default(false),
       fromDate: yearMonthDateSchema.optional(),

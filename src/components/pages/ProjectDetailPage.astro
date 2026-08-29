@@ -1,0 +1,153 @@
+---
+import { render } from "astro:content"
+
+import CommonLayout from "@/layouts/CommonLayout.astro"
+import CopyMarkdown from "@/components/base/CopyMarkdown.astro"
+import Icon from "@/components/base/Icon.astro"
+import Link from "@/components/base/Link.astro"
+import DateRange from "@/components/projects/DateRange.astro"
+import ProjectNavigation from "@/components/projects/ProjectNavigation.astro"
+import { getContentLocale, isContentInLocale } from "@/lib/content-locale"
+import { localizedPath } from "@/lib/i18n"
+import { buildMarkdownDocument } from "@/lib/markdown-document"
+import {
+  getProjectLinks,
+  getProjectNavigation,
+  getProjectTypeLabel,
+  type Project,
+} from "@/lib/projects"
+
+interface Props {
+  project: Project
+}
+
+const { project } = Astro.props
+const { title, description, fromDate, toDate, types, skills } = project.data
+
+const locale = getContentLocale(project.data)
+const isEnglish = locale === "en"
+
+const { Content } = await render(project)
+const links = getProjectLinks(
+  project.data.code,
+  project.data.doc,
+  project.data.paper,
+  project.data.url,
+  project.data.release,
+)
+const { prev, next } = await getProjectNavigation(project.id, (candidate) =>
+  isContentInLocale(candidate.data, locale),
+)
+
+const markdown = buildMarkdownDocument(project.body ?? "", {
+  title,
+  description,
+  path: Astro.url.pathname,
+  date: toDate ?? fromDate,
+})
+---
+
+<CommonLayout
+  title={title}
+  description={description}
+  prose={false}
+  type="article"
+  breadcrumbs={[
+    {
+      label: isEnglish ? "Projects" : "プロジェクト",
+      href: localizedPath("/projects", locale),
+      icon: "folder-open",
+    },
+    { label: title },
+  ]}
+>
+  <section class="project-meta">
+    <DateRange
+      fromDate={fromDate}
+      toDate={toDate}
+      locale={isEnglish ? "en-US" : "ja-JP"}
+      presentLabel={isEnglish ? "Present" : "現在"}
+      showIcon
+    />
+    {types.length > 0 && (
+        <p class="project-types">
+          {types.map((type) => getProjectTypeLabel(type)).join(" · ")}
+        </p>
+      )}
+    {links.length > 0 && (
+        <ul class="project-links">
+          {links.map(({ href, icon, label }) => (
+            <li>
+              <Link href={href} class="project-link">
+                <Icon name={icon} />
+                <span>{label}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+  </section>
+
+  <CopyMarkdown markdown={markdown} class="project-copy-markdown" />
+
+  <prose-content>
+    <Content />
+  </prose-content>
+
+  {skills.length > 0 && (
+      <section class="project-skills">
+        <h2>{isEnglish ? "Stack" : "使用技術"}</h2>
+        <p>{skills.join(" · ")}</p>
+      </section>
+    )}
+
+  <ProjectNavigation prev={prev} next={next} />
+</CommonLayout>
+
+<style>
+  :global(.project-copy-markdown) {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .project-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2xs) var(--space-s);
+    padding-block-end: var(--space-s);
+    border-block-end: 1px solid var(--border);
+    color: var(--muted-foreground);
+    font-size: var(--step--1);
+  }
+
+  .project-types {
+    margin: 0;
+  }
+
+  .project-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs) var(--space-s);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  :global(.project-link) {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3xs);
+  }
+
+  .project-skills h2 {
+    font-size: var(--step-0);
+    font-weight: var(--font-weight-medium);
+    margin-block-end: var(--space-3xs);
+  }
+
+  .project-skills p {
+    margin: 0;
+    color: var(--muted-foreground);
+  }
+</style>

@@ -1,6 +1,8 @@
 ---
 import type { ProfileConfig } from "@/types"
 
+import avatarImage from "@/assets/avatar.jpg"
+
 import Avatar from "@/components/base/Avatar.astro"
 import Badge from "@/components/base/Badge.astro"
 import Icon from "@/components/base/Icon.astro"
@@ -37,12 +39,12 @@ const tagline = isEnglish
 <article id="profile">
   <header class="profile-header">
     <Avatar
-      src=""
+      src={avatarImage}
       alt={displayName}
       fallback={isEnglish ? "KU" : "植"}
       data-slot="profile-avatar"
-      width={180}
-      height={180}
+      width={400}
+      height={400}
       loading="eager"
       fetchpriority="high"
       class="profile-avatar"

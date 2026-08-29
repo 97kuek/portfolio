@@ -1,4 +1,5 @@
 ---
+import { getContentHref } from "@/lib/content-locale"
 import type { Project } from "@/lib/projects"
 import Button from "@/components/base/Button.astro"
 import Icon from "@/components/base/Icon.astro"
@@ -13,7 +14,7 @@ const { prev, next } = Astro.props
 
 <nav class="project-navigation">
   <Button
-    href={prev ? `/projects/${prev.id}` : undefined}
+    href={prev ? getContentHref("projects", prev.id, prev.data) : undefined}
     variant="outline"
     aria-disabled={!prev}
   >
@@ -31,7 +32,7 @@ const { prev, next } = Astro.props
   </Button>
 
   <Button
-    href={next ? `/projects/${next.id}` : undefined}
+    href={next ? getContentHref("projects", next.id, next.data) : undefined}
     variant="outline"
     aria-disabled={!next}
   >

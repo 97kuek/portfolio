@@ -113,8 +113,11 @@ export interface ProjectNavigation {
 
 export async function getProjectNavigation(
   currentId: string,
+  filter?: (project: Project) => boolean,
 ): Promise<ProjectNavigation> {
-  const projects = await getProjects((project) => !!project.body?.trim())
+  const projects = await getProjects(
+    (project) => !!project.body?.trim() && (!filter || filter(project)),
+  )
   const currentIndex = projects.findIndex((p) => p.id === currentId)
   if (currentIndex === -1) return { prev: null, next: null }
   return {

@@ -6,6 +6,7 @@ import Icon from "@/components/base/Icon.astro"
 import Link from "@/components/base/Link.astro"
 import ReadingTime from "@/components/base/ReadingTime.astro"
 import AuthorAvatar from "@/components/people/AuthorAvatar.astro"
+import { getSiteLocale, localizedPath } from "@/lib/i18n"
 
 interface Props extends PostMeta {
   variant?: "card" | "full"
@@ -24,6 +25,10 @@ const {
   class: className,
 } = Astro.props
 const isCard = variant === "card"
+
+// This site has no per-person pages: every post is written by its owner, so the
+// byline points at the profile that opens the home page.
+const authorHref = `${localizedPath("/", getSiteLocale(Astro.url.pathname))}#profile`
 ---
 
 <div
@@ -38,11 +43,11 @@ const isCard = variant === "card"
       <post-meta-group>
         {authors.map((author) => (
           <post-meta-item>
-            <AuthorAvatar author={author} class="post-meta-avatar" />
+            <AuthorAvatar author={author} class="post-meta-avatar" width={64} height={64} />
             {isCard ? (
               <span>{author.name}</span>
             ) : (
-              <Link href={`/people/${author.id}`} underline class="post-meta-author-link">
+              <Link href={authorHref} underline class="post-meta-author-link">
                 {author.name}
               </Link>
             )}
