@@ -32,11 +32,10 @@ prose-content {
   }
 }
 
-/* Each heading is wrapped in its own anchor by the heading-anchors plugin.
-   The link inherits the heading's colour so the prose does not read as a page
-   of links, and the "#" is parked in the gutter: revealing it on hover never
-   reflows the heading, and every heading starts on the same vertical line as
-   the body text. */
+/* Each heading is wrapped in its own anchor by the heading-anchors plugin, so
+   the whole heading is the link to itself. It inherits the heading's colour
+   and carries no marker, so the prose does not read as a page of links; the
+   colour change on hover is the affordance. */
 prose-content a[data-heading-anchor] {
   position: relative;
   display: block;
@@ -50,29 +49,6 @@ prose-content a[data-heading-anchor] {
   text-decoration: none;
 }
 
-prose-content a[data-heading-anchor]::before {
-  content: "#";
-  position: absolute;
-  inset-block-start: 0;
-  inset-inline-end: 100%;
-  padding-inline-end: 0.35ch;
-  color: var(--muted-foreground);
-  font-weight: var(--font-weight-normal);
-  opacity: 0;
-  transition: opacity var(--motion-duration) var(--motion-ease);
-}
-
-prose-content a[data-heading-anchor]:is(:hover, :focus-visible)::before,
-prose-content a[data-heading-anchor]:has(:target)::before {
-  opacity: 1;
-}
-
 prose-content a[data-heading-anchor]:is(:hover, :focus-visible) {
   color: var(--primary);
-}
-
-@media (hover: none) {
-  prose-content a[data-heading-anchor]::before {
-    opacity: 1;
-  }
 }

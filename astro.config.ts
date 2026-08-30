@@ -10,7 +10,9 @@ import { calloutDirective } from "./src/lib/callout"
 import { externalLinks } from "./src/lib/external-links"
 import { headingNamespace } from "./src/lib/heading-namespace"
 import { headingAnchors } from "./src/lib/heading-anchors"
+import { imageFigures } from "./src/plugins/satteri-image-figures"
 import { satteriSidenotes } from "./src/plugins/satteri-sidenotes"
+import { collapseCjkLineBreaks } from "./src/plugins/satteri-cjk-line-breaks"
 import { normalizeHeadings } from "./src/plugins/satteri-normalize-headings"
 
 export default defineConfig({
@@ -47,12 +49,14 @@ export default defineConfig({
     processor: satteri({
       features: { directive: true, math: true, wikilinks: true },
       mdastPlugins: [
+        collapseCjkLineBreaks,
         normalizeHeadings,
         calloutDirective,
         inlineExpressiveCode,
         temmlMath,
       ],
       hastPlugins: [
+        imageFigures,
         externalLinks,
         blockExpressiveCode(),
         ...satteriSidenotes(),

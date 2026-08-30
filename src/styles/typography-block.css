@@ -72,3 +72,27 @@ prose-content {
     }
   }
 }
+
+/* A standalone image and the caption the image-figures plugin moves its alt
+   text into. The caption is the only place that text is visible, so it is
+   given room rather than tucked against the picture. */
+prose-content figure {
+  display: grid;
+  gap: var(--space-2xs);
+  margin-inline: 0;
+}
+
+prose-content figure img {
+  inline-size: 100%;
+  block-size: auto;
+  border-radius: var(--radius-lg);
+  outline: 1px solid light-dark(oklch(0 0 0 / 10%), oklch(1 0 0 / 10%));
+  outline-offset: -1px;
+}
+
+prose-content figcaption {
+  color: var(--muted-foreground);
+  font-size: var(--step--1);
+  line-height: calc(var(--leading-offset) + 1em);
+  text-wrap: pretty;
+}

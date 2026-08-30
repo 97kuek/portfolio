@@ -3,6 +3,7 @@ import { ClientRouter } from "astro:transitions"
 
 import { PROFILE, SITE } from "@site-config"
 import { getDisplayName } from "@/components/profile/helper"
+import { getUIStrings } from "@/lib/ui-strings"
 import {
   DEFAULT_LOCALE,
   getLocaleTag,
@@ -38,6 +39,7 @@ const {
   section,
 } = Astro.props
 const locale = getSiteLocale(Astro.url.pathname)
+const ui = getUIStrings(locale)
 const localizedSiteTitle = getDisplayName(locale)
 const localizedTagline =
   locale === "en" ? PROFILE.tagline : PROFILE.taglineJa || PROFILE.tagline
@@ -213,8 +215,15 @@ const structuredData = {
   >
 
   <ClientRouter />
-  <script is:inline define:vars={{ siteLocale: getLocaleTag(locale) }}>
+  <script
+    is:inline
+    define:vars={{
+      siteLocale: getLocaleTag(locale),
+      zoomCloseLabel: ui.closeImage,
+    }}
+  >
     window.__SITE_LOCALE__ = siteLocale
+    window.__ZOOM_CLOSE_LABEL__ = zoomCloseLabel
 
     function loadZoomAssets() {
       if (!document.querySelector("link[data-medium-zoom-styles]")) {
@@ -260,6 +269,35 @@ const structuredData = {
        overlay takes the click, so images beneath one can never be zoomed. */
     const ZOOMABLE_IMAGES = "main img:not(a img):not([data-clickable] img)"
 
+    /* medium-zoom dismisses on click, scroll or Escape, none of which a
+       touch reader can see. This adds the button they are looking for. */
+    function attachZoomCloseButton(zoom) {
+      if (window.__mediumZoomCloseButton) {
+        window.__mediumZoomCloseButton.remove()
+      }
+
+      const button = document.createElement("button")
+      button.type = "button"
+      button.className = "medium-zoom-close"
+      button.hidden = true
+      button.setAttribute("aria-label", window.__ZOOM_CLOSE_LABEL__ || "Close")
+      button.innerHTML =
+        '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+        '<path d="M6 6 18 18M18 6 6 18" fill="none" stroke="currentColor" ' +
+        'stroke-width="2" stroke-linecap="round"/></svg>'
+      button.addEventListener("click", () => zoom.close())
+      document.body.append(button)
+      window.__mediumZoomCloseButton = button
+
+      zoom.on("opened", () => {
+        button.hidden = false
+        button.focus({ preventScroll: true })
+      })
+      zoom.on("close", () => {
+        button.hidden = true
+      })
+    }
+
     async function initializeImageZoom() {
       const images = document.querySelectorAll(ZOOMABLE_IMAGES)
       if (!images.length) return
@@ -267,10 +305,12 @@ const structuredData = {
       try {
         await loadZoomAssets()
         window.__mediumZoomInstance?.detach()
-        window.__mediumZoomInstance = window.mediumZoom(images, {
+        const zoom = window.mediumZoom(images, {
           margin: 24,
           scrollOffset: 40,
         })
+        window.__mediumZoomInstance = zoom
+        attachZoomCloseButton(zoom)
       } catch {
         // Images remain fully usable if the optional enhancement cannot load.
       }

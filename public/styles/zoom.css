@@ -36,3 +36,38 @@ main img {
   z-index: 1000;
   cursor: zoom-out;
 }
+
+/* Dismissing a zoom by clicking the backdrop or pressing Escape is invisible
+   on a touch screen, so a zoomed image gets a button that says so. It sits
+   above the overlay and the image medium-zoom raises to z-index 1000. */
+.medium-zoom-close {
+  position: fixed;
+  inset-block-start: max(1rem, env(safe-area-inset-top));
+  inset-inline-end: max(1rem, env(safe-area-inset-right));
+  z-index: 1001;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  padding: 0;
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.15));
+  border-radius: 9999px;
+  background: var(--background, #fff);
+  color: var(--foreground, #111);
+  cursor: pointer;
+}
+
+.medium-zoom-close[hidden] {
+  display: none;
+}
+
+.medium-zoom-close svg {
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+}
+
+.medium-zoom-close:focus-visible {
+  outline: 2px solid var(--ring, #666);
+  outline-offset: 2px;
+}

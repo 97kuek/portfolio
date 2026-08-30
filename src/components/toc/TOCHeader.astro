@@ -79,8 +79,9 @@ const ui = getUIStrings(Astro.url.pathname)
   .mobile-toc {
     --scroll-area-display: flex;
     --scroll-area-flex-direction: column;
-    --scroll-area-max-block-size: 30dvh;
+    --scroll-area-max-block-size: 60dvh;
 
+    position: relative;
     inline-size: 100%;
   }
 
@@ -147,10 +148,22 @@ const ui = getUIStrings(Astro.url.pathname)
     margin-inline-start: auto;
   }
 
+  /* Floated over the page rather than added to the sticky bar's height, so
+     opening the table of contents does not push the article down the screen
+     and take the reader's place with it. */
   toc-panel {
+    position: absolute;
+    inset-block-start: 100%;
+    inset-inline: 0;
+    z-index: 20;
     display: block;
-    border-block-start: 1px solid
-      color-mix(in oklab, var(--border) 50%, transparent);
+    border: 1px solid var(--border);
+    border-start-start-radius: 0;
+    border-start-end-radius: 0;
+    border-end-start-radius: var(--radius-lg);
+    border-end-end-radius: var(--radius-lg);
+    background: var(--background);
+    box-shadow: 0 0.75rem 2rem -1rem oklch(0 0 0 / 35%);
   }
 
   ul {

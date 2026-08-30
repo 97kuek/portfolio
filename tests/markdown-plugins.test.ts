@@ -3,6 +3,8 @@ import test from "node:test"
 import { markdownToHtml } from "satteri"
 
 import { calloutDirective } from "../src/lib/callout.ts"
+import { collapseCjkLineBreaks } from "../src/plugins/satteri-cjk-line-breaks.ts"
+import { imageFigures } from "../src/plugins/satteri-image-figures.ts"
 import { externalLinks } from "../src/lib/external-links.ts"
 import { headingAnchors } from "../src/lib/heading-anchors.ts"
 import { headingNamespace } from "../src/lib/heading-namespace.ts"
@@ -99,4 +101,53 @@ void test("subpost heading namespaces reset for every document", () => {
   assert.match(first.html, /id="first-repeated-1"/)
   assert.match(second.html, /id="second-repeated"/)
   assert.doesNotMatch(second.html, /id="second-repeated-1"/)
+})
+
+void test("a wrapped Japanese paragraph loses the space its line break implies", () => {
+  const { html } = markdownToHtml(
+    "早稲田大学で情報通信を学びながら、\n機械学習の応用に取り組んでいます。",
+    { mdastPlugins: [collapseCjkLineBreaks] },
+  )
+
+  assert.match(html, /学びながら、機械学習/)
+  assert.doesNotMatch(html, /、\s+機械/)
+})
+
+void test("a line break beside Latin text keeps its space", () => {
+  const { html } = markdownToHtml(
+    "Machine learning and\nsoftware development.\n\nPyTorch\nと機械学習。",
+    { mdastPlugins: [collapseCjkLineBreaks] },
+  )
+
+  assert.match(html, /and\s+software/)
+  assert.match(html, /PyTorch\s+と機械学習/)
+})
+
+void test("a line break across an inline element is collapsed too", () => {
+  const { html } = markdownToHtml(
+    "**AIエンジニア**\nとして働いています。\n\n設計と\n**実装**を担当。",
+    { mdastPlugins: [collapseCjkLineBreaks] },
+  )
+
+  assert.match(html, /<\/strong>として/)
+  assert.match(html, /設計と<strong>/)
+})
+
+void test("a standalone image becomes a figure with its alt text as caption", () => {
+  const { html } = markdownToHtml("![滑走路の機体](/photo.jpg)", {
+    hastPlugins: [imageFigures],
+  })
+
+  assert.match(html, /<figure><img src="\/photo.jpg" alt=""/)
+  assert.match(html, /<figcaption>滑走路の機体<\/figcaption>/)
+})
+
+void test("images without alt text, and images inside a sentence, are left alone", () => {
+  const { html } = markdownToHtml(
+    "![](/bare.jpg)\n\nSee ![a chart](/chart.jpg) here.",
+    { hastPlugins: [imageFigures] },
+  )
+
+  assert.doesNotMatch(html, /<figure>/)
+  assert.match(html, /See <img src="\/chart.jpg" alt="a chart"> here/)
 })

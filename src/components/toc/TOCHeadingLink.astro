@@ -40,9 +40,12 @@ const href = "href" in heading ? heading.href : propHref || `#${heading.slug}`
       color var(--motion-duration-fast) var(--motion-ease);
   }
 
+  /* Hover tints the row rather than inverting it: the previous rule painted
+     the label in a half-transparent accent-foreground, which on the light
+     palette is near-white on a light tint. */
   .toc-item:hover {
-    background: color-mix(in oklab, var(--accent) 50%, transparent);
-    color: color-mix(in oklab, var(--accent-foreground) 50%, transparent);
+    background: color-mix(in oklab, var(--accent) 18%, transparent);
+    color: var(--foreground);
   }
 
   .toc-item:focus-visible {

@@ -14,8 +14,8 @@ export const COVER_SIZES = "(max-width: 48rem) 100vw, 48rem"
 /** Candidates rendered for a detail-page cover. */
 export const COVER_WIDTHS = [640, 960, 1280]
 
-/** Twice the largest CSS box for the profile portrait (9rem), for 2x screens. */
-export const PROFILE_AVATAR_WIDTH = 288
+/** Twice the largest CSS box for the profile portrait (11rem), for 2x screens. */
+export const PROFILE_AVATAR_WIDTH = 352
 
 /** Twice the byline avatar's CSS box (1.25rem), rounded up to a sane candidate. */
 export const AUTHOR_AVATAR_WIDTH = 64
