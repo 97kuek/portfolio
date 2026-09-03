@@ -43,8 +43,7 @@ WASAは40年以上の歴史があり、代ごとに引き継ぎ資料が積み�
 
 ## システム構成
 
-画面はCloudflare Pages、認証・検索・回答生成・管理APIはCloud Runが担当します。
-Wiki本文を含む索引は非公開のCloud Storageに置き、履歴や利用状況はFirestoreへ保存します。
+画面はCloudflare Pages、認証・検索・回答生成・管理APIはCloud Runが担当します。Wiki本文を含む索引は非公開のCloud Storageに置き、履歴や利用状況はFirestoreへ保存します。
 
 質問のたびにWikiへ取りに行くのではなく、事前に構築した索引を検索する設計にしました。
 応答が速くなるだけでなく、外部サービスへの負荷と費用を抑えられます。
