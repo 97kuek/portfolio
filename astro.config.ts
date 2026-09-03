@@ -58,7 +58,12 @@ export default defineConfig({
       hastPlugins: [
         imageFigures,
         externalLinks,
-        blockExpressiveCode(),
+        // Passed as a factory, not an instance: the plugin emits its base
+        // styles and scripts into the first code block it sees, and Satteri
+        // resolves a factory once per file. Calling it here instead would
+        // share one instance across the build, so only the first page with a
+        // code block would carry the stylesheet.
+        blockExpressiveCode,
         ...satteriSidenotes(),
         headingNamespace(),
         headingAnchors(),

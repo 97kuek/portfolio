@@ -16,7 +16,7 @@ const ecOptions: SatteriExpressiveCodeOptions = {
     showLineNumbers: true,
     collapseStyle: "collapsible-auto",
     overridesByLang: {
-      "ansi,bat,bash,batch,cmd,console,powershell,ps,ps1,psd1,psm1,sh,shell,shellscript,shellsession,text,zsh":
+      "ansi,bat,bash,batch,cmd,console,plaintext,powershell,ps,ps1,psd1,psm1,sh,shell,shellscript,shellsession,text,txt,zsh":
         {
           showLineNumbers: false,
         },
