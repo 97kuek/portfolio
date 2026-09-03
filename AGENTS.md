@@ -70,6 +70,10 @@ wrangler d1 execute portfolio-interactions --remote --file=migrations/<file>.sql
 - モデレーションは `pnpm comments <list|hide|show|delete|backup>` を使う
   - 破壊的な操作の前に `pnpm comments backup` を取る
 - 既定では投稿即公開。Pagesの環境変数 `COMMENT_MODERATION=1` で承認制になる
+- 新着コメントは `COMMENT_WEBHOOK_URL` のwebhookに通知する。未設定なら通知しない
+  - DiscordとSlackの両方に届くよう、`content` と `text` の両方を持つJSONを投げる
+  - 失敗しても握りつぶす。コメントは保存済みで、通知のために書き込みを失敗させない
+  - `wrangler pages secret put COMMENT_WEBHOOK_URL --project-name 97kuek`
 - `pnpm dev` ではAPIが動かない。ローカルで試すときは `pnpm dev:pages`
 
 ## フォント
@@ -86,9 +90,15 @@ wrangler d1 execute portfolio-interactions --remote --file=migrations/<file>.sql
   - 索引対象はレイアウトに `searchable` を渡したページだけ（記事・プロジェクト・経歴）
   - 一覧ページを索引すると同じ内容が二重に出るので付けない
   - `pnpm dev` では索引が無いため、検索ページは利用できない旨を表示する
+  - 日本語はpagefind_extendedが形態素解析して分かち書きするので検索できる
+    - ビルドログの `doesn't support stemming for ja-jp` は語幹化の話。無視してよい
+    - この警告を理由に検索エンジンを乗り換えない
 - OG画像は記事・プロジェクトごとに `/og/<collection>/<entryId>.png` を生成
   - 和文フォントは `src/assets/og/NotoSansJP-*-subset.ttf`（ビルド時のみ読む）
   - タイトルに未収録の文字が出たら `pnpm subset:og-font` で作り直す
+  - frontmatterに `image` があれば、その原本を敷いて暗幕を重ね、白文字で描く
+    - 原本の場所は `ImageMetadata.fsPath`。公開型には無いので防御的に読む
+    - 読めなければ写真なしの明るいカードに落ちる。ビルドは止めない
 - 目次は `TOCHeader`（ヘッダー直下の折りたたみ）。見出し3つ以上のときだけ出す
   - このサイトは本文幅が44remでサイドバーが入らないため、`TOCSidebar` は使わない
 

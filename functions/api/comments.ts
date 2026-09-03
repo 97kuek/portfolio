@@ -7,6 +7,7 @@ import {
   isModerated,
   isValidTarget,
   json,
+  notifyComment,
   readJson,
   type Env,
   type RequestContext,
@@ -45,7 +46,11 @@ export const onRequestGet = async ({ request, env }: RequestContext) => {
   return json({ comments: await listComments(env, target) })
 }
 
-export const onRequestPost = async ({ request, env }: RequestContext) => {
+export const onRequestPost = async ({
+  request,
+  env,
+  waitUntil,
+}: RequestContext) => {
   if (!isSameOrigin(request)) return error("Cross-origin request", 403)
 
   const payload = await readJson(request)
@@ -89,6 +94,16 @@ export const onRequestPost = async ({ request, env }: RequestContext) => {
       pending ? 0 : 1,
     )
     .run()
+
+  const announcement = notifyComment(env, {
+    origin: new URL(request.url).origin,
+    target,
+    author,
+    body,
+    pending,
+  })
+  if (waitUntil) waitUntil(announcement)
+  else await announcement
 
   return json({ comments: await listComments(env, target), pending }, 201)
 }

@@ -37,6 +37,12 @@ export interface Env {
    * a handful of readers is better served by comments that appear at once.
    */
   COMMENT_MODERATION?: string
+  /**
+   * Incoming webhook a new comment is announced on. Set with
+   * `wrangler pages secret put COMMENT_WEBHOOK_URL`. Without it a comment is
+   * stored and nobody is told, which is how this site ran until now.
+   */
+  COMMENT_WEBHOOK_URL?: string
 }
 
 export const isModerated = (env: Env): boolean =>
@@ -45,6 +51,11 @@ export const isModerated = (env: Env): boolean =>
 export interface RequestContext {
   request: Request
   env: Env
+  /**
+   * Keeps work alive after the response is sent. A webhook that is slow, or
+   * down, must not hold up the reader who wrote the comment.
+   */
+  waitUntil?: (promise: Promise<unknown>) => void
 }
 
 export const json = (data: unknown, status = 200): Response =>
@@ -119,5 +130,60 @@ export const readJson = async (
       : null
   } catch {
     return null
+  }
+}
+
+/** Trimmed to keep a long comment from filling the notification. */
+const NOTIFICATION_BODY_LIMIT = 500
+
+/**
+ * Announces a new comment on the configured webhook.
+ *
+ * Discord reads `content` and Slack reads `text`, so one payload carrying
+ * both reaches either without asking which service the URL belongs to. A
+ * failure is swallowed: the comment is already stored, and losing the
+ * announcement is not worth failing the write the reader just made.
+ */
+export const notifyComment = async (
+  env: Env,
+  {
+    origin,
+    target,
+    author,
+    body,
+    pending,
+  }: {
+    origin: string
+    target: string
+    author: string | null
+    body: string
+    pending: boolean
+  },
+): Promise<void> => {
+  const url = env.COMMENT_WEBHOOK_URL
+  if (!url) return
+
+  const [collection, slug] = target.split(":")
+  const link = `${origin}/${collection}/${slug}`
+  const trimmed =
+    body.length > NOTIFICATION_BODY_LIMIT
+      ? `${body.slice(0, NOTIFICATION_BODY_LIMIT)}…`
+      : body
+
+  const text = [
+    pending ? "New comment (awaiting approval)" : "New comment",
+    `${author ?? "Anonymous"} on ${link}`,
+    "",
+    trimmed,
+  ].join("\n")
+
+  try {
+    await fetch(url, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ content: text, text }),
+    })
+  } catch {
+    /* The comment stands whether or not the announcement arrives. */
   }
 }
