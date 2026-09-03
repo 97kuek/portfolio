@@ -5,22 +5,25 @@ import { getUIStrings } from "@/lib/ui-strings"
 import Button from "@/components/base/Button.astro"
 import Icon from "@/components/base/Icon.astro"
 
+/* Named by time, not by position in the listing. The listing runs newest
+   first, so its "previous" entry is the more recent post — reading it as the
+   earlier one is what sent both arrows the wrong way. */
 interface Props {
-  prevPost?: Post | null
-  nextPost?: Post | null
+  olderPost?: Post | null
+  newerPost?: Post | null
   parentPost?: Post | null
 }
 
 const ui = getUIStrings(Astro.url.pathname)
-const { prevPost, nextPost, parentPost } = Astro.props
+const { olderPost, newerPost, parentPost } = Astro.props
 const isSubpost = !!parentPost
 ---
 
 <nav class="post-navigation" data-subpost={isSubpost ? "true" : "false"}>
   <Button
-    href={nextPost ? `${getContentHref(nextPost.collection, nextPost.id, nextPost.data)}#post-title` : undefined}
+    href={olderPost ? `${getContentHref(olderPost.collection, olderPost.id, olderPost.data)}#post-title` : undefined}
     variant="outline"
-    aria-disabled={!nextPost}
+    aria-disabled={!olderPost}
   >
     <post-navigation-content data-direction="previous">
       <post-navigation-icon><Icon name="arrow-left" /></post-navigation-icon>
@@ -29,7 +32,7 @@ const isSubpost = !!parentPost
           {isSubpost ? "Previous Subpost" : ui.previousPost}
         </span>
         <strong>
-          {nextPost?.data.title || (isSubpost ? "No older subpost" : ui.oldestPost)}
+          {olderPost?.data.title || (isSubpost ? "No older subpost" : ui.oldestPost)}
         </strong>
       </post-navigation-label>
     </post-navigation-content>
@@ -54,9 +57,9 @@ const isSubpost = !!parentPost
     )}
 
   <Button
-    href={prevPost ? `${getContentHref(prevPost.collection, prevPost.id, prevPost.data)}#post-title` : undefined}
+    href={newerPost ? `${getContentHref(newerPost.collection, newerPost.id, newerPost.data)}#post-title` : undefined}
     variant="outline"
-    aria-disabled={!prevPost}
+    aria-disabled={!newerPost}
   >
     <post-navigation-content data-direction="next">
       <post-navigation-label>
@@ -64,7 +67,7 @@ const isSubpost = !!parentPost
           {isSubpost ? "Next Subpost" : ui.nextPost}
         </span>
         <strong>
-          {prevPost?.data.title || (isSubpost ? "No newer subpost" : ui.newestPost)}
+          {newerPost?.data.title || (isSubpost ? "No newer subpost" : ui.newestPost)}
         </strong>
       </post-navigation-label>
       <post-navigation-icon><Icon name="arrow-right" /></post-navigation-icon>

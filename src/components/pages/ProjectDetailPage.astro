@@ -55,7 +55,7 @@ const target = interactionTarget(
   getContentSlug(project.id, project.data),
 )
 
-const { prev, next } = await getProjectNavigation(project.id, (candidate) =>
+const { older, newer } = await getProjectNavigation(project.id, (candidate) =>
   isContentInLocale(candidate.data, locale),
 )
 ---
@@ -120,7 +120,7 @@ const { prev, next } = await getProjectNavigation(project.id, (candidate) =>
 
   <Comments target={target} />
 
-  <ProjectNavigation prev={prev} next={next} />
+  <ProjectNavigation older={older} newer={newer} />
 </CommonLayout>
 
 <style>

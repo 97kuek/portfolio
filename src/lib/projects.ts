@@ -106,9 +106,14 @@ export async function getProjects(
   return sortProjects(projects)
 }
 
+/**
+ * Named by time rather than by position in the list. The list runs newest
+ * first, so the neighbour at a lower index is the more recent project — and
+ * calling that one "prev" is what put the arrows the wrong way round.
+ */
 export interface ProjectNavigation {
-  prev: Project | null
-  next: Project | null
+  older: Project | null
+  newer: Project | null
 }
 
 export async function getProjectNavigation(
@@ -119,10 +124,10 @@ export async function getProjectNavigation(
     (project) => !!project.body?.trim() && (!filter || filter(project)),
   )
   const currentIndex = projects.findIndex((p) => p.id === currentId)
-  if (currentIndex === -1) return { prev: null, next: null }
+  if (currentIndex === -1) return { older: null, newer: null }
   return {
-    prev: currentIndex > 0 ? projects[currentIndex - 1] : null,
-    next:
+    newer: currentIndex > 0 ? projects[currentIndex - 1] : null,
+    older:
       currentIndex < projects.length - 1 ? projects[currentIndex + 1] : null,
   }
 }

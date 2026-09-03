@@ -5,20 +5,22 @@ import type { Project } from "@/lib/projects"
 import Button from "@/components/base/Button.astro"
 import Icon from "@/components/base/Icon.astro"
 
+/* The arrow that points back points into the past: left is the older
+   project, right the newer one, which is what the labels have always said. */
 interface Props {
-  prev?: Project | null
-  next?: Project | null
+  older?: Project | null
+  newer?: Project | null
 }
 
 const ui = getUIStrings(Astro.url.pathname)
-const { prev, next } = Astro.props
+const { older, newer } = Astro.props
 ---
 
 <nav class="project-navigation">
   <Button
-    href={prev ? getContentHref("projects", prev.id, prev.data) : undefined}
+    href={older ? getContentHref("projects", older.id, older.data) : undefined}
     variant="outline"
-    aria-disabled={!prev}
+    aria-disabled={!older}
   >
     <project-navigation-content data-direction="previous">
       <project-navigation-icon
@@ -27,22 +29,22 @@ const { prev, next } = Astro.props
       <project-navigation-label>
         <span>{ui.previousProject}</span>
         <strong>
-          {prev?.data.title || ui.firstProject}
+          {older?.data.title || ui.firstProject}
         </strong>
       </project-navigation-label>
     </project-navigation-content>
   </Button>
 
   <Button
-    href={next ? getContentHref("projects", next.id, next.data) : undefined}
+    href={newer ? getContentHref("projects", newer.id, newer.data) : undefined}
     variant="outline"
-    aria-disabled={!next}
+    aria-disabled={!newer}
   >
     <project-navigation-content data-direction="next">
       <project-navigation-label>
         <span>{ui.nextProject}</span>
         <strong>
-          {next?.data.title || ui.lastProject}
+          {newer?.data.title || ui.lastProject}
         </strong>
       </project-navigation-label>
       <project-navigation-icon
