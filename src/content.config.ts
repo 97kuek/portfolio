@@ -119,11 +119,6 @@ const projects = defineCollection({
       ),
 })
 
-const updates = defineCollection({
-  loader: glob({ pattern: "**/*.md", base: "./src/content/updates" }),
-  schema: z.object({}),
-})
-
 const experience = defineCollection({
   loader: file("./src/content/experience.json"),
   schema: z.object({
@@ -141,4 +136,4 @@ const experience = defineCollection({
   }),
 })
 
-export const collections = { blog, experience, people, projects, updates }
+export const collections = { blog, experience, people, projects }

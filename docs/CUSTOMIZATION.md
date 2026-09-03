@@ -12,7 +12,6 @@ Most site content lives in `src/content/`.
   homepage/profile sections.
 - `src/content/blog/`: blog posts and subposts.
 - `src/content/projects/`: project cards and project detail pages.
-- `src/content/updates/`: timeline updates.
 - `src/content/experience.json`: education, research, and teaching timeline.
 - `src/content/people.toml`: authors used by blog posts.
 - `src/content/publications/main.bib`: BibTeX source for `/publications`.
