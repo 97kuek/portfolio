@@ -175,15 +175,16 @@ const tagline = isEnglish
   }
 
   @media (width >= 40rem) {
+    /* Side by side, the name block reads as a caption to the portrait, so it
+       sits on the portrait's centre line rather than its top edge. */
     .profile-header {
       flex-direction: row;
-      align-items: flex-start;
+      align-items: center;
     }
 
     :global(.profile-avatar) {
       inline-size: 11rem;
       block-size: 11rem;
-      align-self: flex-start;
     }
 
     .profile-heading h1 {
