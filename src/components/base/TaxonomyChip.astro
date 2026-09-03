@@ -162,12 +162,6 @@ const accessibleLabel =
     opacity: 0.7;
   }
 
-  @media (pointer: coarse), (pointer: none), (any-pointer: coarse) {
-    :is(a, button)[data-taxonomy-chip] [data-taxonomy-surface] {
-      min-block-size: var(--control-size-compact);
-    }
-  }
-
   @media (prefers-reduced-motion: reduce) {
     :is(a, button)[data-taxonomy-chip],
     [data-taxonomy-surface] {
