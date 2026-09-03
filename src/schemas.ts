@@ -85,6 +85,17 @@ export const SiteConfigSchema = z.object({
     postCount: z.number().int().nonnegative().default(2),
   }),
 
+  /**
+   * Cloudflare Web Analytics. The beacon token is public by design — it ships
+   * in every page — so it belongs in this config rather than in a secret.
+   * Leave the field out and no beacon is loaded at all.
+   */
+  analytics: z
+    .object({
+      cloudflareToken: z.string().min(1),
+    })
+    .optional(),
+
   // Theme settings
   favicon: z.string().default("/favicon.ico"),
   prerender: z.boolean().default(true),

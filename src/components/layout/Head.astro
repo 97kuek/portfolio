@@ -131,6 +131,12 @@ const structuredData = {
   ...(type === "article" && section && { articleSection: section }),
   ...(tags.length > 0 && { keywords: tags.join(", ") }),
 }
+/* Cloudflare Web Analytics. Only in a built site: a dev server would report
+   every local reload as a visit. The token is public — it is read from the
+   page by the beacon itself — so it lives in the site config. */
+const analyticsToken = import.meta.env.PROD
+  ? SITE.analytics?.cloudflareToken
+  : undefined
 ---
 
 <head>
@@ -213,6 +219,15 @@ const structuredData = {
     title={localizedSiteTitle}
     href={new URL(localizedPath("/rss.xml", locale), siteOrigin).toString()}
   >
+
+  {analyticsToken && (
+    <script
+      is:inline
+      defer
+      src="https://static.cloudflareinsights.com/beacon.min.js"
+      data-cf-beacon={JSON.stringify({ token: analyticsToken })}
+    />
+  )}
 
   <ClientRouter />
   <script
