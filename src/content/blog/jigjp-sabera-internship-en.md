@@ -43,6 +43,8 @@ The SABERA course splits everyone into three teams of three. Ours built an app c
 Put SABERA on, look up, and the constellations are drawn over the sky you are actually looking at.
 It guides you through the night sky, hands free.
 
+![What SABERA shows you: constellations and star names over the sky you are looking at](../../assets/photos/jigjp-hoshishirube-ar.png)
+
 ## How it went
 
 At the final presentations on the last day, we were given the Audience Award.
