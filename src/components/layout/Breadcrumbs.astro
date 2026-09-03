@@ -49,7 +49,7 @@ const currentClasses = "breadcrumb-current"
           </li>
           <li class="breadcrumb-item">
             {item.isCurrent ? (
-              <span aria-current="page" class={currentClasses}>
+              <span aria-current="page" class={currentClasses} title={item.label}>
                 {item.icon && (
                   <Icon name={item.icon} size="1.25rem" class="breadcrumb-icon" aria-hidden="true" />
                 )}
@@ -75,6 +75,17 @@ const currentClasses = "breadcrumb-current"
 </nav>
 
 <style>
+  /* A post title is the last crumb, and a long one has nowhere to wrap: the
+     label is `nowrap` so that it ellipses instead. Nothing between it and the
+     page was allowed to shrink, though — a flex item refuses to go below its
+     content by default — so the trail grew past the viewport and took the
+     page with it. Every box down to the label opts out of that floor, which
+     is what lets the ellipsis do its job. */
+  nav {
+    min-inline-size: 0;
+    max-inline-size: 100%;
+  }
+
   .breadcrumb-list {
     display: flex;
     flex-wrap: wrap;
@@ -99,8 +110,15 @@ const currentClasses = "breadcrumb-current"
     gap: var(--space-3xs);
   }
 
+  .breadcrumb-link,
+  .breadcrumb-current {
+    min-inline-size: 0;
+    max-inline-size: 100%;
+  }
+
   .breadcrumb-item {
     position: relative;
+    min-inline-size: 0;
   }
 
   .breadcrumb-link {
@@ -133,6 +151,7 @@ const currentClasses = "breadcrumb-current"
   }
 
   .breadcrumb-label {
+    min-inline-size: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
