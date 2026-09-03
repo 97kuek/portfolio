@@ -16,6 +16,7 @@ const UI_STRINGS = {
     commentName: "Name (optional)",
     commentNamePlaceholder: "Anonymous",
     commentPending: "Thanks — your comment is waiting to be reviewed.",
+    commentPrivacy: "How comments are handled",
     commentPlaceholder: "Write a comment…",
     commentRateLimited:
       "Too many comments in a short time. Please wait a little.",
@@ -81,6 +82,7 @@ const UI_STRINGS = {
     commentName: "お名前（任意）",
     commentNamePlaceholder: "匿名",
     commentPending: "ありがとうございます。確認後に公開されます。",
+    commentPrivacy: "コメントの取り扱いについて",
     commentPlaceholder: "コメントを入力…",
     commentRateLimited: "短時間に投稿しすぎです。少し時間をおいてください。",
     commentSubmit: "コメントする",

@@ -1,0 +1,103 @@
+---
+import CommonLayout from "@/layouts/CommonLayout.astro"
+import Link from "@/components/base/Link.astro"
+import { PROFILE } from "@site-config"
+import { getSiteLocale } from "@/lib/i18n"
+
+const isEnglish = getSiteLocale(Astro.url.pathname) === "en"
+---
+
+<CommonLayout
+  title={isEnglish ? "Privacy" : "プライバシー"}
+  description={isEnglish
+    ? "How this site handles analytics, interaction data, and browser preferences."
+    : "このサイトにおけるアクセス解析、リアクション・コメント、ブラウザ設定の取り扱いについて説明します。"}
+  breadcrumbs={[{ label: isEnglish ? "Privacy" : "プライバシー" }]}
+>
+  {isEnglish ? (
+    <>
+      <h2>Overview</h2>
+      <p>
+        This site does not require an account. It handles only the information
+        needed to understand site use, remember display preferences, and offer
+        reactions and comments.
+      </p>
+
+      <h2>Analytics</h2>
+      <p>
+        <Link href="https://www.cloudflare.com/web-analytics/" external>
+          Cloudflare Web Analytics
+        </Link>{" "}
+        is used to understand visits and site performance. The analytics
+        service is provided by Cloudflare and is subject to its privacy terms.
+        This site does not add its own advertising or cross-site tracking
+        cookies.
+      </p>
+
+      <h2>Reactions and comments</h2>
+      <p>
+        A comment stores the name you choose to provide, its text, and the time
+        it was posted. A reaction stores its type and time. The application
+        does not store the raw IP address. It stores a salted, one-way hash
+        derived from the request address and user agent to limit comment abuse
+        and prevent one visitor from adding the same reaction repeatedly.
+      </p>
+      <p>
+        Comment records are kept until they are removed through moderation.
+        Reaction records are kept until the reaction is removed or the
+        interaction data is cleared. To request deletion, send the page URL,
+        approximate posting time, and comment text to the contact address
+        below.
+      </p>
+
+      <h2>Browser storage</h2>
+      <p>
+        The theme and preferred language are stored in your browser’s local
+        storage. They are used only to restore your choices and are not sent to
+        the comments or reactions database.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Questions and deletion requests can be sent to{" "}
+        <Link href={`mailto:${PROFILE.email}`}>{PROFILE.email}</Link>.
+      </p>
+    </>
+  ) : (
+    <>
+      <h2>概要</h2>
+      <p>
+        このサイトはアカウント登録を必要としません。利用状況の把握、表示設定の保存、リアクション・コメント機能の提供に必要な情報だけを扱います。
+      </p>
+
+      <h2>アクセス解析</h2>
+      <p>
+        訪問状況とサイト性能の把握に、
+        <Link href="https://www.cloudflare.com/web-analytics/" external>
+          Cloudflare Web Analytics
+        </Link>
+        を利用しています。解析サービスはCloudflareが提供し、同社のプライバシー条件が適用されます。このサイト独自の広告用Cookieやサイト横断トラッキングCookieは設置していません。
+      </p>
+
+      <h2>リアクションとコメント</h2>
+      <p>
+        コメントでは、入力された名前、本文、投稿時刻を保存します。リアクションでは、種類と時刻を保存します。アプリケーションは生のIPアドレスを保存しません。コメントの濫用防止と、同じ訪問者による同一リアクションの重複防止のため、リクエスト元アドレスとユーザーエージェントからソルト付きの一方向ハッシュを生成して保存します。
+      </p>
+      <p>
+        コメントの記録はモデレーションで削除されるまで、リアクションの記録は取り消されるかインタラクションデータが消去されるまで保持します。削除を希望する場合は、対象ページのURL、おおよその投稿時刻、コメント本文を下記の連絡先へお知らせください。
+      </p>
+
+      <h2>ブラウザ内の保存</h2>
+      <p>
+        テーマと言語の設定は、利用中のブラウザのlocalStorageへ保存します。選択した表示を復元するためだけに使い、コメント・リアクション用データベースへは送りません。
+      </p>
+
+      <h2>連絡先</h2>
+      <p>
+        ご質問や削除依頼は、
+        <Link href={`mailto:${PROFILE.email}`}>{PROFILE.email}</Link>
+        までご連絡ください。
+      </p>
+    </>
+  )}
+</CommonLayout>

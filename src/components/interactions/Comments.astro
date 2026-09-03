@@ -1,5 +1,6 @@
 ---
-import { getLocaleTag, getSiteLocale } from "@/lib/i18n"
+import { getLocaleTag, getSiteLocale, localizedPath } from "@/lib/i18n"
+import Link from "@/components/base/Link.astro"
 import {
   COMMENT_AUTHOR_MAX_LENGTH,
   COMMENT_MAX_LENGTH,
@@ -64,6 +65,13 @@ const ui = getUIStrings(locale)
       ></textarea>
     </label>
     <div class="comment-actions">
+      <Link
+        href={localizedPath("/privacy", locale)}
+        class="comment-privacy"
+        underline
+      >
+        {ui.commentPrivacy}
+      </Link>
       <button type="submit" class="comment-submit">{ui.commentSubmit}</button>
     </div>
   </form>
@@ -136,7 +144,15 @@ const ui = getUIStrings(locale)
 
   .comment-actions {
     display: flex;
-    justify-content: flex-end;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2xs);
+  }
+
+  :global(.comment-privacy) {
+    color: var(--muted-foreground);
+    font-size: var(--step--1);
   }
 
   .comment-submit {
