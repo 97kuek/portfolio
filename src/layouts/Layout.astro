@@ -73,13 +73,10 @@ const ui = getUIStrings(locale)
     <MenuBar>
       <Header />
       {Astro.slots.has("subposts-navigation-header") && (
-          <slot
-            name="subposts-navigation-header"
-            aria-label="Post-subposts navigation"
-          />
+          <slot name="subposts-navigation-header" />
         )}
       {Astro.slots.has("toc-header") && (
-          <slot name="toc-header" aria-label="Table of contents" />
+          <slot name="toc-header" />
         )}
     </MenuBar>
     {(breadcrumbs || Astro.slots.has("breadcrumb")) && (

@@ -44,6 +44,5 @@ const getFallback = (name: string, style: "first-initial" | "all-initials") => {
   alt={authorName}
   fallback={getFallback(authorName, fallbackStyle)}
   class={className}
-  aria-label={`${authorName}'s Avatar`}
   {...imageProps}
 />

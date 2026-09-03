@@ -3,6 +3,7 @@ import type { PostNavItem as PostNavItemType } from "@/lib/blog/types"
 import PostNavItem from "@/components/blog/PostNavItem.astro"
 import ScrollArea from "@/components/toc/ScrollArea.astro"
 import SubpostsList from "@/components/blog/SubpostsList.astro"
+import { getUIStrings } from "@/lib/ui-strings"
 
 interface Props {
   postNavItems: PostNavItemType[]
@@ -14,6 +15,7 @@ const { postNavItems = [], activePostNavItem, class: className } = Astro.props
 
 // Only render if there's meaningful content
 const shouldRender = postNavItems.length > 0 || !!activePostNavItem
+const ui = getUIStrings(Astro.url.pathname)
 ---
 
 {shouldRender && activePostNavItem && (
@@ -21,18 +23,18 @@ const shouldRender = postNavItems.length > 0 || !!activePostNavItem
       id="subposts-sidebar-container"
       class:list={["subposts-sidebar", className]}
       role="complementary"
-      aria-label="Subposts navigation"
+      aria-label={ui.subpostsNavigation}
     >
       <header>
         <h2 id="subposts-heading">
-          Post Navigation
+          {ui.postNavigation}
         </h2>
       </header>
       <ScrollArea data-scroll-area data-scroll-container>
-        <nav aria-label="Post and subposts">
+        <nav aria-label={ui.postAndSubposts}>
           <PostNavItem {...activePostNavItem} />
           <h3 id="subposts-list-heading">
-            Subposts
+            {ui.subposts}
           </h3>
           <SubpostsList items={postNavItems} />
         </nav>

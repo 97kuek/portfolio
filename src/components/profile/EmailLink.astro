@@ -2,6 +2,7 @@
 import CopyButton from "@/components/base/CopyButton.astro"
 import Icon from "@/components/base/Icon.astro"
 import Link from "@/components/base/Link.astro"
+import { getUIStrings } from "@/lib/ui-strings"
 
 import { getTransformedEmail } from "./helper"
 
@@ -13,14 +14,15 @@ interface Props {
 
 const { email, showIcon = true, showCopyButton = true } = Astro.props
 const displayEmail = getTransformedEmail(email, "display")
+const ui = getUIStrings(Astro.url.pathname)
 ---
 
 <span class="email-link">
   {showIcon && <Icon name="mingcute:mail-line" />}
   <Link
     href={`mailto:${email}`}
-    aria-label={`Send email to ${displayEmail}`}
-    title={`Send email to ${displayEmail}`}
+    aria-label={ui.sendEmail(displayEmail)}
+    title={ui.sendEmail(displayEmail)}
     external
   >
     {displayEmail}
@@ -28,7 +30,7 @@ const displayEmail = getTransformedEmail(email, "display")
   {showCopyButton && (
       <CopyButton
         text={email}
-        title="Copy email address"
+        title={ui.copyEmail}
         size="1.5rem"
         class="email-copy"
       />

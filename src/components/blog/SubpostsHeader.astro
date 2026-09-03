@@ -5,6 +5,7 @@ import PostNavItem from "@/components/blog/PostNavItem.astro"
 import ScrollArea from "@/components/toc/ScrollArea.astro"
 import SubpostCountBadge from "@/components/blog/SubpostCountBadge.astro"
 import SubpostsList from "@/components/blog/SubpostsList.astro"
+import { getUIStrings } from "@/lib/ui-strings"
 
 interface Props {
   currentPost: Post
@@ -28,13 +29,14 @@ const currentSubpostDetails = isSubpost
   : null
 const currentTitle = currentSubpostDetails?.title || activePostData.data.title
 const subpostCount = postNavItems.length
+const ui = getUIStrings(Astro.url.pathname)
 ---
 
 {activePostNavItem && subpostCount > 0 && (
     <nav
       id="mobile-subposts-container"
       class="mobile-subposts"
-      aria-label="Subposts navigation"
+      aria-label={ui.subpostsNavigation}
     >
       <details data-disclosure>
         <summary>
@@ -42,7 +44,7 @@ const subpostCount = postNavItems.length
             <subposts-current-icon>
               <Icon
                 name="post-active"
-                aria-label={isSubpost ? "Active subpost" : "Active post"}
+                aria-label={isSubpost ? ui.currentSubpost : ui.currentPost}
               />
             </subposts-current-icon>
             <span>

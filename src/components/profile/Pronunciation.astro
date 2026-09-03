@@ -1,6 +1,7 @@
 ---
 import Icon from "@/components/base/Icon.astro"
 import Tooltip from "@/components/base/Tooltip.astro"
+import { getUIStrings } from "@/lib/ui-strings"
 
 interface Props {
   /** Whose name this guide is for, used to name the controls in context */
@@ -23,6 +24,7 @@ interface Props {
  * than being visual-only.
  */
 const { name, text, audio } = Astro.props
+const ui = getUIStrings(Astro.url.pathname)
 
 const tooltipId = "pronunciation-guide"
 ---
@@ -35,7 +37,7 @@ const tooltipId = "pronunciation-guide"
     data-tooltip-content={text}
   >
     <Icon name="question" aria-hidden="true" />
-    <span>How to pronounce my name</span>
+    <span>{ui.pronunciationGuide}</span>
   </button>
 
   <Tooltip id={tooltipId} side="top" />
@@ -45,7 +47,7 @@ const tooltipId = "pronunciation-guide"
         <button
           type="button"
           class="pronunciation-play"
-          aria-label={`Play the pronunciation of ${name}`}
+          aria-label={ui.playPronunciation(name)}
           data-pronunciation-play
         >
           <Icon name="mingcute:volume-line" />

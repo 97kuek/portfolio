@@ -5,6 +5,7 @@ import Icon from "@/components/base/Icon.astro"
 import Link from "@/components/base/Link.astro"
 import ReadingTime from "@/components/base/ReadingTime.astro"
 import SubpostCountBadge from "@/components/blog/SubpostCountBadge.astro"
+import { getUIStrings } from "@/lib/ui-strings"
 
 interface Props extends PostNavItemData {}
 
@@ -19,6 +20,7 @@ const {
 } = Astro.props
 
 const iconName = getPostIconName(isActive, isSubpost)
+const ui = getUIStrings(Astro.url.pathname)
 
 // For subposts, don't use combinedWordCount - only show individual reading time
 // For parent posts, show both individual and combined times
@@ -30,7 +32,7 @@ const effectiveCombinedWordCount = isSubpost ? undefined : combinedWordCount
       <post-nav-item-icon>
         <Icon
           name={iconName}
-          aria-label={isSubpost ? "Current subpost" : "Current post"}
+          aria-label={isSubpost ? ui.currentSubpost : ui.currentPost}
         />
       </post-nav-item-icon>
       <post-nav-item-content>
@@ -53,7 +55,7 @@ const effectiveCombinedWordCount = isSubpost ? undefined : combinedWordCount
       <post-nav-item-icon>
         <Icon
           name={iconName}
-          aria-label={isSubpost ? "Subpost" : "Parent post"}
+          aria-label={isSubpost ? ui.subpost : ui.parentPost}
         />
       </post-nav-item-icon>
       <post-nav-item-content>

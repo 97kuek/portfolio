@@ -1,7 +1,8 @@
 ---
-import { formatCount, pluralize } from "@/lib/plural"
 import Badge from "@/components/base/Badge.astro"
 import Icon from "@/components/base/Icon.astro"
+import { getSiteLocale } from "@/lib/i18n"
+import { getUIStrings } from "@/lib/ui-strings"
 
 interface Props {
   count: number
@@ -11,7 +12,9 @@ interface Props {
 
 const { count, variant = "compact", class: className } = Astro.props
 
-const countLabel = formatCount(count, "subpost")
+const locale = getSiteLocale(Astro.url.pathname)
+const ui = getUIStrings(locale)
+const countLabel = ui.subpostCount(count)
 ---
 
 <Badge
@@ -23,7 +26,7 @@ const countLabel = formatCount(count, "subpost")
   {variant === "full" ? (
       <>
         <span class="subpost-count-full" aria-hidden="true">
-          {count}&nbsp;{pluralize(count, "subpost")}
+          {locale === "en" ? countLabel : `${count}件`}
         </span>
         <span class="subpost-count-compact" aria-hidden="true">{count}</span>
       </>

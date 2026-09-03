@@ -2,6 +2,7 @@
 import type { TOCSection } from "@/lib/toc"
 import ScrollArea from "@/components/toc/ScrollArea.astro"
 import TOCSectionComponent from "@/components/toc/TOCSection.astro"
+import { getUIStrings } from "@/lib/ui-strings"
 
 interface Props {
   sections: TOCSection[]
@@ -12,6 +13,7 @@ interface Props {
 const { sections, currentPostId, class: className } = Astro.props
 
 const hasSections = sections.length > 0
+const ui = getUIStrings(Astro.url.pathname)
 ---
 
 {hasSections && (
@@ -23,7 +25,7 @@ const hasSections = sections.length > 0
     >
       <header>
         <h2 id="toc-heading">
-          Table of Contents
+          {ui.tableOfContents}
         </h2>
       </header>
       <ScrollArea data-scroll-area>
@@ -34,10 +36,10 @@ const hasSections = sections.length > 0
             return (
               <li>
                 {isFirstSubpost && (
-                  <toc-separator role="separator" aria-label="Subposts section">
+                  <toc-separator role="separator" aria-label={ui.subpostsSection}>
                     <span />
                     <strong>
-                      Subposts
+                      {ui.subposts}
                     </strong>
                     <span />
                   </toc-separator>
