@@ -2,7 +2,7 @@
 lang: "en"
 routeSlug: "hello"
 title: "Introduction"
-description: "My portfolio is live. An introduction to who I am, what I am building right now, and what I plan to write about here."
+description: "My portfolio is live. An introduction to who I am, the human-powered aircraft contest I helped run, what I build as an AI engineer, and what I plan to write about here."
 createdAt: 2026-08-29
 tags:
   - "intro"
@@ -12,28 +12,51 @@ image: "../../assets/photos/wasa-night.jpg"
 stage: "seedling"
 ---
 
+## About me
+
 Hello — I'm Keitaro Ueki.
 
-I kept wondering what the first post here should be, so I decided to just introduce myself.
+I spent a while wondering what the first post here should be, and decided to start with an
+introduction.
 
-I'm a third-year undergraduate in the Department of Communications and Computer Engineering at
-Waseda University, and I also work as an AI engineering intern.
+- Third-year undergraduate, Department of Communications and Computer Engineering, Waseda University
+- AI engineer (intern)
+- Former birdman
 
-## What I'm studying
+If the third line raised an eyebrow, let me start there.
 
-My department covers a wide range, from deep learning topics such as Transformers through
-communications technology and embedded systems.
+## The Birdman Rally
 
-My own interest leans toward AI, and I keep learning about it outside of coursework and through my
-internship.
+The Japan International Birdman Rally is a competition where teams build their own human-powered
+aircraft and fly them as far as they can over Lake Biwa. It is held every summer and broadcast as a
+television special by Yomiuri TV.
 
-## What I'm building
+I was a member of WASA, Waseda University's human-powered aircraft club. It has been running for
+over forty years, and every year the team designs an aircraft from scratch, builds it, and hauls it
+to Lake Biwa.
 
-Most of my time right now goes to [WASA Chat](/en/projects/wasa-chat), a chatbot that answers
-natural-language questions across the handover wiki and public documents of WASA, Waseda's
-human-powered aircraft project.
+My own work was not on the aircraft itself: I handled operations, sponsor relations, and outreach.
+Correspondence with sponsors and the competition office, the paperwork, and the records and posts
+that told people outside the club what we were doing. The pilot and the design team are the ones who
+get the aircraft off the ground, but getting them that far takes people who raise the money, hold
+the deadlines, and act as the point of contact with the outside world. That was my side of it.
 
-![A WASA human-powered aircraft during a test flight, with the crew running alongside](../../assets/photos/wasa-test-flight.jpg)
+What stayed with me is the sense that **engineering alone doesn't fly**. However good the design is,
+the aircraft never takes shape if the materials don't arrive; and if nobody outside can tell what
+you are doing, neither the funding nor the next generation of members arrives either. Building
+something and keeping it buildable are two different jobs.
+
+![A WASA aircraft on a test flight, with the crew running alongside](../../assets/photos/wasa-test-flight.jpg)
+
+## As an AI engineer
+
+These days I intern at [neoAI](https://neoai.jp/), building products with machine learning and large
+language models. In the summer of 2026 I also joined the jig.jp summer internship, where our team
+took an app for a pair of smart glasses from concept to implementation.
+
+Most of my own time goes to [WASA Chat](/en/projects/wasa-chat), a chatbot that answers
+natural-language questions across the handover wiki and public documents of the same WASA I just
+described.
 
 What makes it interesting is that the hard part is not producing clever answers — it's not producing
 wrong ones. People read the handover documents and then build an aircraft based on what they read, so
@@ -56,7 +79,7 @@ Roughly three things:
 3. **Things that didn't work** — failed implementations and options I decided against. That kind of
    write-up is hard to find by searching, which is exactly why it seems worth writing.
 
-I can't promise a schedule yet, but I'll write when I have something to say.
+I haven't settled on a schedule, but I'll write when I have something to say.
 
 ## Contact
 
