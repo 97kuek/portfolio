@@ -11,6 +11,7 @@ import Breadcrumbs, {
   type BreadcrumbItem,
 } from "@/components/layout/Breadcrumbs.astro"
 import { getLocaleTag, getSiteLocale } from "@/lib/i18n"
+import { getUIStrings } from "@/lib/ui-strings"
 
 interface Props {
   class?: string
@@ -45,10 +46,15 @@ const {
   searchable = false,
 } = Astro.props
 const locale = getSiteLocale(Astro.url.pathname)
+const ui = getUIStrings(locale)
 ---
 
 <!doctype html>
-<html lang={getLocaleTag(locale)} dir={SITE.dir}>
+<html
+  lang={getLocaleTag(locale)}
+  dir={SITE.dir}
+  data-zoom-close-label={ui.closeImage}
+>
   <Head
     title={title}
     description={description}

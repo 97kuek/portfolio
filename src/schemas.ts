@@ -99,7 +99,6 @@ export const SiteConfigSchema = z.object({
   // Theme settings
   favicon: z.string().default("/favicon.ico"),
   prerender: z.boolean().default(true),
-  npmCDN: z.url().default("https://cdn.jsdelivr.net/npm"),
 
   // Content license
   license: z

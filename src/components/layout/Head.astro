@@ -3,7 +3,6 @@ import { ClientRouter } from "astro:transitions"
 
 import { PROFILE, SITE } from "@site-config"
 import { getDisplayName } from "@/components/profile/helper"
-import { getUIStrings } from "@/lib/ui-strings"
 import {
   DEFAULT_LOCALE,
   getLocaleTag,
@@ -39,7 +38,6 @@ const {
   section,
 } = Astro.props
 const locale = getSiteLocale(Astro.url.pathname)
-const ui = getUIStrings(locale)
 const localizedSiteTitle = getDisplayName(locale)
 const localizedTagline =
   locale === "en" ? PROFILE.tagline : PROFILE.taglineJa || PROFILE.tagline
@@ -265,15 +263,12 @@ const analyticsToken = import.meta.env.PROD
   )}
 
   <ClientRouter />
-  <script
-    is:inline
-    define:vars={{
-      siteLocale: getLocaleTag(locale),
-      zoomCloseLabel: ui.closeImage,
-    }}
-  >
-    window.__SITE_LOCALE__ = siteLocale
-    window.__ZOOM_CLOSE_LABEL__ = zoomCloseLabel
+  <script>
+    import type { Zoom } from "medium-zoom"
+
+    let zoomLoader: Promise<typeof import("medium-zoom").default> | null = null
+    let zoomInstance: Zoom | null = null
+    let zoomCloseButton: HTMLButtonElement | null = null
 
     function loadZoomAssets() {
       if (!document.querySelector("link[data-medium-zoom-styles]")) {
@@ -284,34 +279,13 @@ const analyticsToken = import.meta.env.PROD
         document.head.append(styles)
       }
 
-      if (window.mediumZoom) return Promise.resolve()
-      if (window.__mediumZoomPromise) return window.__mediumZoomPromise
-
-      /* A rejected promise left in place would be awaited by every later
-         attempt, so one offline moment would disable zoom for the rest of the
-         session even after the network recovers. Clear it, and drop the dead
-         script tag, so the next navigation can retry. */
-      window.__mediumZoomPromise = new Promise((resolve, reject) => {
-        const script = document.createElement("script")
-        script.src =
-          "https://cdn.jsdelivr.net/npm/medium-zoom@1.1.0/dist/medium-zoom.min.js"
-        script.async = true
-        script.addEventListener("load", resolve, { once: true })
-        script.addEventListener(
-          "error",
-          () => {
-            script.remove()
-            reject(new Error("medium-zoom failed to load"))
-          },
-          { once: true },
-        )
-        document.head.append(script)
-      }).catch((error) => {
-        window.__mediumZoomPromise = null
-        throw error
-      })
-
-      return window.__mediumZoomPromise
+      zoomLoader ??= import("medium-zoom")
+        .then((module) => module.default)
+        .catch((error) => {
+          zoomLoader = null
+          throw error
+        })
+      return zoomLoader
     }
 
     /* Kept identical to the cursor rule in /styles/zoom.css. Card.astro sets
@@ -321,23 +295,24 @@ const analyticsToken = import.meta.env.PROD
 
     /* medium-zoom dismisses on click, scroll or Escape, none of which a
        touch reader can see. This adds the button they are looking for. */
-    function attachZoomCloseButton(zoom) {
-      if (window.__mediumZoomCloseButton) {
-        window.__mediumZoomCloseButton.remove()
-      }
+    function attachZoomCloseButton(zoom: Zoom) {
+      zoomCloseButton?.remove()
 
       const button = document.createElement("button")
       button.type = "button"
       button.className = "medium-zoom-close"
       button.hidden = true
-      button.setAttribute("aria-label", window.__ZOOM_CLOSE_LABEL__ || "Close")
+      button.setAttribute(
+        "aria-label",
+        document.documentElement.dataset.zoomCloseLabel || "Close",
+      )
       button.innerHTML =
         '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
         '<path d="M6 6 18 18M18 6 6 18" fill="none" stroke="currentColor" ' +
         'stroke-width="2" stroke-linecap="round"/></svg>'
       button.addEventListener("click", () => zoom.close())
       document.body.append(button)
-      window.__mediumZoomCloseButton = button
+      zoomCloseButton = button
 
       zoom.on("opened", () => {
         button.hidden = false
@@ -353,13 +328,13 @@ const analyticsToken = import.meta.env.PROD
       if (!images.length) return
 
       try {
-        await loadZoomAssets()
-        window.__mediumZoomInstance?.detach()
-        const zoom = window.mediumZoom(images, {
+        const mediumZoom = await loadZoomAssets()
+        zoomInstance?.detach()
+        const zoom = mediumZoom(images, {
           margin: 24,
           scrollOffset: 40,
         })
-        window.__mediumZoomInstance = zoom
+        zoomInstance = zoom
         attachZoomCloseButton(zoom)
       } catch {
         // Images remain fully usable if the optional enhancement cannot load.
