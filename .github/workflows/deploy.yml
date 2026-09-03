@@ -10,11 +10,31 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  # Until the two secrets exist the deploy is skipped rather than a red X on
+  # every push, and deploys stay manual through `wrangler pages deploy`.
+  # A job-level `if` cannot read `secrets`, so the check is a job of its own
+  # and the deploy waits on its answer.
+  guard:
     runs-on: ubuntu-latest
-    # Until the two secrets exist the workflow is a no-op rather than a red X
-    # on every push, and deploys stay manual through `wrangler pages deploy`.
-    if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+    outputs:
+      configured: ${{ steps.check.outputs.configured }}
+    steps:
+      - id: check
+        env:
+          API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$API_TOKEN" ] && [ -n "$ACCOUNT_ID" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Cloudflare secrets are not set, so the deploy is skipped."
+          fi
+
+  deploy:
+    needs: guard
+    if: needs.guard.outputs.configured == 'true'
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
