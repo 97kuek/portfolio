@@ -108,6 +108,19 @@ const projects = defineCollection({
           .array(z.string().trim().min(1))
           .default([])
           .transform((arr) => dedupPreserveCase(arr)),
+        facts: z
+          .array(
+            z.object({
+              label: z.string().trim().min(1).max(30),
+              value: z.string().trim().min(1).max(160),
+            }),
+          )
+          .max(4)
+          .default([]),
+        highlights: z
+          .array(z.string().trim().min(1).max(180))
+          .max(4)
+          .default([]),
         description: z.string().max(200).optional(),
       })
       .refine(

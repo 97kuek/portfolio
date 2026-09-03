@@ -32,7 +32,16 @@ interface Props {
 }
 
 const { project } = Astro.props
-const { title, description, image, fromDate, toDate, skills } = project.data
+const {
+  title,
+  description,
+  image,
+  fromDate,
+  toDate,
+  skills,
+  facts,
+  highlights,
+} = project.data
 
 const locale = getContentLocale(project.data)
 const isEnglish = locale === "en"
@@ -97,6 +106,29 @@ const { older, newer } = await getProjectNavigation(project.id, (candidate) =>
         </ul>
       )}
   </section>
+
+  {(facts.length > 0 || highlights.length > 0) && (
+    <section class="project-proof" aria-labelledby="project-proof-title">
+      <h2 id="project-proof-title">
+        {isEnglish ? "Project snapshot" : "プロジェクト要点"}
+      </h2>
+      {facts.length > 0 && (
+        <dl class="project-proof-facts">
+          {facts.map(({ label, value }) => (
+            <div>
+              <dt>{label}</dt>
+              <dd>{value}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+      {highlights.length > 0 && (
+        <ul class="project-highlights">
+          {highlights.map((highlight) => <li>{highlight}</li>)}
+        </ul>
+      )}
+    </section>
+  )}
 
   <div class="project-hero">
     <CoverImage
@@ -187,5 +219,50 @@ const { older, newer } = await getProjectNavigation(project.id, (candidate) =>
   .project-skills p {
     margin: 0;
     color: var(--muted-foreground);
+  }
+
+  .project-proof {
+    display: grid;
+    gap: var(--space-s);
+    padding: var(--space-s);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: color-mix(in oklab, var(--muted) 30%, transparent);
+  }
+
+  .project-proof h2 {
+    margin: 0;
+    font-size: var(--step-1);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .project-proof-facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+    gap: var(--space-s);
+    margin: 0;
+  }
+
+  .project-proof-facts div {
+    display: grid;
+    gap: var(--space-3xs);
+  }
+
+  .project-proof-facts dt {
+    color: var(--muted-foreground);
+    font-size: var(--step--1);
+  }
+
+  .project-proof-facts dd {
+    margin: 0;
+    font-weight: var(--font-weight-medium);
+  }
+
+  .project-highlights {
+    display: grid;
+    gap: var(--space-2xs);
+    margin: 0;
+    padding-inline-start: 1.2em;
+    list-style: disc;
   }
 </style>

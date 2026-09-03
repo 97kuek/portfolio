@@ -19,6 +19,17 @@ skills:
   - "Cloudflare Pages"
   - "Docker"
 selected: true
+facts:
+  - label: "担当"
+    value: "企画、設計、実装、運用"
+  - label: "利用者"
+    value: "WASA鳥人間プロジェクトの部員"
+  - label: "状態"
+    value: "本番運用・精度改善中"
+highlights:
+  - "部内Wikiと公開資料を横断し、すべての回答に出典を付与"
+  - "認証・検索・生成をCloud Run、UIをCloudflare Pagesへ分離"
+  - "索引更新を人が確認してから反映する運用で、誤更新の影響を抑制"
 ---
 
 ## 概要
