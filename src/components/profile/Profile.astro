@@ -33,87 +33,95 @@ const tagline = isEnglish
   : profile.taglineJa || profile.tagline
 ---
 
-<article id="profile">
-  <header class="profile-header">
-    <Avatar
-      src={avatarImage}
-      alt={displayName}
-      fallback={isEnglish ? "KU" : "植"}
-      data-slot="profile-avatar"
-      width={PROFILE_AVATAR_WIDTH}
-      height={PROFILE_AVATAR_WIDTH}
-      loading="eager"
-      fetchpriority="high"
-      class="profile-avatar"
-    />
+<div class="profile-block">
+  <article id="profile">
+    <header class="profile-header">
+      <Avatar
+        src={avatarImage}
+        alt={displayName}
+        fallback={isEnglish ? "KU" : "植"}
+        data-slot="profile-avatar"
+        width={PROFILE_AVATAR_WIDTH}
+        height={PROFILE_AVATAR_WIDTH}
+        loading="eager"
+        fetchpriority="high"
+        class="profile-avatar"
+      />
 
-    <div class="profile-content">
-      <div class="profile-heading">
-        <h1>
-          {displayName}
-          {profile.pronouns && (
+      <div class="profile-content">
+        <div class="profile-heading">
+          <h1>
+            {displayName}
+            {profile.pronouns && (
               <Badge variant="outline" class="profile-pronouns">
                 {profile.pronouns}
               </Badge>
             )}
-        </h1>
-        <p class="profile-tagline">{tagline}</p>
-      </div>
+          </h1>
+          <p class="profile-tagline">{tagline}</p>
+        </div>
 
-      <div class="profile-meta">
-        {profile.email && <EmailLink email={profile.email} />}
+        <div class="profile-meta">
+          {profile.email && <EmailLink email={profile.email} />}
 
-        {profile.phone && (
+          {profile.phone && (
             <span class="profile-contact-item">
               <Icon name="mingcute:phone-line" />
               <span>{profile.phone}</span>
             </span>
           )}
 
-        {profile.pronunciation && (
+          {profile.pronunciation && (
             <Pronunciation
               name={profile.name}
               text={profile.pronunciation}
               audio={profile.pronunciationAudioPath}
             />
           )}
+        </div>
       </div>
-    </div>
-  </header>
-</article>
+    </header>
+  </article>
 
-<prose-content>
-  {isEnglish ? <AboutEnglishContent /> : <AboutContent />}
-</prose-content>
+  <prose-content>
+    {isEnglish ? <AboutEnglishContent /> : <AboutContent />}
+  </prose-content>
 
-{aboutLinks.length > 0 && (
-    <footer class="profile-footer">
-      <ProfileLinks keys={aboutLinks} />
-    </footer>
-  )}
+  {aboutLinks.length > 0 && (
+      <footer class="profile-footer">
+        <ProfileLinks keys={aboutLinks} />
+      </footer>
+    )}
+</div>
 
 <style>
+  /* The portrait, the name, the paragraph and the links are one introduction,
+     not four things that happen to follow each other. Holding them in one box
+     lets the page's rhythm space the introduction from what comes after it,
+     while the parts inside sit at conversational distance. */
+  .profile-block {
+    display: grid;
+    gap: var(--space-xs);
+    margin-block-start: var(--space-2xs);
+  }
+
   .profile-header {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--space-s);
-  }
-
-  #profile {
-    margin-block-start: var(--space-s);
+    gap: var(--space-xs);
   }
 
   :global(.profile-avatar) {
-    inline-size: 7rem;
-    block-size: 7rem;
+    inline-size: 6rem;
+    block-size: 6rem;
     align-self: center;
   }
 
   .profile-content {
     flex: 1;
     display: grid;
-    gap: var(--space-xs);
+    gap: var(--space-2xs);
   }
 
   /* Contact details and the pronunciation trigger share one wrapping row.
@@ -157,7 +165,6 @@ const tagline = isEnglish
     flex-wrap: wrap;
     align-items: center;
     gap: var(--space-2xs) var(--space-s);
-    padding-block-start: var(--space-s);
     padding-inline: var(--space-s);
     color: var(--muted-foreground);
   }
@@ -180,6 +187,15 @@ const tagline = isEnglish
     .profile-header {
       flex-direction: row;
       align-items: center;
+    }
+
+    .profile-block {
+      gap: var(--space-s);
+      margin-block-start: var(--space-s);
+    }
+
+    .profile-header {
+      gap: var(--space-s);
     }
 
     :global(.profile-avatar) {
