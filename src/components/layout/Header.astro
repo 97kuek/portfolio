@@ -10,7 +10,8 @@ import {
   getDisplayName,
   getProfileLinkPlacement,
 } from "@/components/profile/helper"
-import { alternateLanguagePath, getSiteLocale, localizedPath } from "@/lib/i18n"
+import { getSiteLocale, localizedPath } from "@/lib/i18n"
+import { getLanguageSwitchPath } from "@/lib/translation-routes"
 import { navLabel, sectionLabel, sectionPath } from "@/lib/sections"
 import { getUIStrings } from "@/lib/ui-strings"
 
@@ -18,7 +19,7 @@ const headerLinks = getProfileLinkPlacement("header")
 const hasHeaderLinks = headerLinks.length > 0
 const locale = getSiteLocale(Astro.url.pathname)
 const homeHref = localizedPath("/", locale)
-const languageHref = alternateLanguagePath(Astro.url.pathname)
+const languageHref = await getLanguageSwitchPath(Astro.url.pathname)
 const ui = getUIStrings(locale)
 const displayName = getDisplayName(locale)
 ---

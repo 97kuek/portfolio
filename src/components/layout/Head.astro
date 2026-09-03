@@ -7,10 +7,10 @@ import {
   DEFAULT_LOCALE,
   getLocaleTag,
   getSiteLocale,
-  hasTranslation,
   localizedPath,
   stripLocalePrefix,
 } from "@/lib/i18n"
+import { getTranslatedPath } from "@/lib/translation-routes"
 
 interface Props {
   title?: string
@@ -90,7 +90,8 @@ const siteOrigin = Astro.site || SITE.href
 const unprefixedPath = stripLocalePrefix(Astro.url.pathname)
 const alternateUrl = (target: typeof locale) =>
   new URL(localizedPath(unprefixedPath, target), siteOrigin).toString()
-const languageAlternates = hasTranslation(Astro.url.pathname)
+const translatedPath = await getTranslatedPath(Astro.url.pathname)
+const languageAlternates = translatedPath
   ? [
       { hreflang: "ja", href: alternateUrl("ja") },
       { hreflang: "en", href: alternateUrl("en") },

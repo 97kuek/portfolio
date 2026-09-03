@@ -27,23 +27,22 @@ export const localizedPath = (href: string, locale: SiteLocale) => {
 export const stripLocalePrefix = (pathname: string) =>
   pathname.replace(/^\/en(?=\/|$)/, "") || "/"
 
-/**
- * Whether both languages actually build this page. The palette preview and
- * 404 exist only once, so they get a language switch to the home page and no
- * `hreflang` pair claiming a translation that is not there.
- */
-export const hasTranslation = (pathname: string): boolean => {
-  const path = stripLocalePrefix(pathname)
-  return (
-    ["/", "/projects", "/experience", "/blog"].includes(path) ||
-    /^\/(projects|blog)\/[^/]+$/.test(path)
-  )
+const normalizePath = (pathname: string): string => {
+  if (pathname === "/") return pathname
+  return pathname.replace(/\/+$/, "") || "/"
 }
 
-export const alternateLanguagePath = (pathname: string) => {
-  if (getSiteLocale(pathname) === PREFIXED_LOCALE)
-    return stripLocalePrefix(pathname)
-  return hasTranslation(pathname)
-    ? localizedPath(pathname, PREFIXED_LOCALE)
-    : LOCALE_PREFIX
+/** Resolve the other locale only when that exact generated route exists. */
+export const translatedPathFromAvailable = (
+  pathname: string,
+  availablePaths: ReadonlySet<string>,
+): string | null => {
+  const normalized = normalizePath(pathname)
+  const currentLocale = getSiteLocale(normalized)
+  const targetLocale: SiteLocale =
+    currentLocale === DEFAULT_LOCALE ? "en" : DEFAULT_LOCALE
+  const candidate = normalizePath(
+    localizedPath(stripLocalePrefix(normalized), targetLocale),
+  )
+  return availablePaths.has(candidate) ? candidate : null
 }
