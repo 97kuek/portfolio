@@ -70,6 +70,7 @@ const ui = getUIStrings(locale)
     <slot name="head" />
   </Head>
   <body>
+    <a class="skip-link" href="#main-content">{ui.skipToContent}</a>
     <MenuBar>
       <Header />
       {Astro.slots.has("subposts-navigation-header") && (
@@ -88,7 +89,11 @@ const ui = getUIStrings(locale)
           )}
         </div>
       )}
-    <main class={className} data-pagefind-body={searchable ? "" : undefined}>
+    <main
+      id="main-content"
+      class={className}
+      data-pagefind-body={searchable ? "" : undefined}
+    >
       <slot />
     </main>
     <BackToTop />
@@ -140,6 +145,26 @@ const ui = getUIStrings(locale)
     margin-inline: auto;
     padding-inline: var(--grid-gutter);
     font-family: var(--font-sans);
+  }
+
+  .skip-link {
+    position: fixed;
+    z-index: 100;
+    inset-block-start: var(--space-2xs);
+    inset-inline-start: var(--space-2xs);
+    translate: 0 calc(-100% - var(--space-s));
+    padding: var(--space-2xs) var(--space-s);
+    border-radius: var(--radius-md);
+    background: var(--foreground);
+    color: var(--background);
+    font-weight: var(--font-weight-medium);
+    text-decoration: none;
+  }
+
+  .skip-link:focus-visible {
+    translate: 0;
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
   }
 
   .breadcrumb-region {
