@@ -223,7 +223,7 @@ const analyticsToken = import.meta.env.PROD
   {analyticsToken && (
     <script
       is:inline
-      defer
+      type="module"
       src="https://static.cloudflareinsights.com/beacon.min.js"
       data-cf-beacon={JSON.stringify({ token: analyticsToken })}
     />

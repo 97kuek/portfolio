@@ -41,6 +41,10 @@ export const SITE: SiteConfig = {
     postCount: 2,
   },
 
+  analytics: {
+    cloudflareToken: "c1261f35fd9748ebb88e9a13cb4d0757",
+  },
+
   favicon: "/favicon.ico",
   prerender: true,
   npmCDN: "https://cdn.jsdelivr.net/npm",
