@@ -35,6 +35,14 @@ body {
   text-wrap: pretty;
 }
 
+/* Japanese breaks between almost any two characters, so `text-wrap: pretty`,
+   which optimises a paragraph as a whole, pulls every line short of the
+   measure and leaves a gutter down the right edge — plainest on a phone.
+   Latin prose can only break at spaces, so it keeps the setting. */
+body:lang(ja) {
+  text-wrap: auto;
+}
+
 :where(h1, h2, h3, h4, h5, h6) {
   text-wrap: balance;
 }
@@ -94,6 +102,10 @@ prose-content {
   color: var(--foreground);
   text-wrap: pretty;
   overflow-wrap: break-word;
+
+  &:lang(ja) {
+    text-wrap: auto;
+  }
 
   &.prose-sm {
     font-size: var(--step--1);

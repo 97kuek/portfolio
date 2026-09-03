@@ -146,6 +146,11 @@
   text-wrap: pretty;
 }
 
+/* See the note beside `body` in typography.css. */
+[data-slot="card-description"]:lang(ja) {
+  text-wrap: auto;
+}
+
 [data-slot="card-content"] {
   position: relative;
   z-index: 1;
