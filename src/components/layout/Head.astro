@@ -148,6 +148,41 @@ const analyticsToken = import.meta.env.PROD
   >
   <meta name="generator" content={Astro.generator}>
 
+  <script is:inline>
+    /* Reaching for the language switch is a decision, so the site remembers it
+       and honours it at the front door. Only at the front door: a link someone
+       was sent keeps the language it was sent in, which a redirect on every
+       Japanese page would quietly take away. Inline and this early in the head
+       so the swap happens before anything is painted. */
+    ;(() => {
+      const KEY = "preferred-locale"
+      const read = () => {
+        try {
+          return localStorage.getItem(KEY)
+        } catch {
+          return null
+        }
+      }
+
+      if (location.pathname === "/" && read() === "en") {
+        location.replace(`/en${location.search}${location.hash}`)
+        return
+      }
+
+      document.addEventListener("click", (event) => {
+        const target = event.target
+        if (!(target instanceof Element)) return
+        const control = target.closest("[data-language-switch]")
+        if (!(control instanceof HTMLElement)) return
+        try {
+          localStorage.setItem(KEY, control.dataset.languageSwitch ?? "")
+        } catch {
+          /* A browser that refuses storage simply does not remember. */
+        }
+      })
+    })()
+  </script>
+
   <title>{seoTitle}</title>
   <meta name="description" content={description}>
   <link rel="canonical" href={canonicalURL}>

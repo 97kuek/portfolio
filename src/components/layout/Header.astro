@@ -74,6 +74,7 @@ const displayName = getDisplayName(locale)
     <Link
       href={languageHref}
       class="language-switch"
+      data-language-switch={locale === "en" ? "ja" : "en"}
       aria-label={locale === "en" ? "日本語に切り替える" : "Switch to English"}
     >
       {locale === "en" ? "JA" : "EN"}
