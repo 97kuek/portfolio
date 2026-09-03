@@ -20,11 +20,14 @@ interface Props {
   image?: string | URL
   noindex?: boolean
   type?: "website" | "article" | "profile"
+  schemaType?: "WebSite" | "ProfilePage" | "BlogPosting" | "SoftwareSourceCode"
   publishedTime?: Date
   modifiedTime?: Date
   author?: string
   tags?: string[]
   section?: string
+  codeRepository?: string
+  programmingLanguages?: string[]
   breadcrumbs?: BreadcrumbItem[]
   /** Marks this page's content as the body the search index should read. */
   searchable?: boolean
@@ -37,11 +40,14 @@ const {
   image,
   noindex,
   type,
+  schemaType,
   publishedTime,
   modifiedTime,
   author,
   tags,
   section,
+  codeRepository,
+  programmingLanguages,
   breadcrumbs,
   searchable = false,
 } = Astro.props
@@ -61,11 +67,14 @@ const ui = getUIStrings(locale)
     image={image}
     noindex={noindex}
     type={type}
+    schemaType={schemaType}
     publishedTime={publishedTime}
     modifiedTime={modifiedTime}
     author={author}
     tags={tags}
     section={section}
+    codeRepository={codeRepository}
+    programmingLanguages={programmingLanguages}
   >
     <slot name="head" />
   </Head>

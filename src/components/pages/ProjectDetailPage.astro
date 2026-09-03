@@ -64,7 +64,10 @@ const { older, newer } = await getProjectNavigation(project.id, (candidate) =>
   title={title}
   description={description}
   prose={false}
-  type="article"
+  type="website"
+  schemaType="SoftwareSourceCode"
+  codeRepository={project.data.code}
+  programmingLanguages={skills}
   searchable
   image={ogImagePath("projects", project.id)}
   breadcrumbs={[sectionCrumb("projects", locale), { label: title }]}

@@ -18,11 +18,14 @@ interface Props {
   image?: string | URL
   noindex?: boolean
   type?: "website" | "article" | "profile"
+  schemaType?: "WebSite" | "ProfilePage" | "BlogPosting" | "SoftwareSourceCode"
   publishedTime?: Date
   modifiedTime?: Date
   author?: string
   tags?: string[]
   section?: string
+  codeRepository?: string
+  programmingLanguages?: string[]
 }
 
 const {
@@ -31,11 +34,14 @@ const {
   image,
   noindex = false,
   type = "website",
+  schemaType,
   publishedTime,
   modifiedTime,
   author,
   tags = [],
   section,
+  codeRepository,
+  programmingLanguages = [],
 } = Astro.props
 const locale = getSiteLocale(Astro.url.pathname)
 const localizedSiteTitle = getDisplayName(locale)
@@ -99,35 +105,47 @@ const languageAlternates = translatedPath
     ]
   : []
 
+const profileUrls = Object.values(PROFILE.links ?? {}).map((link) =>
+  typeof link === "string" ? link : link.href,
+)
+const personData = {
+  "@type": "Person",
+  name: localizedSiteTitle,
+  alternateName: SITE.author,
+  url: new URL(localizedPath("/", locale), siteOrigin).toString(),
+  image: new URL("/web-app-manifest-512x512.png", siteOrigin).toString(),
+  ...(profileUrls.length > 0 && { sameAs: profileUrls }),
+}
+const resolvedSchemaType =
+  schemaType ?? (type === "article" ? "BlogPosting" : "WebSite")
 const structuredData = {
   "@context": "https://schema.org",
-  "@type": type === "article" ? "BlogPosting" : "WebSite",
+  "@type": resolvedSchemaType,
   name: seoTitle,
   description: description,
   url: canonicalURL,
   image: socialImage?.toString(),
-  author: author
-    ? {
-        "@type": "Person",
-        name: author,
-        ...(PROFILE.email && { email: PROFILE.email }),
-      }
-    : {
-        "@type": "Person",
-        name: SITE.author || SITE.title,
-        ...(PROFILE.email && { email: PROFILE.email }),
-      },
-  publisher: {
-    "@type": "Person",
-    name: SITE.title,
-    logo: {
-      "@type": "ImageObject",
-      url: new URL("/web-app-manifest-512x512.png", Astro.site).toString(),
-    },
-  },
+  inLanguage: getLocaleTag(locale),
+  author: author ? { ...personData, name: author } : personData,
+  ...(resolvedSchemaType === "ProfilePage" && {
+    mainEntity: personData,
+    about: personData,
+  }),
+  ...(resolvedSchemaType === "BlogPosting" && {
+    headline: title ?? seoTitle,
+    publisher: personData,
+  }),
+  ...(resolvedSchemaType === "SoftwareSourceCode" && {
+    creator: personData,
+    ...(codeRepository && { codeRepository }),
+    ...(programmingLanguages.length > 0 && {
+      programmingLanguage: programmingLanguages,
+    }),
+  }),
   ...(publishedTime && { datePublished: publishedTime.toISOString() }),
   ...(modifiedTime && { dateModified: modifiedTime.toISOString() }),
-  ...(type === "article" && section && { articleSection: section }),
+  ...(resolvedSchemaType === "BlogPosting" &&
+    section && { articleSection: section }),
   ...(tags.length > 0 && { keywords: tags.join(", ") }),
 }
 /* Cloudflare Web Analytics. Only in a built site: a dev server would report
