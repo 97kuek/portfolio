@@ -53,11 +53,16 @@ jobs:
           pnpm format:check
           pnpm lint
           pnpm lint:styles
+          pnpm audit
+          pnpm test:unit
           pnpm test:markdown
           pnpm astro check
 
       - name: Build
         run: pnpm build
+
+      - name: Generated HTML check
+        run: pnpm test:html
 
       - name: Link check
         run: pnpm test:links

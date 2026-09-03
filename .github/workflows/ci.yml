@@ -25,6 +25,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Dependency audit
+        run: pnpm audit
+
       - name: Format check
         run: pnpm format:check
 
@@ -37,11 +40,17 @@ jobs:
       - name: Markdown plugins
         run: pnpm test:markdown
 
+      - name: Unit tests
+        run: pnpm test:unit
+
       - name: Type check
         run: pnpm astro check
 
       - name: Build
         run: pnpm build
+
+      - name: Generated HTML check
+        run: pnpm test:html
 
       - name: Link check
         run: pnpm test:links
