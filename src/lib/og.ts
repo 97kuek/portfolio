@@ -10,7 +10,26 @@ import { SITE } from "@site-config"
 type RenderPostImageOptions = {
   title: string
   description?: string
+  /**
+   * The entry's cover. `fsPath` is where Astro keeps the original on disk;
+   * it is not part of the public `ImageMetadata` type, so it is read
+   * defensively and the card falls back to its plain form without one.
+   */
+  image?: { fsPath?: string }
 }
+
+/** Text on the plain card, and on one laid over a photograph. */
+const PALETTE = {
+  plain: {
+    background: "#F1F2F6",
+    title: "#565B78",
+    body: "#7A7E96",
+  },
+  photo: {
+    title: "#FFFFFF",
+    body: "rgba(255, 255, 255, 0.82)",
+  },
+} as const
 
 type SatoriNode = {
   type: string
@@ -65,10 +84,47 @@ export const ogImagePath = (
   entryId: string,
 ): string => `/og/${collection}/${entryId}.png`
 
+/**
+ * The cover, cropped to the card and darkened, as a data URI.
+ *
+ * The scrim is a gradient rather than a flat wash: the card puts text at the
+ * top, middle and foot, and a photograph that is bright in one band would
+ * swallow whichever line lands there. Returns undefined if the file cannot be
+ * read, so a missing or unreadable cover costs a card its photo and nothing
+ * more.
+ */
+async function readCover(fsPath: string): Promise<string | undefined> {
+  const scrim = Buffer.from(
+    `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+      <linearGradient id="s" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#0B0D1A" stop-opacity="0.58"/>
+        <stop offset="0.55" stop-color="#0B0D1A" stop-opacity="0.66"/>
+        <stop offset="1" stop-color="#0B0D1A" stop-opacity="0.78"/>
+      </linearGradient>
+      <rect width="${width}" height="${height}" fill="url(#s)"/>
+    </svg>`,
+  )
+
+  try {
+    const jpeg = await sharp(fsPath)
+      .rotate()
+      .resize(width, height, { fit: "cover", position: "attention" })
+      .composite([{ input: scrim }])
+      .jpeg({ quality: 78 })
+      .toBuffer()
+    return `data:image/jpeg;base64,${jpeg.toString("base64")}`
+  } catch {
+    return undefined
+  }
+}
+
 export async function renderPostImage({
   title,
   description,
+  image,
 }: RenderPostImageOptions): Promise<Buffer> {
+  const cover = image?.fsPath ? await readCover(image.fsPath) : undefined
+  const ink = cover ? PALETTE.photo : PALETTE.plain
   const titleFontSize = title.length <= 60 ? 64 : 52
   const middleChildren: SatoriNode[] = [
     {
@@ -89,7 +145,7 @@ export async function renderPostImage({
         style: {
           maxHeight: titleFontSize * 1.15 * 3,
           overflow: "hidden",
-          color: "#565B78",
+          color: ink.title,
           fontSize: titleFontSize,
           fontWeight: 700,
           lineHeight: 1.15,
@@ -108,7 +164,7 @@ export async function renderPostImage({
           maxHeight: 30 * 1.4 * 2,
           marginTop: 24,
           overflow: "hidden",
-          color: "#7A7E96",
+          color: ink.body,
           fontSize: 30,
           fontWeight: 400,
           lineHeight: 1.4,
@@ -119,7 +175,7 @@ export async function renderPostImage({
     })
   }
 
-  const image: SatoriNode = {
+  const content: SatoriNode = {
     type: "div",
     props: {
       style: {
@@ -129,15 +185,13 @@ export async function renderPostImage({
         flexDirection: "column",
         justifyContent: "space-between",
         padding: 80,
-        background: "#F1F2F6",
-        fontFamily: "DM Sans, Noto Sans JP",
       },
       children: [
         {
           type: "div",
           props: {
             style: {
-              color: "#7A7E96",
+              color: ink.body,
               fontSize: 28,
               fontWeight: 400,
             },
@@ -158,7 +212,7 @@ export async function renderPostImage({
           type: "div",
           props: {
             style: {
-              color: "#7A7E96",
+              color: ink.body,
               fontSize: 26,
               fontWeight: 400,
             },
@@ -169,7 +223,37 @@ export async function renderPostImage({
     },
   }
 
-  const svg = await satori(image as never, {
+  /* The cover sits out of flow behind the text rather than beside it, so a
+     long Japanese title keeps the full width of the card to wrap into. */
+  const card: SatoriNode = {
+    type: "div",
+    props: {
+      style: {
+        width,
+        height,
+        display: "flex",
+        position: "relative",
+        background: PALETTE.plain.background,
+        fontFamily: "DM Sans, Noto Sans JP",
+      },
+      children: cover
+        ? [
+            {
+              type: "img",
+              props: {
+                src: cover,
+                width,
+                height,
+                style: { position: "absolute", top: 0, left: 0 },
+              } as SatoriNode["props"],
+            },
+            content,
+          ]
+        : [content],
+    },
+  }
+
+  const svg = await satori(card as never, {
     width,
     height,
     fonts: [

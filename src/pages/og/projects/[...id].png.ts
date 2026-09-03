@@ -10,13 +10,18 @@ export const getStaticPaths: GetStaticPaths = async () => {
     props: {
       title: project.data.title,
       description: project.data.description,
+      image: project.data.image,
     },
   }))
 }
 
 export const GET: APIRoute = async ({ props }) => {
   const png = await renderPostImage(
-    props as { title: string; description?: string },
+    props as {
+      title: string
+      description?: string
+      image?: { fsPath?: string }
+    },
   )
   return new Response(new Uint8Array(png), {
     headers: { "content-type": "image/png" },
