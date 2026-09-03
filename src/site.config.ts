@@ -54,8 +54,8 @@ export const SITE: SiteConfig = {
 export const PROFILE: ProfileConfig = {
   name: SITE.title,
   othernames: "Keitaro Ueki",
-  tagline: "AI Engineer / Waseda University, Comm B3",
-  taglineJa: "早稲田大学 情報通信学科 B3 / AIエンジニア",
+  tagline: "ML Researcher & AI Engineer",
+  taglineJa: "MLリサーチャー&AIエンジニア",
   email: "ueki.keitaro@gmail.com",
   links: {
     github: "https://github.com/97kuek",
