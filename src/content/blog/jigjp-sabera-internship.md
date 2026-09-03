@@ -9,7 +9,6 @@ authors:
   - "keitaro"
 image: "../../assets/photos/jigjp-kominka.jpg"
 stage: "seedling"
-draft: true
 ---
 
 ## はじめに
