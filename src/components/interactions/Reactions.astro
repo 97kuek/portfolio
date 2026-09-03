@@ -1,4 +1,5 @@
 ---
+import Icon from "@/components/base/Icon.astro"
 import {
   REACTION_KINDS,
   REACTIONS_ENDPOINT,
@@ -15,14 +16,12 @@ const { target } = Astro.props
 const ui = getUIStrings(Astro.url.pathname)
 
 /* Only the presentation lives here; the kinds themselves come from the module
-   the API validates against, so the two cannot drift. Keeping the emoji out of
-   the database means the set can be restyled without a migration, and the
+   the API validates against, so the two cannot drift. Keeping the drawing out
+   of the database means the set can be restyled without a migration, and the
    record is exhaustive, so adding a kind fails the build until it is drawn. */
-const PRESENTATION: Record<ReactionKind, { emoji: string; label: string }> = {
-  like: { emoji: "👍", label: ui.reactionLike },
-  love: { emoji: "❤️", label: ui.reactionLove },
-  insight: { emoji: "💡", label: ui.reactionInsight },
-  celebrate: { emoji: "🎉", label: ui.reactionCelebrate },
+const PRESENTATION: Record<ReactionKind, { icon: string; label: string }> = {
+  like: { icon: "reaction-like", label: ui.reactionLike },
+  insight: { icon: "reaction-insight", label: ui.reactionInsight },
 }
 
 const REACTIONS = REACTION_KINDS.map((kind) => ({
@@ -39,7 +38,7 @@ const REACTIONS = REACTION_KINDS.map((kind) => ({
 >
   <h2 class="sr-only">{ui.reactions}</h2>
   <ul class="reaction-list">
-    {REACTIONS.map(({ kind, emoji, label }) => (
+    {REACTIONS.map(({ kind, icon, label }) => (
       <li>
         <button
           type="button"
@@ -48,7 +47,12 @@ const REACTIONS = REACTION_KINDS.map((kind) => ({
           aria-pressed="false"
           title={label}
         >
-          <span class="reaction-emoji" aria-hidden="true">{emoji}</span>
+          {/* Icon.astro marks an untitled icon decorative on its own. */}
+          <Icon name={icon} class="reaction-icon" />
+          <Icon
+            name={`${icon}-pressed`}
+            class="reaction-icon reaction-icon-pressed"
+          />
           <span class="sr-only">{label}</span>
           <span class="reaction-count" data-count>0</span>
         </button>
@@ -73,7 +77,9 @@ const REACTIONS = REACTION_KINDS.map((kind) => ({
   }
 
   .reaction {
-    display: inline-flex;
+    display: inline-grid;
+    grid-template-areas: "icon count";
+    grid-template-columns: auto auto;
     align-items: center;
     gap: var(--space-3xs);
     min-block-size: var(--control-size-compact);
@@ -102,14 +108,31 @@ const REACTIONS = REACTION_KINDS.map((kind) => ({
     color: var(--foreground);
   }
 
+  .reaction-count {
+    grid-area: count;
+  }
+
   .reaction[disabled] {
     cursor: progress;
     opacity: 0.6;
   }
 
-  .reaction-emoji {
-    font-size: var(--step-0);
-    line-height: 1;
+  /* The two icons occupy one cell, so swapping them on press cannot shift the
+     row. Only the one matching the pressed state is painted. */
+  .reaction-icon {
+    grid-area: icon;
+    inline-size: 1.125em;
+    block-size: 1.125em;
+  }
+
+  .reaction-icon-pressed,
+  .reaction[aria-pressed="true"] .reaction-icon:not(.reaction-icon-pressed) {
+    display: none;
+  }
+
+  .reaction[aria-pressed="true"] .reaction-icon-pressed {
+    display: block;
+    color: var(--accent);
   }
 </style>
 

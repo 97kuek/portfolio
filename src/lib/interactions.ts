@@ -7,7 +7,10 @@
  * no imports, and `functions/api/_lib.ts` reaches it by relative path.
  */
 
-export const REACTION_KINDS = ["like", "love", "insight", "celebrate"] as const
+/* Two kinds that do not overlap: one for "this was good", one for "I
+   learned something". Rows written for kinds that are no longer listed
+   stay in the table and are simply never counted or shown. */
+export const REACTION_KINDS = ["like", "insight"] as const
 
 export type ReactionKind = (typeof REACTION_KINDS)[number]
 

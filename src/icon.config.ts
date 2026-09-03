@@ -48,6 +48,12 @@ export const SEMANTIC_ICONS = {
   star: "mingcute:star-line",
   "to-top": "mingcute:arrow-to-up-line",
 
+  // Reactions. The filled variant marks the kinds this visitor has pressed.
+  "reaction-like": "mingcute:thumb-up-2-line",
+  "reaction-like-pressed": "mingcute:thumb-up-2-fill",
+  "reaction-insight": "mingcute:bulb-line",
+  "reaction-insight-pressed": "mingcute:bulb-fill",
+
   // Content & actions
   "mail-send": "mingcute:mail-send-line",
   calendar: "mingcute:calendar-line",
