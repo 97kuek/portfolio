@@ -81,6 +81,10 @@ per visitor and caps comments at five per hour. That salt is a Pages secret:
 wrangler pages secret put INTERACTION_SALT --project-name 97kuek
 ```
 
+The API returns `503` when this secret is absent. There is deliberately no
+fallback value: using a known salt would make the stored pseudonyms easier to
+guess from an address and user agent.
+
 Schema changes go in `migrations/` and are applied with:
 
 ```bash

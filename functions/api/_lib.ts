@@ -5,7 +5,7 @@ export {
   isValidTarget,
   REACTION_KINDS,
   type ReactionKind,
-} from "../../src/lib/interactions"
+} from "../../src/lib/interactions.ts"
 
 /**
  * Shared plumbing for the interaction endpoints.
@@ -92,21 +92,28 @@ export const isSameOrigin = (request: Request): boolean => {
  * Cloudflare already sees. Salted and hashed so the stored value cannot be
  * turned back into an address, and never sent to the browser.
  */
-/* Used only when the secret is missing, so a misconfigured preview still
-   works; the deployed project sets INTERACTION_SALT. */
-const FALLBACK_SALT = "97kuek-portfolio"
+export class InteractionConfigurationError extends Error {
+  constructor() {
+    super("INTERACTION_SALT is not configured")
+    this.name = "InteractionConfigurationError"
+  }
+}
 
 export const getClientHash = async (
   request: Request,
   env: Env,
 ): Promise<string> => {
+  /* A known fallback would make hashes derived from an address and user agent
+     guessable. Interactions are optional, so a misconfigured deployment must
+     fail closed instead of weakening the pseudonym. */
+  const salt = env.INTERACTION_SALT?.trim()
+  if (!salt) throw new InteractionConfigurationError()
+
   const ip =
     request.headers.get("cf-connecting-ip") ??
     request.headers.get("x-forwarded-for") ??
     "unknown"
   const agent = request.headers.get("user-agent") ?? "unknown"
-  const salt = env.INTERACTION_SALT ?? FALLBACK_SALT
-
   const digest = await crypto.subtle.digest(
     "SHA-256",
     new TextEncoder().encode(`${salt}:${ip}:${agent}`),

@@ -3,6 +3,7 @@ import {
   COMMENT_MAX_LENGTH,
   error,
   getClientHash,
+  InteractionConfigurationError,
   isSameOrigin,
   isModerated,
   isValidTarget,
@@ -69,7 +70,15 @@ export const onRequestPost = async ({
     ? rawAuthor.slice(0, COMMENT_AUTHOR_MAX_LENGTH)
     : null
 
-  const clientHash = await getClientHash(request, env)
+  let clientHash: string
+  try {
+    clientHash = await getClientHash(request, env)
+  } catch (cause) {
+    if (cause instanceof InteractionConfigurationError) {
+      return error("Comments are temporarily unavailable", 503)
+    }
+    throw cause
+  }
   const anHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString()
   const recent = await env.DB.prepare(
     "SELECT COUNT(*) AS count FROM comments WHERE client_hash = ? AND created_at > ?",

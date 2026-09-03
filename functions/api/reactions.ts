@@ -1,6 +1,7 @@
 import {
   error,
   getClientHash,
+  InteractionConfigurationError,
   isSameOrigin,
   isValidKind,
   isValidTarget,
@@ -18,6 +19,20 @@ interface CountRow {
 
 const emptyCounts = (): Record<string, number> =>
   Object.fromEntries(REACTION_KINDS.map((kind) => [kind, 0]))
+
+const clientHashOrResponse = async (
+  request: Request,
+  env: Env,
+): Promise<string | Response> => {
+  try {
+    return await getClientHash(request, env)
+  } catch (cause) {
+    if (cause instanceof InteractionConfigurationError) {
+      return error("Reactions are temporarily unavailable", 503)
+    }
+    throw cause
+  }
+}
 
 /**
  * Every response carries the full tally plus the kinds this visitor has
@@ -50,7 +65,8 @@ export const onRequestGet = async ({ request, env }: RequestContext) => {
   const target = new URL(request.url).searchParams.get("target")
   if (!isValidTarget(target)) return error("Invalid target", 400)
 
-  const clientHash = await getClientHash(request, env)
+  const clientHash = await clientHashOrResponse(request, env)
+  if (clientHash instanceof Response) return clientHash
   return json(await readState(env, target, clientHash))
 }
 
@@ -64,7 +80,8 @@ export const onRequestPost = async ({ request, env }: RequestContext) => {
   if (!isValidTarget(target)) return error("Invalid target", 400)
   if (!isValidKind(kind)) return error("Unknown reaction", 400)
 
-  const clientHash = await getClientHash(request, env)
+  const clientHash = await clientHashOrResponse(request, env)
+  if (clientHash instanceof Response) return clientHash
 
   // A press toggles: the primary key makes one reaction per visitor per kind
   // the only representable state, so there is nothing to reconcile.
