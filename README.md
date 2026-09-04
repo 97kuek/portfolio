@@ -15,10 +15,15 @@ pnpm dev
 pnpm format:check
 pnpm lint
 pnpm lint:styles
+pnpm test:unit
 pnpm test:markdown
 pnpm astro check
 pnpm build
+pnpm test:html
+pnpm test:links
 ```
+
+The last two read the built `dist/`, so they come after `pnpm build`.
 
 ## Deployment
 

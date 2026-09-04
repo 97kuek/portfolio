@@ -130,6 +130,21 @@ wrangler d1 execute portfolio-interactions --remote --file=migrations/<file>.sql
 - 秘密情報、デバッグ出力、コメントアウトしたコード、AIへの帰属表記を入れない
 - コミットのCo-Authored-Byや生成物へのClaudeの記載は禁止
 
+## セキュリティヘッダー
+
+- CSPは2層。両方を満たさないとブラウザは実行しない
+  - `public/_headers` — 全ページ共通。オリジンの許可リストと、script以外のディレクティブ
+    - ページごとのハッシュを書けないので、`script-src` の `'unsafe-inline'` はここに残す
+  - `<meta>` — ページごと。`scripts/add-csp-meta.mjs` がビルド後に埋める
+    - そのページに実際にあったインラインscriptをsha256で列挙する。`'unsafe-inline'` は無い
+    - 実行時に差し込まれたscriptはどちらにも一致しないので落ちる
+- インラインscriptを足すときに手作業は要らない。ビルド出力を読んで数え直している
+  - `pnpm test:html` が、ハッシュ漏れ・metaの位置・`'unsafe-inline'` の混入を落とす
+- styleは意図的にヘッダー側だけ。`style-src` にハッシュを入れると `'unsafe-inline'` が無効になり、
+  medium-zoomが差し込む `<style>` とインラインstyle属性でのアニメーションが両方止まる
+- Astroの `security.csp` は使わない。バンドルするscriptしかハッシュ化せず、
+  `is:inline`（テーマ、言語の記憶、コピーボタン）が漏れる
+
 ## 検証
 
 - Biomeがフォーマッタ（Astro / JS / TS / CSS / JSON）
@@ -141,15 +156,22 @@ wrangler d1 execute portfolio-interactions --remote --file=migrations/<file>.sql
 pnpm format:check
 pnpm lint
 pnpm lint:styles
+pnpm test:unit
 pnpm test:markdown
 pnpm astro check
 pnpm build
+pnpm test:html
 pnpm test:links
 ```
 
+- `pnpm test:unit` はロケール解決と交流APIのハッシュ・同一オリジン判定を見る
+- `pnpm test:html` と `pnpm test:links` はビルド後の `dist/` を読むので、`pnpm build` の後に回す
+  - `test:html` はセキュリティヘッダー、スキップリンク、`hreflang` の行き先、
+    日本語ページに英語のaria-labelが残っていないこと、JSON-LDの型を見る
 - 見た目を変えたときは、デスクトップ幅とモバイル幅の両方で確認する
 - ライト・ダーク双方を確認する。`light-dark()` を使うときは両方で意図した色になるか見る
-- リンク切れは `pnpm test:links`（ビルド後の `dist/` を走査。CIでも実行される）
+- 依存の脆弱性監査はここには入れない。毎コミットのゲートにはせず、週次の
+  `.github/workflows/security.yml` とDependabotに任せる
 
 ## デプロイ
 
