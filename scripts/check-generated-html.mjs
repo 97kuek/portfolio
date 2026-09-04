@@ -2,6 +2,8 @@ import assert from "node:assert/strict"
 import { readdir, readFile, stat } from "node:fs/promises"
 import path from "node:path"
 
+import { inlineScripts, scriptHash } from "./add-csp-meta.mjs"
+
 const distDir = path.resolve("dist")
 const headers = await readFile(path.join(distDir, "_headers"), "utf8")
 
@@ -89,6 +91,29 @@ for (const file of htmlFiles) {
     /cdn\.jsdelivr\.net\/npm\/medium-zoom/,
     `${relative}: medium-zoom must be self-hosted`,
   )
+
+  /* The page policy has to name every inline script by hash, and has to be
+     parsed before the first one runs. A script left out would be blocked in
+     the browser and nowhere else, so the failure has to surface here. */
+  const policy = html.match(
+    /<meta http-equiv="content-security-policy" content="([^"]*)">/,
+  )
+  assert.ok(policy, `${relative}: missing the page's script policy`)
+  assert.doesNotMatch(
+    policy[1],
+    /'unsafe-inline'/,
+    `${relative}: the page policy must pin scripts by hash`,
+  )
+  assert.ok(
+    html.indexOf(policy[0]) < html.indexOf("<script"),
+    `${relative}: the policy must come before the first script`,
+  )
+  for (const body of inlineScripts(html)) {
+    assert.ok(
+      policy[1].includes(scriptHash(body)),
+      `${relative}: inline script is not in the policy: ${body.slice(0, 60).trim()}…`,
+    )
+  }
 
   if (!relative.startsWith(`en${path.sep}`)) {
     assert.doesNotMatch(
