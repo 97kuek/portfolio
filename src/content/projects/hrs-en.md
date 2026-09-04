@@ -20,17 +20,6 @@ skills:
   - "Vercel"
   - "UML"
 selected: true
-facts:
-  - label: "Role"
-    value: "UML analysis and design, implementation, and testing"
-  - label: "Format"
-    value: "University team project"
-  - label: "Status"
-    value: "Completed with a public demo"
-highlights:
-  - "Implemented the complete guest flow from reservation through check-out"
-  - "Turned responsibilities from class and sequence diagrams into module boundaries"
-  - "Pinned specification-critical matching rules down with tests"
 ---
 
 ## Overview

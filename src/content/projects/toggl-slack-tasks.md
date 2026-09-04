@@ -15,18 +15,6 @@ skills:
   - "Moodle API"
   - "Toggl API"
 selected: true
-facts:
-  - label: "担当"
-    value: "個人開発・設計・運用"
-  - label: "配布方式"
-    value: "1人1デプロイのオープンソース"
-  - label: "状態"
-    value: "常時稼働・継続改善中"
-highlights:
-  - "Moodle課題を15分ごとに同期し、Slack App Homeへ締切順で集約"
-  - "操作を先に反映してからTogglと同期し、外部API待ちによる遅さを隠蔽"
-  - "通知の冪等化・バッチ化・静音時間により、重複や過剰通知を防止"
-  - "Cloudflare WorkersとD1の無料枠内で常時稼働できる構成"
 ---
 
 ## 課題

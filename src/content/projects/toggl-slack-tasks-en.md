@@ -17,18 +17,6 @@ skills:
   - "Moodle API"
   - "Toggl API"
 selected: true
-facts:
-  - label: "Role"
-    value: "Independent product, architecture, and operations"
-  - label: "Distribution"
-    value: "Open source, one deployment per user"
-  - label: "Status"
-    value: "Running continuously and under active improvement"
-highlights:
-  - "Syncs Moodle assignments every 15 minutes and orders them by deadline in Slack App Home"
-  - "Updates the interface before synchronizing with Toggl so external API latency stays out of the interaction"
-  - "Uses idempotent, batched notifications and quiet hours to prevent duplicates and notification fatigue"
-  - "Designed to run continuously within the free tiers of Cloudflare Workers and D1"
 ---
 
 ## Problem

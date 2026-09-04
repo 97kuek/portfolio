@@ -21,17 +21,6 @@ skills:
   - "Cloudflare Pages"
   - "Docker"
 selected: true
-facts:
-  - label: "Role"
-    value: "Product planning, architecture, implementation, and operations"
-  - label: "Users"
-    value: "Members of the WASA human-powered aircraft project"
-  - label: "Status"
-    value: "In production and improving answer accuracy"
-highlights:
-  - "Searches an internal wiki and public documents, with a source attached to every answer"
-  - "Separates authentication, retrieval, and generation on Cloud Run from the Pages UI"
-  - "Keeps index releases human-reviewed to limit the impact of incorrect updates"
 ---
 
 ## Overview

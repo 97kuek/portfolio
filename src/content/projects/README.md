@@ -53,8 +53,6 @@ release: "https://github.com/username/synthetic-control/releases/tag/v1.0.0"
 | `url` | URL | ❌ | Link to live site or demo | Must be a valid URL |
 | `types` | Enum[] | ❌ | Any of: `research`, `product`, `tool`, `open-source`, `coursework` | Describes what the project is; filterable on the projects page |
 | `skills` | String[] | ❌ | Free-form skills and technologies used by the project | Filterable on the projects page; unique values are aggregated into the Tech Stack section |
-| `facts` | `{ label, value }[]` | ❌ | Up to four concise facts such as role, status, team, or scope | Rendered in the project snapshot |
-| `highlights` | String[] | ❌ | Up to four concrete outcomes or engineering decisions | Rendered in the project snapshot |
 | `selected` | Boolean | ❌ | Whether to feature this project | Defaults to `false` |
 | `release` | URL | ❌ | Link to release or deployment | Must be a valid URL |
 
