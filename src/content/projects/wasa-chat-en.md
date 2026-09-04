@@ -25,13 +25,24 @@ selected: true
 
 ## Overview
 
-WASA, the human-powered aircraft project at Waseda University, keeps its knowledge spread across a
-handover wiki and a set of public documents. Finding the right page was the bottleneck, so I am
-building a chatbot that answers questions about all of it in natural language.
+I built a RAG chatbot for the handover at WASA, the human-powered aircraft project I was part of at
+Waseda University.
 
-Every answer carries its sources, and the numbered links in the text lead back to the original
-document. The index currently covers the handover wiki, the official site, and the flight simulator
-guide (FEE).
+WASA keeps the build and design knowledge of decades on a handover wiki, and every year of members
+adds another layer to it, until it is hard to read at all.
+
+I wrote WASA Chat after I had left the project, but the question behind it came from my own year on
+the executive team, when the handover material was enormous and difficult to make sense of:
+
+“Is there a way for members to reach what they want to know quickly?”
+
+That is what I set out to answer, and my work as an AI engineer pointed at a chatbot members could
+ask in their own words.
+
+The index currently draws on the handover wiki, the official site, and the flight simulator guide
+(FEE).
+
+![Asking how to apply for a load test; the answer links back to the document it came from](../../assets/photos/wasa-chat-answer.png)
 
 ## Features
 
