@@ -77,15 +77,15 @@
     "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.11",
+    "@biomejs/biome": "^2.5.13",
     "@types/hast": "^3.0.5",
     "@types/mdast": "^4.0.4",
     "mdast-util-to-hast": "^13.2.0",
-    "oxlint": "^1.81.0",
+    "oxlint": "^1.82.0",
     "oxlint-tsgolint": "^7.0.2001",
     "pagefind": "^1.5.2",
     "sharp": "^0.35.4",
-    "wrangler": "^4.128.0"
+    "wrangler": "^4.131.2"
   },
   "packageManager": "pnpm@10.20.0+sha512.cf9998222162dd85864d0a8102e7892e7ba4ceadebbf5a31f9c2fce48dfce317a9c53b9f6464d1ef9042cba2e02ae02a9f7c143a2b438cd93c91840f0192b9dd",
   "pnpm": {
