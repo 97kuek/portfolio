@@ -1,0 +1,33 @@
+---
+import Layout from "@/layouts/Layout.astro"
+import Link from "@/components/base/Link.astro"
+import { getSiteLocale, localizedPath } from "@/lib/i18n"
+const locale = getSiteLocale(Astro.url.pathname)
+const isEnglish = locale === "en"
+---
+
+<Layout title="404" noindex breadcrumbs={[{ label: "404", icon: "question" }]}>
+  <prose-content>
+    <h1>404</h1>
+    <p>
+      {isEnglish ? "This page could not be found." : "このページは見つかりませんでした。"}
+    </p>
+    <ul>
+      <li>
+        <Link href={localizedPath("/", locale)} underline
+          >{isEnglish ? "Go to the home page" : "ホームへ戻る"}</Link
+        >
+      </li>
+      <li>
+        <Link href={localizedPath("/search", locale)} underline
+          >{isEnglish ? "Search this site" : "サイト内を検索する"}</Link
+        >
+      </li>
+      <li>
+        <Link href={localizedPath("/blog", locale)} underline
+          >{isEnglish ? "Browse the blog" : "ブログを読む"}</Link
+        >
+      </li>
+    </ul>
+  </prose-content>
+</Layout>

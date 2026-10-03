@@ -95,6 +95,7 @@ const projects = defineCollection({
         ...localeFields,
         title: z.string().max(75),
         image: image().optional(),
+        imageAlt: z.string().trim().min(1).optional(),
         selected: z.boolean().default(false),
         fromDate: yearMonthDateSchema.optional(),
         toDate: yearMonthDateSchema.optional(),
@@ -104,24 +105,16 @@ const projects = defineCollection({
         url: z.url().optional(),
         release: z.url().optional(),
         types: z.array(ProjectTypeSchema).default([]),
+        programmingLanguages: z.array(z.string().trim().min(1)).default([]),
         skills: z
           .array(z.string().trim().min(1))
           .default([])
           .transform((arr) => dedupPreserveCase(arr)),
-        facts: z
-          .array(
-            z.object({
-              label: z.string().trim().min(1).max(30),
-              value: z.string().trim().min(1).max(160),
-            }),
-          )
-          .max(4)
-          .default([]),
-        highlights: z
-          .array(z.string().trim().min(1).max(180))
-          .max(4)
-          .default([]),
         description: z.string().max(200).optional(),
+      })
+      .refine((data) => !data.image || !!data.imageAlt, {
+        error: "Project images need a description for the image viewer",
+        path: ["imageAlt"],
       })
       .refine(
         (data) =>
@@ -144,6 +137,16 @@ const experience = defineCollection({
     startDate: yearMonthDateSchema,
     endDate: yearMonthDateSchema.optional(),
     location: z.string().optional(),
+    locationEn: z.string().optional(),
+    relatedLinks: z
+      .array(
+        z.object({
+          href: z.string().startsWith("/"),
+          label: z.string(),
+          labelEn: z.string(),
+        }),
+      )
+      .default([]),
     description: z.string().optional(),
     descriptionEn: z.string().optional(),
   }),

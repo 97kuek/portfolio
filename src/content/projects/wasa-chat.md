@@ -1,6 +1,7 @@
 ---
 title: "WASA Chat"
 image: "../../assets/photos/wasa-test-flight.jpg"
+imageAlt: "滑走路の上を進む長い翼の人力飛行機と、その周囲を走る人たち。"
 description: "部内Wikiと公開資料を横断して質問できる、出典付きのRAGチャットボット。Cloudflare PagesとCloud Runで運用しています。"
 fromDate: "2026-08"
 code: "https://github.com/97kuek/wasa-chat"
@@ -8,6 +9,10 @@ url: "https://wasa-chat.pages.dev/"
 types:
   - "product"
   - "open-source"
+programmingLanguages:
+  - "Go"
+  - "Python"
+  - "TypeScript"
 skills:
   - "Go"
   - "Python"
@@ -19,31 +24,25 @@ skills:
   - "Cloudflare Pages"
   - "Docker"
 selected: true
-facts:
-  - label: "担当"
-    value: "企画、設計、実装、運用"
-  - label: "利用者"
-    value: "WASA鳥人間プロジェクトの部員"
-  - label: "状態"
-    value: "本番運用・精度改善中"
-highlights:
-  - "部内Wikiと公開資料を横断し、すべての回答に出典を付与"
-  - "認証・検索・生成をCloud Run、UIをCloudflare Pagesへ分離"
-  - "索引更新を人が確認してから反映する運用で、誤更新の影響を抑制"
 ---
 
 ## 概要
 
-私が所属していた人力飛行機製作サークル・WASAでは、機体設計から大会運営までの知識が引き継ぎWikiと公開資料に分散しています。
+私が所属していた人力飛行機製作サークル・WASAの引き継ぎ用RAGチャットボットを制作しました。
 
-WASAは40年以上の歴史があり、代ごとに引き継ぎ資料が積み重なっていきます。
+WASAでは、長年の製作・設計技術の引き継ぎをwikiで管理しているのですが、「代ごとに引き継ぎ資料が積み重なって読みにくくなっていく」という現状がありました。
 
-引き継ぎの時に大切な要素は、部員が知りたい情報に素早くアクセスできることだと考えました。
+WASA Chatを制作したのは引退後でしたが、執行代になった時に引き継ぎ資料が膨大でわかりにくかった経験から、
 
-そこで、自然言語で質問できるチャットボットを開発しています。
+「部員が知りたい情報に素早くアクセスできる方法はないか」
 
-回答には必ず出典が付き、本文中の番号リンクからもとの資料を確認できます。
-現在は引き継ぎWiki、公式サイト、フライトシミュレータガイド（FEE）を索引へ取り込んでいます。
+を模索していきました。そこで、AIエンジニアとしての経験から、部員が自然言語で質問できるチャットボットを開発しました。
+
+
+
+現在は引き継ぎWiki、公式サイト、フライトシミュレータガイド（FEE）の内容を情報源として使用しています。
+
+![荷重試験の申請方法を尋ねたときの回答画面。本文中のリンクからもとの資料へ辿れる](../../assets/photos/wasa-chat-answer.png)
 
 ## 主な機能
 

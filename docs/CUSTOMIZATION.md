@@ -165,6 +165,20 @@ or Obsidian-style callouts:
 > Callout body.
 ```
 
+### YouTube videos
+
+Use the shared Markdown directive in any article or project:
+
+```md
+::youtube[OpenAI公式：Dotsの紹介]{id="uXspbC2srEQ"}
+```
+
+Use the 11-character YouTube video ID and a title in the page language.
+The title becomes the accessible player name and visible caption. The player
+is responsive, loads lazily, and supports playback and fullscreen in the page
+without autoplay. Only `youtube-nocookie.com` is allowed by the embed plugin
+and the site’s `frame-src` policy. No MDX or page-specific JavaScript is needed.
+
 ## 9. Change publications
 
 Publications are loaded from `src/content/publications/main.bib` and rendered by

@@ -3,6 +3,7 @@ lang: "en"
 routeSlug: "wasa-chat"
 title: "WASA Chat"
 image: "../../assets/photos/wasa-test-flight.jpg"
+imageAlt: "A human-powered aircraft with long wings moving over a runway, with people running alongside it."
 description: "A citation-backed RAG chatbot that answers questions across an internal wiki and public documents, running on Cloudflare Pages and Cloud Run."
 fromDate: "2026-08"
 code: "https://github.com/97kuek/wasa-chat"
@@ -10,6 +11,10 @@ url: "https://wasa-chat.pages.dev/"
 types:
   - "product"
   - "open-source"
+programmingLanguages:
+  - "Go"
+  - "Python"
+  - "TypeScript"
 skills:
   - "Go"
   - "Python"
@@ -21,28 +26,28 @@ skills:
   - "Cloudflare Pages"
   - "Docker"
 selected: true
-facts:
-  - label: "Role"
-    value: "Product planning, architecture, implementation, and operations"
-  - label: "Users"
-    value: "Members of the WASA human-powered aircraft project"
-  - label: "Status"
-    value: "In production and improving answer accuracy"
-highlights:
-  - "Searches an internal wiki and public documents, with a source attached to every answer"
-  - "Separates authentication, retrieval, and generation on Cloud Run from the Pages UI"
-  - "Keeps index releases human-reviewed to limit the impact of incorrect updates"
 ---
 
 ## Overview
 
-WASA, the human-powered aircraft project at Waseda University, keeps its knowledge spread across a
-handover wiki and a set of public documents. Finding the right page was the bottleneck, so I am
-building a chatbot that answers questions about all of it in natural language.
+I built a RAG chatbot for the handover at WASA, the human-powered aircraft project I was part of at
+Waseda University.
 
-Every answer carries its sources, and the numbered links in the text lead back to the original
-document. The index currently covers the handover wiki, the official site, and the flight simulator
-guide (FEE).
+WASA keeps the build and design knowledge of decades on a handover wiki, and every year of members
+adds another layer to it, until it is hard to read at all.
+
+I wrote WASA Chat after I had left the project, but the question behind it came from my own year on
+the executive team, when the handover material was enormous and difficult to make sense of:
+
+“Is there a way for members to reach what they want to know quickly?”
+
+That is what I set out to answer, and my work as an AI engineer pointed at a chatbot members could
+ask in their own words.
+
+The index currently draws on the handover wiki, the official site, and the flight simulator guide
+(FEE).
+
+![Asking how to apply for a load test; the answer links back to the document it came from](../../assets/photos/wasa-chat-answer.png)
 
 ## Features
 

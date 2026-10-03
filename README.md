@@ -1,6 +1,4 @@
-# Keitaro Ueki — Portfolio
-
-植木敬太郎の個人ポートフォリオです。日本語がデフォルトで、英語は `/en` 配下にあります。
+# My Portfolio
 
 This is the bilingual personal portfolio of Keitaro Ueki.
 
@@ -11,16 +9,23 @@ pnpm install
 pnpm dev
 ```
 
+For cloud workspaces, follow the [cloud development workflow](DEVELOPMENT.md#cloud-development).
+
 ## Validation
 
 ```bash
 pnpm format:check
 pnpm lint
 pnpm lint:styles
+pnpm test:unit
 pnpm test:markdown
 pnpm astro check
 pnpm build
+pnpm test:html
+pnpm test:links
 ```
+
+The last two read the built `dist/`, so they come after `pnpm build`.
 
 ## Deployment
 

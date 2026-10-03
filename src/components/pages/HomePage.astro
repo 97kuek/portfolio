@@ -9,7 +9,7 @@ import Profile from "@/components/profile/Profile.astro"
 import DateRange from "@/components/projects/DateRange.astro"
 import ProjectRow from "@/components/projects/ProjectRow.astro"
 import ExperienceTimeline from "@/components/timeline/ExperienceTimeline.astro"
-import { PROFILE, SITE } from "@site-config"
+import { PROFILE, SITE, getSiteDescription } from "@site-config"
 import { getPostsInLocale, withMetadata } from "@/lib/blog/listing"
 import { isContentInLocale } from "@/lib/content-locale"
 import { getSiteLocale } from "@/lib/i18n"
@@ -35,39 +35,16 @@ const latestPosts = await withMetadata(
   title={isEnglish ? "Home" : "ホーム"}
   type="profile"
   schemaType="ProfilePage"
-  description={isEnglish
-    ? "Portfolio of Keitaro Ueki, an AI engineer studying communications and computer engineering at Waseda University."
-    : "早稲田大学で情報通信を学ぶAIエンジニア、植木敬太郎のポートフォリオ。"}
+  description={getSiteDescription(locale)}
 >
-  <Profile profile={PROFILE} />
-
-  <Section title={isEnglish ? "Current focus" : "現在のテーマ"} spacing="none">
-    <div class="focus-grid">
-      <article>
-        <p class="focus-label">{isEnglish ? "Study" : "学び"}</p>
-        <h3>
-          {isEnglish ? "Communications & Computing" : "情報通信・コンピューティング"}
-        </h3>
-        <p>
-          {isEnglish
-            ? "Building a strong engineering foundation at Waseda University."
-            : "早稲田大学で、情報通信とコンピュータ工学の基礎を学んでいます。"}
-        </p>
-      </article>
-      <article>
-        <p class="focus-label">{isEnglish ? "Engineering" : "開発"}</p>
-        <h3>{isEnglish ? "AI Engineering" : "AIエンジニアリング"}</h3>
-        <p>
-          {isEnglish
-            ? "Exploring how machine learning can become useful, reliable software."
-            : "機械学習を、実際に役立つ信頼できるソフトウェアにする方法を探っています。"}
-        </p>
-      </article>
-    </div>
-  </Section>
+  <Profile
+    profile={PROFILE}
+    continueHref={projects.length > 0 ? "#projects" : undefined}
+  />
 
   {projects.length > 0 && (
       <Section
+        id="projects"
         title={sectionLabel("projects", locale)}
         moreLink={sectionPath("projects", locale)}
         moreText={isEnglish ? "All projects →" : "すべて見る →"}
@@ -121,46 +98,3 @@ const latestPosts = await withMetadata(
       </Section>
     )}
 </Layout>
-
-<style>
-  .focus-grid {
-    display: grid;
-    gap: var(--space-s);
-  }
-
-  .focus-grid article {
-    padding: var(--space-s);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    background: color-mix(in oklab, var(--muted) 38%, transparent);
-  }
-
-  .focus-grid h3,
-  .focus-grid p {
-    margin: 0;
-  }
-
-  .focus-grid h3 {
-    margin-block: var(--space-3xs);
-    font-size: var(--step-1);
-    font-weight: var(--font-weight-medium);
-  }
-
-  .focus-grid p:not(.focus-label) {
-    color: var(--muted-foreground);
-  }
-
-  .focus-label {
-    color: var(--accent);
-    font-size: var(--step--1);
-    font-weight: var(--font-weight-semibold);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-
-  @media (width >= 40rem) {
-    .focus-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-</style>

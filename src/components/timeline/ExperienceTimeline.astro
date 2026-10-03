@@ -3,7 +3,7 @@ import type { CollectionEntry } from "astro:content"
 
 import Link from "@/components/base/Link.astro"
 import DateRange from "@/components/projects/DateRange.astro"
-import { getSiteLocale } from "@/lib/i18n"
+import { getSiteLocale, localizedPath } from "@/lib/i18n"
 
 import Timeline from "./Timeline.astro"
 import TimelineDate from "./TimelineDate.astro"
@@ -61,7 +61,7 @@ const datePrecision = (start: Date, end?: Date) =>
         ) : (
           <span>{isEnglish ? entry.data.orgEn || entry.data.org : entry.data.org}</span>
         )}
-        {entry.data.location && <span class="experience-location"> · {entry.data.location}</span>}
+        {entry.data.location && <span class="experience-location"> · {isEnglish ? entry.data.locationEn || entry.data.location : entry.data.location}</span>}
       </p>
       {entry.data.description && (
         <p class:list={["experience-description", itemClass]}>
@@ -70,11 +70,25 @@ const datePrecision = (start: Date, end?: Date) =>
             : entry.data.description}
         </p>
       )}
+      {entry.data.relatedLinks.length > 0 && <ul class="experience-links">
+        {entry.data.relatedLinks.map(link => <li><Link href={localizedPath(link.href, isEnglish ? "en" : "ja")} underline>{isEnglish ? link.labelEn : link.label}</Link></li>)}
+      </ul>}
     </TimelineItem>
   ))}
 </Timeline>
 
 <style>
+  .experience-links {
+    list-style: none;
+    padding: 0;
+    margin-block-start: var(--space-2xs);
+    font-size: var(--step--1);
+  }
+  .experience-links :global(a) {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--control-size);
+  }
   .experience-title {
     font-size: var(--step--1);
     line-height: calc(var(--leading-offset) + 1em);

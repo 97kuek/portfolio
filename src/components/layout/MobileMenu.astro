@@ -4,6 +4,10 @@ import Button from "@/components/base/Button.astro"
 import Dropdown from "@/components/base/Dropdown.astro"
 import Icon from "@/components/base/Icon.astro"
 
+import {
+  getProcessedProfileLinks,
+  getProfileLinkPlacement,
+} from "@/components/profile/helper"
 import ThemeOptions from "./ThemeOptions.astro"
 import { DEFAULT_LOCALE, localizedPath, type SiteLocale } from "@/lib/i18n"
 import { navLabel } from "@/lib/sections"
@@ -15,6 +19,10 @@ interface Props {
 
 const { locale = DEFAULT_LOCALE } = Astro.props
 const ui = getUIStrings(locale)
+const profileLinks = getProcessedProfileLinks(
+  undefined,
+  getProfileLinkPlacement("header"),
+)
 ---
 
 <Dropdown align="end" class="mobile-menu-content">
@@ -40,6 +48,16 @@ const ui = getUIStrings(locale)
           {navLabel(item.href, item.label, locale)}
         </a>
       ))}
+    {profileLinks.length > 0 && (
+      <>
+        <hr class="mobile-menu-separator">
+        {profileLinks.map(({ href, label, key }) => (
+          <a href={href} data-dropdown-item>
+            {key === "email" && label === "Email" ? ui.email : label}
+          </a>
+        ))}
+      </>
+    )}
     <hr class="mobile-menu-separator">
     <ThemeOptions />
   </div>
@@ -61,7 +79,8 @@ const ui = getUIStrings(locale)
         if (!href) return
         const isActive =
           currentPath === href || (href !== "/" && currentPath.startsWith(href))
-        link.toggleAttribute("aria-current", isActive)
+        if (isActive) link.setAttribute("aria-current", "page")
+        else link.removeAttribute("aria-current")
       })
     })
   }

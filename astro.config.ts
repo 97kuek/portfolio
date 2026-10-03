@@ -11,6 +11,7 @@ import { externalLinks } from "./src/lib/external-links"
 import { headingNamespace } from "./src/lib/heading-namespace"
 import { headingAnchors } from "./src/lib/heading-anchors"
 import { imageFigures } from "./src/plugins/satteri-image-figures"
+import { youtubeEmbed } from "./src/plugins/satteri-youtube"
 import { satteriSidenotes } from "./src/plugins/satteri-sidenotes"
 import { collapseCjkLineBreaks } from "./src/plugins/satteri-cjk-line-breaks"
 import { normalizeHeadings } from "./src/plugins/satteri-normalize-headings"
@@ -39,9 +40,18 @@ export default defineConfig({
         !page.includes("/blog/tags/") &&
         !page.includes("/blog/stages/") &&
         !page.includes("/palette") &&
-        !page.includes("/search"),
+        !page.includes("/search") &&
+        !page.includes("/404"),
     }),
   ],
+  // Pagefind is loaded at runtime; do not inject unresolved preload markers
+  // into Astro's automatically inlined client script.
+  vite: {
+    build: {
+      assetsInlineLimit: (file) =>
+        file.includes("SearchPage") ? false : undefined,
+    },
+  },
   server: { port: 4321, host: true },
   devToolbar: { enabled: false },
   markdown: {
@@ -52,6 +62,7 @@ export default defineConfig({
         collapseCjkLineBreaks,
         normalizeHeadings,
         calloutDirective,
+        youtubeEmbed,
         inlineExpressiveCode,
         temmlMath,
       ],

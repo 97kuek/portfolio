@@ -2,6 +2,8 @@
 lang: "en"
 routeSlug: "hrs"
 title: "HRS — Hotel Reservation System"
+image: "../../assets/photos/hrs-home.webp"
+imageAlt: "HRS home screen with a hotel photo, buttons to find a room and check a reservation, and steps for booking, check-in, and check-out below."
 description: "A hotel booking web app where guests handle everything from reservation to check-out themselves, built from UML analysis and design through implementation."
 fromDate: "2026-06"
 toDate: "2026-07"
@@ -10,6 +12,8 @@ url: "https://hrs-ruddy.vercel.app"
 types:
   - "coursework"
   - "product"
+programmingLanguages:
+  - "TypeScript"
 skills:
   - "TypeScript"
   - "Next.js"
@@ -20,28 +24,15 @@ skills:
   - "Vercel"
   - "UML"
 selected: true
-facts:
-  - label: "Role"
-    value: "UML analysis and design, implementation, and testing"
-  - label: "Format"
-    value: "University team project"
-  - label: "Status"
-    value: "Completed with a public demo"
-highlights:
-  - "Implemented the complete guest flow from reservation through check-out"
-  - "Turned responsibilities from class and sequence diagrams into module boundaries"
-  - "Pinned specification-critical matching rules down with tests"
 ---
 
 ## Overview
 
-HRS is a hotel reservation system built as a team project for the Software Engineering A course.
-Guests can book a room, look up or cancel a reservation, check in, and check out entirely on their
-own, without going through the front desk.
+HRS is a hotel reservation system built as part of a university course.
 
-The point of the assignment was object-oriented analysis and design in UML, and then implementing
-exactly what that design described. The repository therefore keeps the design documents and the
-implementation side by side.
+Three of us worked on it for three weeks, and what the exercise was really asking was
+“object-oriented analysis and design in UML, and whether the result can be implemented exactly as
+designed”.
 
 ## Features
 

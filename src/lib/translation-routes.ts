@@ -6,6 +6,7 @@ import {
   DEFAULT_LOCALE,
   getSiteLocale,
   localizedPath,
+  normalizePath,
   translatedPathFromAvailable,
   type SiteLocale,
 } from "@/lib/i18n"
@@ -21,11 +22,6 @@ const TRANSLATED_STATIC_PATHS = [
   "/search",
   "/privacy",
 ] as const
-
-const normalizePath = (pathname: string): string => {
-  if (pathname === "/") return pathname
-  return pathname.replace(/\/+$/, "") || "/"
-}
 
 const addLocalePath = (paths: Set<string>, path: string, locale: SiteLocale) =>
   paths.add(normalizePath(localizedPath(path, locale)))
