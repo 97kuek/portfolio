@@ -32,16 +32,8 @@ interface Props {
 }
 
 const { project } = Astro.props
-const {
-  title,
-  description,
-  image,
-  fromDate,
-  toDate,
-  skills,
-  facts,
-  highlights,
-} = project.data
+const { title, description, image, imageAlt, fromDate, toDate, skills } =
+  project.data
 
 const locale = getContentLocale(project.data)
 const isEnglish = locale === "en"
@@ -58,6 +50,7 @@ const links = getProjectLinks(
   project.data.paper,
   project.data.url,
   project.data.release,
+  locale,
 )
 const target = interactionTarget(
   "projects",
@@ -76,7 +69,7 @@ const { older, newer } = await getProjectNavigation(project.id, (candidate) =>
   type="website"
   schemaType="SoftwareSourceCode"
   codeRepository={project.data.code}
-  programmingLanguages={skills}
+  programmingLanguages={project.data.programmingLanguages}
   searchable
   image={ogImagePath("projects", project.id)}
   breadcrumbs={[sectionCrumb("projects", locale), { label: title }]}
@@ -107,38 +100,16 @@ const { older, newer } = await getProjectNavigation(project.id, (candidate) =>
       )}
   </section>
 
-  {(facts.length > 0 || highlights.length > 0) && (
-    <section class="project-proof" aria-labelledby="project-proof-title">
-      <h2 id="project-proof-title">
-        {isEnglish ? "Project snapshot" : "プロジェクト要点"}
-      </h2>
-      {facts.length > 0 && (
-        <dl class="project-proof-facts">
-          {facts.map(({ label, value }) => (
-            <div>
-              <dt>{label}</dt>
-              <dd>{value}</dd>
-            </div>
-          ))}
-        </dl>
-      )}
-      {highlights.length > 0 && (
-        <ul class="project-highlights">
-          {highlights.map((highlight) => <li>{highlight}</li>)}
-        </ul>
-      )}
-    </section>
-  )}
-
-  <div class="project-hero">
+  {image && <div class="project-hero">
     <CoverImage
       image={image}
+      alt={imageAlt}
       seed={getContentSlug(project.id, project.data)}
       widths={COVER_WIDTHS}
       sizes={COVER_SIZES}
       loading="eager"
     />
-  </div>
+  </div>}
 
   <prose-content>
     <Content />
@@ -151,11 +122,13 @@ const { older, newer } = await getProjectNavigation(project.id, (candidate) =>
       </section>
     )}
 
-  <Reactions target={target} />
+  <div data-pagefind-ignore><Reactions target={target} /></div>
 
-  <Comments target={target} />
+  <div data-pagefind-ignore><Comments target={target} /></div>
 
-  <ProjectNavigation older={older} newer={newer} />
+  <div data-pagefind-ignore>
+    <ProjectNavigation older={older} newer={newer} />
+  </div>
 </CommonLayout>
 
 <style>
@@ -164,6 +137,14 @@ const { older, newer } = await getProjectNavigation(project.id, (candidate) =>
     aspect-ratio: var(--aspect-video);
     border-radius: var(--radius-lg);
     overflow: clip;
+  }
+
+  .project-hero :global(.cover) {
+    object-fit: contain;
+  }
+
+  .project-hero :global(.image-viewer-trigger) {
+    block-size: 100%;
   }
 
   /* The facts sit on their own line and the links on the next, so a project
@@ -219,50 +200,5 @@ const { older, newer } = await getProjectNavigation(project.id, (candidate) =>
   .project-skills p {
     margin: 0;
     color: var(--muted-foreground);
-  }
-
-  .project-proof {
-    display: grid;
-    gap: var(--space-s);
-    padding: var(--space-s);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    background: color-mix(in oklab, var(--muted) 30%, transparent);
-  }
-
-  .project-proof h2 {
-    margin: 0;
-    font-size: var(--step-1);
-    font-weight: var(--font-weight-medium);
-  }
-
-  .project-proof-facts {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
-    gap: var(--space-s);
-    margin: 0;
-  }
-
-  .project-proof-facts div {
-    display: grid;
-    gap: var(--space-3xs);
-  }
-
-  .project-proof-facts dt {
-    color: var(--muted-foreground);
-    font-size: var(--step--1);
-  }
-
-  .project-proof-facts dd {
-    margin: 0;
-    font-weight: var(--font-weight-medium);
-  }
-
-  .project-highlights {
-    display: grid;
-    gap: var(--space-2xs);
-    margin: 0;
-    padding-inline-start: 1.2em;
-    list-style: disc;
   }
 </style>

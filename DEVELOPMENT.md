@@ -40,6 +40,40 @@ plain CSS that is easy to inspect.
 - `functions/`: Cloudflare Pages Functions backing comments and reactions.
 - `migrations/`: SQL applied to the D1 database behind those endpoints.
 
+## Cloud development
+
+Use the cloud checkout of `97kuek/portfolio` and read [AGENTS.md](AGENTS.md)
+before editing. Keep implementation and verification in that workspace; no Mac
+or Kei Agent MCP `run` is needed. Use Node.js 22 (at least 22.12.0, matching CI)
+and the pnpm version pinned in `package.json` via Corepack. If the workspace's
+`pnpm` differs, use `corepack pnpm` for the commands here and in linked checks.
+
+```bash
+corepack pnpm install --frozen-lockfile
+corepack pnpm dev --host 0.0.0.0
+```
+
+Open port 4321 through the workspace's private port preview. For built search,
+run `pnpm build` then `pnpm preview --host 0.0.0.0`; for the API, see
+[Comments and reactions](#comments-and-reactions). Keep API tests local and do
+not use production D1 or production secrets.
+
+Work on a dedicated branch from current `origin/main`, preserving existing
+uncommitted work. Continue through implementation, tests, commit, branch push,
+and a draft PR against `main`. Before handing off, run all
+[validation commands](README.md#validation), then the
+[browser regression checks](#browser-regression-checks), as required by
+[CI](.github/workflows/ci.yml). `pnpm routine` alone does not cover that gate.
+Verify the remote commit and PR head, and follow PR checks to completion.
+Report the PR URL, branch/commit, changes, and passed, failed, or unrun checks.
+
+Before pushing or opening a PR, check workflows and any connected hosting
+integration for automatic deployments, including previews. If either action
+would deploy, stop that action and report the constraint; do not change hosting
+settings to bypass it. Report missing permissions and the blocked operation.
+Wait for explicit user instructions before merging, enabling auto-merge, or
+deploying to production. Never push directly to `main` during this workflow.
+
 ## Deployment
 
 Pushing to `main` runs `.github/workflows/deploy.yml`, which validates, builds,
@@ -199,3 +233,12 @@ docs.
   theme.
 - Add Iconify sets only when they replace many local one-off assets or unlock a
   coherent icon family.
+
+### Browser regression checks
+
+After `pnpm build`, run `pnpm exec playwright install chromium` and
+`pnpm test:browser`. The suite starts Cloudflare Pages locally and checks desktop,
+tablet, and two phone widths in both color schemes, including search, localized
+404 responses, and keyboard image viewing. CI runs the same checks before deployment.
+Use `PLAYWRIGHT_CHANNEL=chrome` to run an installed Chrome locally. Failure reports
+are saved in `playwright-report/`; screenshots and traces are in `test-results/`.

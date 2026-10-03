@@ -5,6 +5,7 @@ import { markdownToHtml } from "satteri"
 import { calloutDirective } from "../src/lib/callout.ts"
 import { collapseCjkLineBreaks } from "../src/plugins/satteri-cjk-line-breaks.ts"
 import { imageFigures } from "../src/plugins/satteri-image-figures.ts"
+import { youtubeEmbed } from "../src/plugins/satteri-youtube.ts"
 import { externalLinks } from "../src/lib/external-links.ts"
 import { headingAnchors } from "../src/lib/heading-anchors.ts"
 import { headingNamespace } from "../src/lib/heading-namespace.ts"
@@ -150,4 +151,40 @@ void test("images without alt text, and images inside a sentence, are left alone
 
   assert.doesNotMatch(html, /<figure>/)
   assert.match(html, /See <img src="\/chart.jpg" alt="a chart"> here/)
+})
+
+void test("YouTube directives embed a titled, lazy player without autoplay", () => {
+  const { html } = markdownToHtml(
+    '::youtube[OpenAI公式：Dotsの紹介]{id="uXspbC2srEQ"}',
+    { features: { directive: true }, mdastPlugins: [youtubeEmbed] },
+  )
+  assert.match(html, /<figure class="video-embed"><iframe/)
+  assert.match(
+    html,
+    /src="https:\/\/www.youtube-nocookie.com\/embed\/uXspbC2srEQ\?playsinline=1"/,
+  )
+  assert.match(html, /title="OpenAI公式：Dotsの紹介"/)
+  assert.match(html, /loading="lazy"/)
+  assert.match(html, /referrerpolicy="strict-origin-when-cross-origin"/)
+  assert.match(html, /allowfullscreen/)
+  assert.match(html, /<figcaption>OpenAI公式：Dotsの紹介<\/figcaption>/)
+  assert.doesNotMatch(html, /autoplay|<script/)
+})
+
+void test("YouTube directives reject arbitrary URLs and missing titles", () => {
+  for (const markdown of [
+    '::youtube[Video]{id="https://example.com/embed"}',
+    '::youtube[Video]{id="uXspbC2srEQ?autoplay=1"}',
+    "::youtube[Video]",
+    '::youtube[]{id="uXspbC2srEQ"}',
+  ]) {
+    assert.throws(
+      () =>
+        markdownToHtml(markdown, {
+          features: { directive: true },
+          mdastPlugins: [youtubeEmbed],
+        }),
+      /YouTube embeds require/,
+    )
+  }
 })

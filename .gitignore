@@ -14,3 +14,6 @@ pnpm-debug.log*
 .claude/worktrees/
 .playwright-cli/
 output/
+
+test-results/
+playwright-report/
