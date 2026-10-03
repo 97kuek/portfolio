@@ -32,7 +32,8 @@ interface Props {
 }
 
 const { project } = Astro.props
-const { title, description, image, fromDate, toDate, skills } = project.data
+const { title, description, image, imageAlt, fromDate, toDate, skills } =
+  project.data
 
 const locale = getContentLocale(project.data)
 const isEnglish = locale === "en"
@@ -102,6 +103,7 @@ const { older, newer } = await getProjectNavigation(project.id, (candidate) =>
   {image && <div class="project-hero">
     <CoverImage
       image={image}
+      alt={imageAlt}
       seed={getContentSlug(project.id, project.data)}
       widths={COVER_WIDTHS}
       sizes={COVER_SIZES}

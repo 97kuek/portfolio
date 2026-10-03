@@ -4,6 +4,7 @@ interface Props {
   external?: boolean
   class?: string
   underline?: boolean
+  reload?: boolean
   [key: string]: any
 }
 
@@ -12,6 +13,7 @@ const {
   external,
   class: className,
   underline,
+  reload = false,
   rel,
   ...rest
 } = Astro.props
@@ -37,6 +39,7 @@ const relValue = relTokens.length > 0 ? relTokens.join(" ") : undefined
   target={isExternal ? "_blank" : undefined}
   rel={relValue}
   data-link
+  data-astro-reload={reload || undefined}
   data-external={isExternal || undefined}
   data-underline={underline || undefined}
   class={className}
