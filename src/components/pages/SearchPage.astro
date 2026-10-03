@@ -1,7 +1,7 @@
 ---
 import CommonLayout from "@/layouts/CommonLayout.astro"
 import Icon from "@/components/base/Icon.astro"
-import { getLocaleTag, getSiteLocale } from "@/lib/i18n"
+import { getSiteLocale } from "@/lib/i18n"
 import { sectionCrumb } from "@/lib/sections"
 import { getUIStrings } from "@/lib/ui-strings"
 
@@ -20,7 +20,6 @@ const ui = getUIStrings(locale)
   breadcrumbs={[sectionCrumb("search", locale, { current: true })]}
 >
   <site-search
-    data-locale={getLocaleTag(locale)}
     data-empty={ui.searchEmpty}
     data-error={ui.searchUnavailable}
     data-searching={ui.searching}
@@ -142,7 +141,6 @@ const ui = getUIStrings(locale)
   }
 
   interface Pagefind {
-    options: (options: Record<string, unknown>) => Promise<void>
     search: (query: string) => Promise<{ results: PagefindResult[] }>
   }
 
@@ -169,6 +167,7 @@ const ui = getUIStrings(locale)
       if (!this.input) return
 
       this.input.addEventListener("input", () => {
+        this.updateLanguageSwitch(this.input!.value)
         this.requestId++
         window.clearTimeout(this.timer)
         this.timer = window.setTimeout(
@@ -195,14 +194,27 @@ const ui = getUIStrings(locale)
       window.clearTimeout(this.timer)
     }
 
+    private updateLanguageSwitch(rawQuery: string) {
+      const link = document.querySelector<HTMLAnchorElement>(
+        "a[data-language-switch]",
+      )
+      if (!link) return
+      const url = new URL(link.href)
+      const query = rawQuery.trim()
+      if (query) url.searchParams.set("q", query)
+      else url.searchParams.delete("q")
+      link.href = url.href
+    }
+
     /* The index is built after the site, so it does not exist during `astro
        dev`; the page stays usable and says so. */
     private async load(): Promise<Pagefind | null> {
       if (this.pagefind) return this.pagefind
       if (!this.loading) {
         this.loading = import(/* @vite-ignore */ PAGEFIND_URL)
-          .then(async (module: Pagefind) => {
-            await module.options({ language: this.dataset.locale })
+          .then((module: Pagefind) => {
+            // Pagefind detects the document language on first use. Language
+            // links reload the document so a cached index cannot cross locales.
             this.pagefind = module
             return module
           })
@@ -221,6 +233,7 @@ const ui = getUIStrings(locale)
     private async run(rawQuery: string) {
       const requestId = ++this.requestId
       const query = rawQuery.trim()
+      this.updateLanguageSwitch(query)
       const isCurrent = () => this.isConnected && requestId === this.requestId
       const url = new URL(location.href)
       if (query) url.searchParams.set("q", query)
