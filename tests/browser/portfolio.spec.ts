@@ -5,7 +5,7 @@ for (const colorScheme of ["light", "dark"] as const) {
     test.use({ colorScheme })
     test.beforeEach(async ({ page }) => {
       await page.route("**/api/**", (route) =>
-        route.fulfill({ json: { comments: [], counts: {}, selected: [] } }),
+        route.fulfill({ json: { comments: [], counts: {}, mine: [] } }),
       )
       await page.route("https://www.youtube-nocookie.com/**", (route) =>
         route.abort(),
@@ -115,6 +115,117 @@ for (const colorScheme of ["light", "dark"] as const) {
       await page.keyboard.press("Escape")
       await expect(dialog).not.toBeVisible()
       await expect(trigger).toBeFocused()
+    })
+
+    test("search follows language switches and preserves the current query", async ({
+      page,
+    }) => {
+      const input = page.locator("#search-input")
+      const results = page.locator(".search-result h2 a")
+      const expectLocale = async (prefix: string, query: string) => {
+        await expect(input).toHaveValue(query)
+        await expect(results).toHaveCount(2)
+        for (const href of await results.evaluateAll((links) =>
+          links.map((link) => link.getAttribute("href")),
+        )) {
+          expect(href).toMatch(
+            new RegExp(`^${prefix}/(blog|projects)/kei-agent/?$`),
+          )
+        }
+        expect(new URL(page.url()).searchParams.get("q")).toBe(query)
+      }
+
+      for (const initialPrefix of ["", "/en"]) {
+        await page.goto(`${initialPrefix}/search?q=Dots`)
+        await expectLocale(initialPrefix, "Dots")
+        for (const prefix of [initialPrefix ? "" : "/en", initialPrefix]) {
+          // Switch before the input debounce can update the page URL.
+          await input.fill("MCP")
+          await page.locator("[data-language-switch]").click()
+          await expectLocale(prefix, "MCP")
+        }
+        await page.reload()
+        await expectLocale(initialPrefix, "MCP")
+        await input.fill("")
+        await page.locator("[data-language-switch]").click()
+        await expect(input).toBeEmpty()
+        await expect(results).toHaveCount(0)
+        expect(new URL(page.url()).searchParams.has("q")).toBe(false)
+      }
+    })
+
+    test("email copy has a visible keyboard focus indicator", async ({
+      page,
+    }, testInfo) => {
+      await page.goto("/")
+      await page.locator(".email-link a").focus()
+      await page.keyboard.press("Tab")
+      const copy = page.locator(".email-copy")
+      await expect(copy).toBeFocused()
+      await expect
+        .poll(() =>
+          copy.evaluate((element) => {
+            const style = getComputedStyle(element)
+            return (
+              element.matches(":focus-visible") &&
+              style.outlineStyle !== "none" &&
+              Number.parseFloat(style.outlineWidth) >= 2 &&
+              style.outlineColor !== "rgba(0, 0, 0, 0)"
+            )
+          }),
+        )
+        .toBe(true)
+      await page.screenshot({
+        path: testInfo.outputPath("email-copy-focus.png"),
+      })
+    })
+
+    test("project image viewer describes the image and restores focus", async ({
+      page,
+    }, testInfo) => {
+      for (const prefix of ["", "/en"]) {
+        for (const [slug, description] of [
+          [
+            "kei-agent",
+            prefix ? /Requests pass from Slack/ : /Slackまたは音声通話からDot/,
+          ],
+          [
+            "hrs",
+            prefix
+              ? /HRS home screen with a hotel photo/
+              : /HRSのトップ画面。ホテルの写真/,
+          ],
+          [
+            "wasa-chat",
+            prefix
+              ? /A human-powered aircraft with long wings/
+              : /滑走路の上を進む長い翼の人力飛行機/,
+          ],
+        ] as const) {
+          await page.goto(`${prefix}/projects/${slug}`)
+          const trigger = page.locator(".project-hero .image-viewer-trigger")
+          await expect(trigger).toHaveAccessibleName(description)
+          await trigger.focus()
+          await page.keyboard.press("Enter")
+          const dialog = page.locator("image-viewer dialog")
+          await expect(dialog).toBeVisible()
+          await expect(dialog.locator("[data-caption]")).toHaveText(description)
+          await expect(dialog.locator(".viewer-image")).toHaveAttribute(
+            "alt",
+            description,
+          )
+          if (slug === "kei-agent") {
+            await page.screenshot({
+              path: testInfo.outputPath(
+                `project-image-${prefix ? "en" : "ja"}.png`,
+              ),
+            })
+          }
+          await page.keyboard.press("Escape")
+          await expect(dialog).not.toBeVisible()
+          await expect(trigger).toBeFocused()
+        }
+      }
     })
 
     test("missing routes retain their language", async ({ page }) => {

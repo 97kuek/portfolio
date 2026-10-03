@@ -1,6 +1,7 @@
 ---
 title: "Kei Agent"
 image: "../../assets/photos/dots-architecture.webp"
+imageAlt: "Slackまたは音声通話からDotに依頼し、プラグイン・Codex Cloud・MacのCodexで処理した結果をSlackに集約して、自分が確認・判断する流れ。"
 description: "OpenAI DotsとMac上の実行サービスをMCPで接続するパーソナルアシスタント。Python・A2Aによる担当プロセス、非同期実行、権限制御、外部サービスとの同期を実装。"
 fromDate: "2026-09"
 code: "https://github.com/97kuek/kei-agent"
