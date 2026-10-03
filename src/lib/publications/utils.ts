@@ -1,7 +1,6 @@
 /**
  * Publication processing utilities for BibTeX parsing and citation formatting
  */
-// @ts-ignore - citation-js doesn't have types
 import pkg from "@citation-js/core"
 
 import "@citation-js/plugin-bibtex"
@@ -18,16 +17,15 @@ import {
   VENUE_URL_PATTERNS,
 } from "./data"
 
-// @ts-ignore - citation-js doesn't have types
 const { Cite, plugins } = pkg
 
 // Types for citation-js
 interface CitationEntry {
-  id?: string
+  id?: string | number
   label?: string
   title?: string
   author?: Array<string | { given?: string; family?: string }>
-  issued?: { "date-parts"?: number[][] }
+  issued?: { "date-parts"?: Array<Array<string | number>> }
   year?: number
   "container-title"?: string
   journal?: string
@@ -249,12 +247,17 @@ export function parseBibTeX(bibContent: string): Publication[] {
       // Build publication object with core fields + all custom fields
       const entryType = extractEntryType(entry)
       const month = entry.issued?.["date-parts"]?.[0]?.[1]
+      const year =
+        entry.issued?.["date-parts"]?.[0]?.[0] ??
+        entry.year ??
+        customFields.year
 
       const publication: any = {
-        id:
-          entry.id ||
-          entry.label ||
-          `pub-${Math.random().toString(36).substring(2, 11)}`,
+        id: String(
+          entry.id ??
+            entry.label ??
+            `pub-${Math.random().toString(36).substring(2, 11)}`,
+        ),
         title: entry.title || customFields.title || "",
         bibtex: formatBibTeX(entry),
         authors: entry.author
@@ -264,11 +267,8 @@ export function parseBibTeX(bibContent: string): Publication[] {
                 : `${author.given || ""} ${author.family || ""}`.trim(),
             )
           : [],
-        year:
-          entry.issued?.["date-parts"]?.[0]?.[0] ||
-          entry.year ||
-          (customFields.year ? parseInt(customFields.year, 10) : undefined),
-        month,
+        year: year === undefined ? undefined : Number(year),
+        month: month === undefined ? undefined : Number(month),
         entryType,
         // Standard BibTeX fields
         journal:
