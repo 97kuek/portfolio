@@ -9,6 +9,8 @@ pnpm install
 pnpm dev
 ```
 
+For cloud workspaces, follow the [cloud development workflow](DEVELOPMENT.md#cloud-development).
+
 ## Validation
 
 ```bash
