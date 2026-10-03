@@ -123,6 +123,9 @@ wrangler d1 execute portfolio-interactions --remote --file=migrations/<file>.sql
 
 ## 実装の方針
 
+- クラウドでは [開発手順](DEVELOPMENT.md#cloud-development) に従い、専用ブランチで実装・検証・コミット・push・draft PR 作成まで進める
+- マージ・自動マージの有効化・本番反映は利用者の明示的な指示を待つ。`main` へ直接pushしない
+- ブランチpushやPR作成でもデプロイされる設定なら、その操作を止めて制約を報告する
 - クライアントJSやUIフレームワークより先に、Astro・セマンティックHTML・素のCSSを検討する
 - 色・タイポグラフィ・余白・シェイプ・モーション・カード・ボタンの既存プリミティブを再利用する
 - コンポーネントと関数は単一の目的に保つ
