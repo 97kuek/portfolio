@@ -95,6 +95,7 @@ const projects = defineCollection({
         ...localeFields,
         title: z.string().max(75),
         image: image().optional(),
+        imageAlt: z.string().trim().min(1).optional(),
         selected: z.boolean().default(false),
         fromDate: yearMonthDateSchema.optional(),
         toDate: yearMonthDateSchema.optional(),
@@ -110,6 +111,10 @@ const projects = defineCollection({
           .default([])
           .transform((arr) => dedupPreserveCase(arr)),
         description: z.string().max(200).optional(),
+      })
+      .refine((data) => !data.image || !!data.imageAlt, {
+        error: "Project images need a description for the image viewer",
+        path: ["imageAlt"],
       })
       .refine(
         (data) =>

@@ -44,6 +44,8 @@ release: "https://github.com/username/synthetic-control/releases/tag/v1.0.0"
 | Key | Type | Required? | Description | Notes |
 | --- | --- | --- | --- | --- |
 | `title` | String | ✅ | The title of the project |  |
+| `image` | Image path | ❌ | Cover image relative to the Markdown file | Requires `imageAlt` |
+| `imageAlt` | String | When `image` is set | Describe the actual image in the page language | Used in the detail page and image viewer; listing thumbnails remain decorative |
 | `description` | String | ❌ | Brief project description (max 100 characters) | Used in project cards; falls back to content |
 | `fromDate` | Date | ❌ | Start date of the project | YYYY-MM or YYYY-MM-DD format |
 | `toDate` | Date | ❌ | End date of the project | YYYY-MM or YYYY-MM-DD format. Must be ≥ fromDate |

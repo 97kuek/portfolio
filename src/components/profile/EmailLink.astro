@@ -62,4 +62,8 @@ const ui = getUIStrings(Astro.url.pathname)
     color: var(--accent);
     outline-color: var(--ring);
   }
+
+  .email-link :global(.email-copy:focus-visible) {
+    outline-color: var(--accent);
+  }
 </style>

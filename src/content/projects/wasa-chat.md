@@ -1,6 +1,7 @@
 ---
 title: "WASA Chat"
 image: "../../assets/photos/wasa-test-flight.jpg"
+imageAlt: "滑走路の上を進む長い翼の人力飛行機と、その周囲を走る人たち。"
 description: "部内Wikiと公開資料を横断して質問できる、出典付きのRAGチャットボット。Cloudflare PagesとCloud Runで運用しています。"
 fromDate: "2026-08"
 code: "https://github.com/97kuek/wasa-chat"
