@@ -17,7 +17,7 @@ import Reactions from "@/components/interactions/Reactions.astro"
 import TOCHeader from "@/components/toc/TOCHeader.astro"
 import { PostManager } from "@/lib/blog"
 import { getRelatedPosts, withMetadata } from "@/lib/blog/listing"
-import { getStageVariant } from "@/lib/blog/stage"
+import { getStageVariant, getStageLabel } from "@/lib/blog/stage"
 import { taxonomyPath } from "@/lib/blog/taxonomy"
 import type { Post } from "@/lib/blog/types"
 import {
@@ -98,7 +98,7 @@ const olderPost =
                   href={taxonomyPath("stage", post.data.stage, locale)}
                 >
                   <Icon name={post.data.stage} />
-                  {post.data.stage}
+                  {getStageLabel(post.data.stage, locale)}
                 </Badge>
               )}
             {post.data.tags.map((tag) => (
@@ -113,7 +113,7 @@ const olderPost =
       <PostMetadata {...metadata} variant="full" class="post-meta" />
     </header>
 
-    <div class="post-cover">
+    {post.data.image && <div class="post-cover">
       <CoverImage
         image={post.data.image}
         seed={getContentSlug(post.id, post.data)}
@@ -121,24 +121,26 @@ const olderPost =
         sizes={COVER_SIZES}
         loading="eager"
       />
-    </div>
+    </div>}
 
     <prose-content>
       <Content />
     </prose-content>
 
-    <Reactions target={target} />
+    <div data-pagefind-ignore><Reactions target={target} /></div>
 
-    <ShareActions
-      title={post.data.title}
-      url={new URL(Astro.url.pathname, Astro.site ?? Astro.url).href}
-      authors={metadata.authors}
-      class="post-share"
-    />
+    <div data-pagefind-ignore>
+      <ShareActions
+        title={post.data.title}
+        url={new URL(Astro.url.pathname, Astro.site ?? Astro.url).href}
+        authors={metadata.authors}
+        class="post-share"
+      />
+    </div>
   </article>
 
   {relatedPosts.length > 0 && (
-      <section class="related-posts">
+      <section class="related-posts" data-pagefind-ignore>
         <h2>{ui.relatedPosts}</h2>
         <ul class="content-list">
           {relatedPosts.map(({ post: related, meta }) => (
@@ -154,9 +156,11 @@ const olderPost =
       </section>
     )}
 
-  <Comments target={target} />
+  <div data-pagefind-ignore><Comments target={target} /></div>
 
-  <PostNavigation olderPost={olderPost} newerPost={newerPost} />
+  <div data-pagefind-ignore>
+    <PostNavigation olderPost={olderPost} newerPost={newerPost} />
+  </div>
 </Layout>
 
 <style>

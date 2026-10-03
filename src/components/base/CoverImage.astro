@@ -90,7 +90,7 @@ const ridge = [
   `L${WIDTH} ${HEIGHT} L0 ${HEIGHT} Z`,
 ].join(" ")
 
-const gradientId = `cover-sky-${seedHash.toString(36)}`
+const gradientId = `cover-sky-${crypto.randomUUID()}`
 ---
 
 {image ? (

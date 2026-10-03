@@ -1,0 +1,254 @@
+---
+import { getUIStrings } from "@/lib/ui-strings"
+const ui = getUIStrings(Astro.url.pathname)
+---
+
+<image-viewer
+  data-open-label={ui.openImage}
+  data-zoom-label={ui.zoomImage}
+  data-fit-label={ui.fitImage}
+  data-error-label={ui.imageLoadFailed}
+>
+  <dialog aria-label={ui.imageViewer}>
+    <div class="viewer-toolbar">
+      <button type="button" data-zoom aria-pressed="false">
+        {ui.zoomImage}
+      </button>
+      <a data-original target="_blank" rel="noopener noreferrer"
+        >{ui.originalImage}</a
+      >
+      <button type="button" data-close autofocus>{ui.closeImage}</button>
+    </div>
+    <p class="viewer-caption" data-caption></p>
+    <p role="status" data-status hidden></p>
+    <div class="viewer-viewport" tabindex="0" aria-label={ui.imageArea}>
+      <img class="viewer-image" alt="">
+    </div>
+  </dialog>
+</image-viewer>
+
+<script>
+  class ImageViewer extends HTMLElement {
+    private controller?: AbortController
+
+    connectedCallback() {
+      this.controller?.abort()
+      this.controller = new AbortController()
+      const { signal } = this.controller
+      const dialog = this.querySelector("dialog")!
+      const image = this.querySelector<HTMLImageElement>(".viewer-image")!
+      const viewport = this.querySelector<HTMLElement>(".viewer-viewport")!
+      const caption = this.querySelector<HTMLElement>("[data-caption]")!
+      const status = this.querySelector<HTMLElement>("[data-status]")!
+      const original = this.querySelector<HTMLAnchorElement>("[data-original]")!
+      const zoom = this.querySelector<HTMLButtonElement>("[data-zoom]")!
+      let trigger: HTMLAnchorElement | null = null
+
+      const setExpanded = (expanded: boolean) => {
+        dialog.toggleAttribute("data-expanded", expanded)
+        zoom.setAttribute("aria-pressed", String(expanded))
+        zoom.textContent = expanded
+          ? this.dataset.fitLabel!
+          : this.dataset.zoomLabel!
+        viewport.scrollTo(0, 0)
+      }
+
+      for (const source of document.querySelectorAll<HTMLImageElement>(
+        "prose-content figure img, .project-hero img",
+      )) {
+        if (source.closest("a")) continue
+        const candidates = source.srcset
+          .split(",")
+          .map((candidate) => {
+            const [url, descriptor] = candidate.trim().split(/\s+/)
+            return { url, size: Number.parseFloat(descriptor) || 0 }
+          })
+          .filter((candidate) => candidate.url)
+        candidates.sort((a, b) => b.size - a.size)
+        const href = candidates[0]?.url || source.src
+        const text =
+          source
+            .closest("figure")
+            ?.querySelector("figcaption")
+            ?.textContent?.trim() ||
+          source.alt ||
+          this.dataset.openLabel!
+        const link = document.createElement("a")
+        link.href = href
+        link.className = "image-viewer-trigger"
+        link.setAttribute("aria-label", `${this.dataset.openLabel}: ${text}`)
+        link.setAttribute("aria-haspopup", "dialog")
+        source.replaceWith(link)
+        link.append(source)
+        link.addEventListener(
+          "click",
+          (event) => {
+            if (
+              event.ctrlKey ||
+              event.metaKey ||
+              event.shiftKey ||
+              event.altKey
+            )
+              return
+            event.preventDefault()
+            trigger = link
+            status.hidden = true
+            caption.textContent = text
+            image.alt = text
+            image.src = href
+            original.href = href
+            setExpanded(false)
+            dialog.showModal()
+          },
+          { signal },
+        )
+      }
+
+      dialog.addEventListener(
+        "keydown",
+        (event) => {
+          if (event.key !== "Tab") return
+          const controls = [
+            ...dialog.querySelectorAll<HTMLElement>(
+              "button, a[href], [tabindex='0']",
+            ),
+          ]
+          const first = controls[0]
+          const last = controls.at(-1)
+          if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault()
+            last?.focus()
+          } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault()
+            first?.focus()
+          }
+        },
+        { signal },
+      )
+
+      image.addEventListener(
+        "error",
+        () => {
+          status.textContent = this.dataset.errorLabel!
+          status.hidden = false
+        },
+        { signal },
+      )
+      zoom.addEventListener(
+        "click",
+        () => setExpanded(!dialog.hasAttribute("data-expanded")),
+        { signal },
+      )
+      this.querySelector("[data-close]")!.addEventListener(
+        "click",
+        () => dialog.close(),
+        { signal },
+      )
+      dialog.addEventListener(
+        "click",
+        (event) => {
+          if (event.target !== dialog) return
+          const bounds = dialog.getBoundingClientRect()
+          if (
+            event.clientX < bounds.left ||
+            event.clientX > bounds.right ||
+            event.clientY < bounds.top ||
+            event.clientY > bounds.bottom
+          )
+            dialog.close()
+        },
+        { signal },
+      )
+      dialog.addEventListener(
+        "close",
+        () => trigger?.focus({ preventScroll: true }),
+        { signal },
+      )
+    }
+
+    disconnectedCallback() {
+      this.querySelector("dialog")?.close()
+      this.controller?.abort()
+    }
+  }
+  if (!customElements.get("image-viewer"))
+    customElements.define("image-viewer", ImageViewer)
+</script>
+
+<style>
+  dialog {
+    inline-size: min(96vw, 90rem);
+    max-inline-size: calc(100vw - var(--space-s));
+    block-size: 90dvh;
+    max-block-size: calc(100dvh - var(--space-s));
+    margin: auto;
+    padding: var(--space-s);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--background);
+    color: var(--foreground);
+    overflow: hidden;
+  }
+  dialog[open] {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+  dialog::backdrop {
+    background: light-dark(rgb(255 255 255 / 85%), rgb(0 0 0 / 85%));
+  }
+  .viewer-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+  }
+  .viewer-toolbar :is(button, a) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-block-size: var(--control-size);
+    padding-inline: var(--space-xs);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--background);
+    color: var(--foreground);
+    font: inherit;
+    font-size: var(--step--1);
+    cursor: pointer;
+  }
+  .viewer-toolbar :is(button, a):hover {
+    border-color: var(--accent);
+  }
+  .viewer-caption {
+    font-size: var(--step--1);
+    max-block-size: 5em;
+    overflow: auto;
+    margin: 0;
+  }
+  .viewer-viewport {
+    overflow: auto;
+    overscroll-behavior: contain;
+    min-block-size: 0;
+    flex: 1;
+  }
+  .viewer-image {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: contain;
+  }
+  dialog[data-expanded] .viewer-image {
+    inline-size: auto;
+    block-size: auto;
+    max-inline-size: none;
+    max-block-size: none;
+    margin-inline: auto;
+  }
+  :global(.image-viewer-trigger) {
+    display: block;
+    cursor: zoom-in;
+  }
+  :global(body:has(image-viewer dialog[open])) {
+    overflow: hidden;
+  }
+</style>

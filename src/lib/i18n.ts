@@ -27,7 +27,8 @@ export const localizedPath = (href: string, locale: SiteLocale) => {
 export const stripLocalePrefix = (pathname: string) =>
   pathname.replace(/^\/en(?=\/|$)/, "") || "/"
 
-const normalizePath = (pathname: string): string => {
+/** One spelling per route, so a set of paths can be compared by equality. */
+export const normalizePath = (pathname: string): string => {
   if (pathname === "/") return pathname
   return pathname.replace(/\/+$/, "") || "/"
 }

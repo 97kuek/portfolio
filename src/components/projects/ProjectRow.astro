@@ -5,6 +5,7 @@ import CoverImage from "@/components/base/CoverImage.astro"
 import Icon from "@/components/base/Icon.astro"
 import Link from "@/components/base/Link.astro"
 import { getContentHref, getContentSlug } from "@/lib/content-locale"
+import { getSiteLocale } from "@/lib/i18n"
 import { CONTENT_THUMB_SIZES } from "@/lib/layout"
 import { getProjectLinks } from "@/lib/projects"
 import { slugify } from "@/lib/string-manipulation"
@@ -21,7 +22,14 @@ const { title, selected, image, code, doc, paper, url, release, skills } =
   project.data
 
 const ui = getUIStrings(Astro.url.pathname)
-const links = getProjectLinks(code, doc, paper, url, release)
+const links = getProjectLinks(
+  code,
+  doc,
+  paper,
+  url,
+  release,
+  getSiteLocale(Astro.url.pathname),
+)
 
 // The detail page is the richer destination when it exists; otherwise send
 // people straight to the thing itself, preferring the live URL over a repo.
@@ -37,11 +45,21 @@ const titleHref = hasDetailPage
   data-project-skills={skills.map((skill) => slugify(skill)).join(",")}
 >
   <div class="content-row-thumb">
-    <CoverImage
-      image={image}
-      seed={getContentSlug(project.id, project.data)}
-      sizes={CONTENT_THUMB_SIZES}
-    />
+    {titleHref ? (
+      <Link href={titleHref} class="content-row-thumb-link" aria-label={title}>
+        <CoverImage
+          image={image}
+          seed={getContentSlug(project.id, project.data)}
+          sizes={CONTENT_THUMB_SIZES}
+        />
+      </Link>
+    ) : (
+      <CoverImage
+        image={image}
+        seed={getContentSlug(project.id, project.data)}
+        sizes={CONTENT_THUMB_SIZES}
+      />
+    )}
   </div>
 
   <div class="content-row-body">

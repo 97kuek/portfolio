@@ -21,4 +21,6 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm audit
+      # `pnpm audit` is the built-in command and ignores the thresholds; the
+      # script name has to be spelled out for `--prod --audit-level high`.
+      - run: pnpm run audit

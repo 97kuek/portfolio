@@ -1,7 +1,9 @@
 ---
+import { getUIStrings } from "@/lib/ui-strings"
 import Link from "@/components/base/Link.astro"
 
 interface Props {
+  id?: string
   title: string
   class?: string
   spacing?: "default" | "none"
@@ -10,17 +12,22 @@ interface Props {
 }
 
 const {
+  id,
   class: className,
   title,
   spacing = "default",
   moreLink,
-  moreText = "see all →",
+  moreText = getUIStrings(Astro.url.pathname).seeAll,
 } = Astro.props
 ---
 
-<section class:list={["section-block", className]} data-spacing={spacing}>
+<section
+  id={id}
+  class:list={["section-block", className]}
+  data-spacing={spacing}
+>
   <section-heading>
-    <h2 id={title.toLowerCase()}>{title}</h2>
+    <h2 id={id ? `${id}-heading` : title.toLowerCase()}>{title}</h2>
     {moreLink && (
         <Link href={moreLink} underline class="section-more">
           {moreText}

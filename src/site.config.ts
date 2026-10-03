@@ -1,3 +1,4 @@
+import type { SiteLocale } from "@/lib/i18n"
 import type {
   FooterConfig,
   LinkConfig,
@@ -53,6 +54,11 @@ export const SITE: SiteConfig = {
     href: "https://creativecommons.org/licenses/by/4.0/",
   },
 }
+
+export const getSiteDescription = (locale: SiteLocale): string =>
+  locale === "en"
+    ? "Portfolio of Keitaro Ueki, an AI engineer studying communications and computer engineering at Waseda University."
+    : SITE.description
 
 export const PROFILE: ProfileConfig = {
   name: SITE.title,

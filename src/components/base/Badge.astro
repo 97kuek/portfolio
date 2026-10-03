@@ -40,7 +40,8 @@ const { variant = "default", href, class: className, ...rest } = Astro.props
     inline-size: fit-content;
     max-inline-size: 100%;
     min-block-size: var(--pill-block-size);
-    flex-shrink: 0;
+    flex-shrink: 1;
+    min-inline-size: 0;
     padding-inline: var(--pill-padding-inline);
     border: 1px solid transparent;
     border-radius: var(--pill-radius);
@@ -48,9 +49,8 @@ const { variant = "default", href, class: className, ...rest } = Astro.props
     line-height: 1.25;
     font-weight: var(--font-weight-medium);
     text-decoration: none;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    overflow-wrap: anywhere;
     transition:
       background-color var(--motion-duration) var(--motion-ease),
       border-color var(--motion-duration) var(--motion-ease),

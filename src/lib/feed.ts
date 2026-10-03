@@ -1,7 +1,7 @@
 import rss from "@astrojs/rss"
 import type { APIContext } from "astro"
 
-import { SITE } from "@site-config"
+import { getSiteDescription } from "@site-config"
 import { getDisplayName } from "@/components/profile/helper"
 import { PostManager } from "@/lib/blog"
 import { getContentHref, isContentInLocale } from "@/lib/content-locale"
@@ -18,10 +18,7 @@ export const buildFeed = async (context: APIContext, locale: SiteLocale) => {
 
   return rss({
     title: getDisplayName(locale),
-    description:
-      locale === "en"
-        ? SITE.description
-        : "早稲田大学で情報通信を学ぶAIエンジニア、植木敬太郎のポートフォリオ。",
+    description: getSiteDescription(locale),
     site: context.site!,
     items: posts.map((post) => ({
       title: post.data.title,

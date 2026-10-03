@@ -72,8 +72,10 @@ export class UnifiedTOCController {
       const nextHeading = this.headings[index + 1]
       return {
         id: heading.id,
-        start: heading.offsetTop,
-        end: nextHeading ? nextHeading.offsetTop : document.body.scrollHeight,
+        start: heading.getBoundingClientRect().top + window.scrollY,
+        end: nextHeading
+          ? nextHeading.getBoundingClientRect().top + window.scrollY
+          : document.documentElement.scrollHeight,
       }
     })
 

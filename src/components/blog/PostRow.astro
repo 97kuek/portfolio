@@ -5,7 +5,7 @@ import Icon from "@/components/base/Icon.astro"
 import Link from "@/components/base/Link.astro"
 import TaxonomyChip from "@/components/base/TaxonomyChip.astro"
 import PostMetadata from "@/components/blog/PostMetadata.astro"
-import { getStageVariant } from "@/lib/blog/stage"
+import { getStageVariant, getStageLabel } from "@/lib/blog/stage"
 import { taxonomyPath } from "@/lib/blog/taxonomy"
 import type { PostMeta } from "@/lib/blog/types"
 import { getContentHref, getContentSlug } from "@/lib/content-locale"
@@ -48,7 +48,7 @@ const tags = metadata.tags ?? []
                     href={taxonomyPath("stage", metadata.stage, locale)}
                   >
                     <Icon name={metadata.stage} />
-                    {metadata.stage}
+                    {getStageLabel(metadata.stage, locale)}
                   </Badge>
                 </li>
               )}

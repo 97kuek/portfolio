@@ -96,3 +96,14 @@ prose-content figcaption {
   line-height: calc(var(--leading-offset) + 1em);
   text-wrap: pretty;
 }
+
+prose-content .video-embed iframe {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  min-block-size: 200px;
+  aspect-ratio: var(--aspect-video);
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: var(--muted);
+}

@@ -2,7 +2,7 @@
 import CommonLayout from "@/layouts/CommonLayout.astro"
 import FormattedDate from "@/components/base/FormattedDate.astro"
 import PostRow from "@/components/blog/PostRow.astro"
-import { getStageConfig } from "@/lib/blog/stage"
+import { getStageConfig, getStageLabel } from "@/lib/blog/stage"
 import type { TaxonomyKind } from "@/lib/blog/taxonomy"
 import { withMetadata } from "@/lib/blog/listing"
 import { getPostsByTaxonomy } from "@/lib/blog/taxonomy"
@@ -25,8 +25,18 @@ const entries = await withMetadata(
 )
 
 const isTag = kind === "tag"
-const heading = isTag ? `#${value}` : value
-const stageDescription = isTag ? undefined : getStageConfig(value)?.description
+const heading = isTag ? `#${value}` : getStageLabel(value, locale)
+const stageDescriptionsJa: Record<string, string> = {
+  seedling:
+    "考え始めたアイデアやメモ。まだ整理の途中ですが、これから掘り下げたい考えを記録しています。",
+  budding: "アイデアを掘り下げ、構成や説明を整えている記事です。",
+  evergreen: "時間をかけて見直し、内容を整理した記事です。",
+}
+const stageDescription = isTag
+  ? undefined
+  : isEnglish
+    ? getStageConfig(value)?.description
+    : stageDescriptionsJa[value]
 const description =
   stageDescription ??
   (isEnglish

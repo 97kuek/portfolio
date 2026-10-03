@@ -40,7 +40,6 @@ const authorHref = `${localizedPath("/", locale)}#profile`
 ---
 
 <div
-  id="post-metadata"
   class:list={[
     "post-metadata",
     isCard ? "meta-card" : "meta-full",
@@ -147,7 +146,7 @@ const authorHref = `${localizedPath("/", locale)}#profile`
     color: var(--foreground);
   }
 
-  #post-metadata > *:not(:first-child)::before {
+  .post-metadata > *:not(:first-child)::before {
     content: none;
   }
 
@@ -156,7 +155,7 @@ const authorHref = `${localizedPath("/", locale)}#profile`
       flex-direction: row;
     }
 
-    #post-metadata:not(.meta-card) > *:not(:first-child)::before {
+    .post-metadata:not(.meta-card) > *:not(:first-child)::before {
       content: "•";
       margin-inline: 0.25rem;
       display: inline-block;
