@@ -1,0 +1,26 @@
+prose-content [data-toggle] {
+  --toggle-indent: 1.375em;
+
+  padding-inline-start: var(--toggle-indent);
+
+  > summary {
+    display: flex;
+    align-items: baseline;
+    gap: 0.375em;
+    margin-inline-start: calc(var(--toggle-indent) * -1);
+    inline-size: fit-content;
+
+    &:hover [data-disclosure-chevron] {
+      color: var(--foreground);
+    }
+  }
+
+  [data-disclosure-chevron] {
+    align-self: center;
+    inline-size: 1em;
+  }
+
+  > :last-child {
+    margin-block-end: 0;
+  }
+}

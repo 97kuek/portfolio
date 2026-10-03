@@ -12,6 +12,7 @@ import { headingNamespace } from "./src/lib/heading-namespace"
 import { headingAnchors } from "./src/lib/heading-anchors"
 import { imageFigures } from "./src/plugins/satteri-image-figures"
 import { youtubeEmbed } from "./src/plugins/satteri-youtube"
+import { toggleDirective } from "./src/plugins/satteri-toggle"
 import { satteriSidenotes } from "./src/plugins/satteri-sidenotes"
 import { collapseCjkLineBreaks } from "./src/plugins/satteri-cjk-line-breaks"
 import { normalizeHeadings } from "./src/plugins/satteri-normalize-headings"
@@ -62,6 +63,7 @@ export default defineConfig({
         collapseCjkLineBreaks,
         normalizeHeadings,
         calloutDirective,
+        toggleDirective,
         youtubeEmbed,
         inlineExpressiveCode,
         temmlMath,

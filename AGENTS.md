@@ -46,6 +46,10 @@
 - Sätteriパイプラインで使えるもの
   - GFM、ディレクティブとcallout、Temmlによる数式、wikilink
   - コードハイライト、見出しアンカー、外部リンク、サイドノート
+- 折りたたみは `:::toggle[見出し]` … `:::`（`src/plugins/satteri-toggle.ts`）
+  - 既定で閉じる。`{open}` を付けると開いた状態で出る。見出しは必須
+  - 入れ子にするときは外側のコロンを増やす（`::::toggle`）
+  - 色付きの注釈枠が欲しいときはcallout（`:::note{closed}`）を使う
 - 画像は `src/assets/photos/` に置き、frontmatterから相対パスで参照する
   - コミット前に長辺2400px程度へ圧縮する
   - `image` を省いた場合は `CoverImage.astro` が星空のプレースホルダーを生成する

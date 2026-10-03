@@ -6,6 +6,7 @@ import { calloutDirective } from "../src/lib/callout.ts"
 import { collapseCjkLineBreaks } from "../src/plugins/satteri-cjk-line-breaks.ts"
 import { imageFigures } from "../src/plugins/satteri-image-figures.ts"
 import { youtubeEmbed } from "../src/plugins/satteri-youtube.ts"
+import { toggleDirective } from "../src/plugins/satteri-toggle.ts"
 import { externalLinks } from "../src/lib/external-links.ts"
 import { headingAnchors } from "../src/lib/heading-anchors.ts"
 import { headingNamespace } from "../src/lib/heading-namespace.ts"
@@ -187,4 +188,30 @@ void test("YouTube directives reject arbitrary URLs and missing titles", () => {
       /YouTube embeds require/,
     )
   }
+})
+
+void test("a toggle directive becomes a closed details with its label as summary", () => {
+  const { html } = markdownToHtml(
+    ":::toggle[実験の**詳細**ログ]\n- 一つ目\n- 二つ目\n:::",
+    { features: { directive: true }, mdastPlugins: [toggleDirective] },
+  )
+
+  assert.match(
+    html,
+    /^<details data-toggle="" data-disclosure="" data-disclosure-rotation="quarter"><summary>/,
+  )
+  assert.match(html, /<span data-disclosure-chevron=""><svg aria-hidden="true"/)
+  assert.match(html, /<span>実験の詳細ログ<\/span><\/summary>/)
+  assert.match(html, /<li>二つ目<\/li>/)
+})
+
+void test("a toggle opens with the open attribute and requires a summary", () => {
+  const options = {
+    features: { directive: true },
+    mdastPlugins: [toggleDirective],
+  }
+  const { html } = markdownToHtml(":::toggle[Open]{open}\nBody.\n:::", options)
+
+  assert.match(html, /data-disclosure-rotation="quarter" open>/)
+  assert.throws(() => markdownToHtml(":::toggle\nBody.\n:::", options))
 })

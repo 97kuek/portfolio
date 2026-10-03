@@ -142,6 +142,7 @@ Markdown behavior is configured in `astro.config.ts` through Sätteri plugins.
 Current features include:
 
 - Directive and Obsidian-style callouts from `src/lib/callout.ts`.
+- Plain collapsible toggles from `src/plugins/satteri-toggle.ts`.
 - Inline and display math from `src/lib/math.ts`.
 - Code highlighting from `src/lib/expressive-code/`.
 - External-link attributes from `src/lib/external-links.ts`.
@@ -164,6 +165,25 @@ or Obsidian-style callouts:
 > [!warning]- Collapsed warning
 > Callout body.
 ```
+
+### Toggles
+
+Use a toggle to fold away details that not every reader needs, such as logs,
+derivations, or long lists. It is a plain `<details>` without callout colors,
+closed by default:
+
+```md
+:::toggle[Summary shown when closed]
+Body. Lists, code, images, and math all work here.
+:::
+
+:::toggle[Open on load]{open}
+Body.
+:::
+```
+
+The summary in `[]` is required. To nest toggles, give the outer one more
+colons (`::::toggle[…]` … `::::`).
 
 ### YouTube videos
 
