@@ -66,6 +66,19 @@ jobs:
       - name: Link check
         run: pnpm test:links
 
+      - name: Install browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Browser regression tests
+        run: pnpm test:browser
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-report
+          path: playwright-report/
+
+
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:

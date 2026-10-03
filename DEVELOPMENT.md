@@ -199,3 +199,12 @@ docs.
   theme.
 - Add Iconify sets only when they replace many local one-off assets or unlock a
   coherent icon family.
+
+### Browser regression checks
+
+After `pnpm build`, run `pnpm exec playwright install chromium` and
+`pnpm test:browser`. The suite starts Cloudflare Pages locally and checks desktop,
+tablet, and two phone widths in both color schemes, including search, localized
+404 responses, and keyboard image viewing. CI runs the same checks before deployment.
+Use `PLAYWRIGHT_CHANNEL=chrome` to run an installed Chrome locally. Failure reports
+are saved in `playwright-report/`; screenshots and traces are in `test-results/`.

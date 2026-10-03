@@ -104,6 +104,7 @@ const projects = defineCollection({
         url: z.url().optional(),
         release: z.url().optional(),
         types: z.array(ProjectTypeSchema).default([]),
+        programmingLanguages: z.array(z.string().trim().min(1)).default([]),
         skills: z
           .array(z.string().trim().min(1))
           .default([])
@@ -131,6 +132,16 @@ const experience = defineCollection({
     startDate: yearMonthDateSchema,
     endDate: yearMonthDateSchema.optional(),
     location: z.string().optional(),
+    locationEn: z.string().optional(),
+    relatedLinks: z
+      .array(
+        z.object({
+          href: z.string().startsWith("/"),
+          label: z.string(),
+          labelEn: z.string(),
+        }),
+      )
+      .default([]),
     description: z.string().optional(),
     descriptionEn: z.string().optional(),
   }),

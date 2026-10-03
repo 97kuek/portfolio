@@ -49,6 +49,7 @@ const links = getProjectLinks(
   project.data.paper,
   project.data.url,
   project.data.release,
+  locale,
 )
 const target = interactionTarget(
   "projects",
@@ -67,7 +68,7 @@ const { older, newer } = await getProjectNavigation(project.id, (candidate) =>
   type="website"
   schemaType="SoftwareSourceCode"
   codeRepository={project.data.code}
-  programmingLanguages={skills}
+  programmingLanguages={project.data.programmingLanguages}
   searchable
   image={ogImagePath("projects", project.id)}
   breadcrumbs={[sectionCrumb("projects", locale), { label: title }]}
@@ -98,7 +99,7 @@ const { older, newer } = await getProjectNavigation(project.id, (candidate) =>
       )}
   </section>
 
-  <div class="project-hero">
+  {image && <div class="project-hero">
     <CoverImage
       image={image}
       seed={getContentSlug(project.id, project.data)}
@@ -106,7 +107,7 @@ const { older, newer } = await getProjectNavigation(project.id, (candidate) =>
       sizes={COVER_SIZES}
       loading="eager"
     />
-  </div>
+  </div>}
 
   <prose-content>
     <Content />
@@ -119,11 +120,13 @@ const { older, newer } = await getProjectNavigation(project.id, (candidate) =>
       </section>
     )}
 
-  <Reactions target={target} />
+  <div data-pagefind-ignore><Reactions target={target} /></div>
 
-  <Comments target={target} />
+  <div data-pagefind-ignore><Comments target={target} /></div>
 
-  <ProjectNavigation older={older} newer={newer} />
+  <div data-pagefind-ignore>
+    <ProjectNavigation older={older} newer={newer} />
+  </div>
 </CommonLayout>
 
 <style>
@@ -132,6 +135,14 @@ const { older, newer } = await getProjectNavigation(project.id, (candidate) =>
     aspect-ratio: var(--aspect-video);
     border-radius: var(--radius-lg);
     overflow: clip;
+  }
+
+  .project-hero :global(.cover) {
+    object-fit: contain;
+  }
+
+  .project-hero :global(.image-viewer-trigger) {
+    block-size: 100%;
   }
 
   /* The facts sit on their own line and the links on the next, so a project

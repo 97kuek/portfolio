@@ -8,6 +8,10 @@ url: "https://wasa-chat.pages.dev/"
 types:
   - "product"
   - "open-source"
+programmingLanguages:
+  - "Go"
+  - "Python"
+  - "TypeScript"
 skills:
   - "Go"
   - "Python"

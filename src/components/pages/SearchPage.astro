@@ -160,6 +160,7 @@ const ui = getUIStrings(locale)
     private results: HTMLOListElement | null = null
     private status: HTMLElement | null = null
     private timer: number | undefined
+    private requestId = 0
 
     connectedCallback() {
       this.input = this.querySelector("[data-input]")
@@ -168,6 +169,7 @@ const ui = getUIStrings(locale)
       if (!this.input) return
 
       this.input.addEventListener("input", () => {
+        this.requestId++
         window.clearTimeout(this.timer)
         this.timer = window.setTimeout(
           () => void this.run(this.input!.value),
@@ -176,6 +178,7 @@ const ui = getUIStrings(locale)
       })
       this.querySelector("[data-form]")?.addEventListener("submit", (event) => {
         event.preventDefault()
+        window.clearTimeout(this.timer)
         void this.run(this.input!.value)
       })
 
@@ -185,6 +188,11 @@ const ui = getUIStrings(locale)
         this.input.value = initial
         void this.run(initial)
       }
+    }
+
+    disconnectedCallback() {
+      this.requestId++
+      window.clearTimeout(this.timer)
     }
 
     /* The index is built after the site, so it does not exist during `astro
@@ -198,7 +206,10 @@ const ui = getUIStrings(locale)
             this.pagefind = module
             return module
           })
-          .catch(() => null)
+          .catch(() => {
+            this.loading = null
+            return null
+          })
       }
       return this.loading
     }
@@ -208,15 +219,17 @@ const ui = getUIStrings(locale)
     }
 
     private async run(rawQuery: string) {
+      const requestId = ++this.requestId
       const query = rawQuery.trim()
+      const isCurrent = () => this.isConnected && requestId === this.requestId
       const url = new URL(location.href)
       if (query) url.searchParams.set("q", query)
       else url.searchParams.delete("q")
       history.replaceState(null, "", url)
 
       if (!this.results) return
+      this.results.replaceChildren()
       if (!query) {
-        this.results.replaceChildren()
         this.setStatus("")
         return
       }
@@ -225,46 +238,52 @@ const ui = getUIStrings(locale)
          to look broken without a word. */
       this.setStatus(this.dataset.searching ?? "")
 
-      const pagefind = await this.load()
-      if (!pagefind) {
-        this.setStatus(this.dataset.error ?? "")
-        return
-      }
+      try {
+        const pagefind = await this.load()
+        if (!isCurrent()) return
+        if (!pagefind) {
+          this.setStatus(this.dataset.error ?? "")
+          return
+        }
 
-      const { results } = await pagefind.search(query)
-      const found = await Promise.all(
-        results.slice(0, MAX_RESULTS).map((result) => result.data()),
-      )
+        const { results } = await pagefind.search(query)
+        const found = await Promise.all(
+          results.slice(0, MAX_RESULTS).map((result) => result.data()),
+        )
 
-      this.results.replaceChildren()
-      if (found.length === 0) {
-        this.setStatus(this.dataset.empty ?? "")
-        return
-      }
+        if (!isCurrent()) return
+        this.results.replaceChildren()
+        if (found.length === 0) {
+          this.setStatus(this.dataset.empty ?? "")
+          return
+        }
 
-      this.setStatus(
-        (this.dataset.resultCount ?? "{count}").replace(
-          "{count}",
-          String(results.length),
-        ),
-      )
+        this.setStatus(
+          (this.dataset.resultCount ?? "{count}").replace(
+            "{count}",
+            String(results.length),
+          ),
+        )
 
-      for (const entry of found) {
-        const item = document.createElement("li")
-        item.className = "search-result"
+        for (const entry of found) {
+          const item = document.createElement("li")
+          item.className = "search-result"
 
-        const heading = document.createElement("h2")
-        const link = document.createElement("a")
-        link.href = entry.url
-        link.textContent = entry.meta.title ?? entry.url
-        heading.append(link)
+          const heading = document.createElement("h2")
+          const link = document.createElement("a")
+          link.href = entry.url
+          link.textContent = entry.meta.title ?? entry.url
+          heading.append(link)
 
-        // Pagefind's excerpt carries <mark> around the matched words.
-        const excerpt = document.createElement("p")
-        excerpt.innerHTML = entry.excerpt
+          // Pagefind's excerpt carries <mark> around the matched words.
+          const excerpt = document.createElement("p")
+          excerpt.innerHTML = entry.excerpt
 
-        item.append(heading, excerpt)
-        this.results.append(item)
+          item.append(heading, excerpt)
+          this.results.append(item)
+        }
+      } catch {
+        if (isCurrent()) this.setStatus(this.dataset.error ?? "")
       }
     }
   }

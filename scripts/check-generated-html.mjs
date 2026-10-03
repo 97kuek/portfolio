@@ -92,6 +92,16 @@ for (const file of htmlFiles) {
     `${relative}: medium-zoom must be self-hosted`,
   )
 
+  assert.doesNotMatch(
+    html,
+    /__VITE_PRELOAD__/,
+    `${relative}: unresolved script preload marker`,
+  )
+  const ids = [...html.matchAll(/<[^>]+\sid="([^"]+)"/g)].map(
+    (match) => match[1],
+  )
+  assert.equal(new Set(ids).size, ids.length, `${relative}: duplicate HTML IDs`)
+
   /* The page policy has to name every inline script by hash, and has to be
      parsed before the first one runs. A script left out would be blocked in
      the browser and nowhere else, so the failure has to surface here. */

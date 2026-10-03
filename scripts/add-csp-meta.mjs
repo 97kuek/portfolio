@@ -20,8 +20,7 @@ import { pathToFileURL } from "node:url"
  * only place where every script that will actually run is visible.
  *
  * Styles are deliberately absent. A hash in `style-src` makes `'unsafe-inline'`
- * inert, and medium-zoom injects a `<style>` element and animates through
- * inline `style` attributes, so styles stay with the header policy.
+ * inert, so styles stay with the shared header policy.
  */
 
 const SCRIPT_SOURCES = [

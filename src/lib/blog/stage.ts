@@ -1,3 +1,5 @@
+import type { SiteLocale } from "@/lib/i18n"
+import { getUIStrings } from "@/lib/ui-strings"
 import stagesData from "@/content/stages.json"
 
 import type { BadgeVariant } from "@/components/base/Badge.astro"
@@ -19,4 +21,9 @@ export function getStageConfig(name: string): StageConfig | undefined {
 
 export function getStageVariant(name: string): BadgeVariant {
   return stageMap.get(name)?.variant ?? "muted"
+}
+
+export function getStageLabel(name: string, locale: SiteLocale): string {
+  const labels = getUIStrings(locale).stageLabels
+  return labels[name as keyof typeof labels] ?? name
 }

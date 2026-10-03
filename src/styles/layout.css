@@ -53,17 +53,8 @@ html {
   scrollbar-gutter: stable;
   overflow-x: clip;
 
-  @media (width < 64rem) {
-    --bar-nav-height: calc(2rem + 2 * var(--space-2xs) + 2px);
-    --bar-toc-height: 0px;
-    scroll-padding-block-start: calc(
-      var(--bar-nav-height) +
-      var(--bar-toc-height) +
-      var(--space-2xs)
-    );
-
-    &:has(page-toc) {
-      --bar-toc-height: calc(1.5 * var(--step--1) + 2 * var(--space-2xs) + 2px);
-    }
-  }
+  scroll-padding-block-start: calc(
+    var(--header-height, 3.5rem) +
+    var(--space-xs)
+  );
 }

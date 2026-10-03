@@ -57,6 +57,7 @@ const displayName = getDisplayName(locale)
           <Link
             href={localizedPath(item.href, locale)}
             class:list={["nav-link", isActive && "nav-active"]}
+            aria-current={isActive ? "page" : undefined}
           >
             {navLabel(item.href, item.label, locale)}
           </Link>
@@ -90,6 +91,7 @@ const displayName = getDisplayName(locale)
 <style>
   .site-header {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-s);
@@ -102,9 +104,20 @@ const displayName = getDisplayName(locale)
 
   .site-brand {
     display: flex;
+    flex-shrink: 0;
     align-items: center;
     gap: var(--space-3xs);
     min-inline-size: 0;
+  }
+
+  @media (width < 40rem) {
+    .site-header {
+      --control-size: 44px;
+    }
+
+    .site-brand :global(.header-links) {
+      display: none;
+    }
   }
 
   .site-title {
@@ -143,6 +156,7 @@ const displayName = getDisplayName(locale)
 
   .site-actions {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: var(--space-3xs);
   }

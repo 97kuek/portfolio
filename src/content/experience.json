@@ -8,9 +8,10 @@
     "orgEn": "neoAI Inc.",
     "orgUrl": "https://neoai.jp/",
     "startDate": "2026-07",
-    "location": "Tokyo, Japan",
+    "location": "日本・東京",
     "description": "機械学習とLLMを使ったプロダクト開発に取り組んでいます。",
-    "descriptionEn": "Building products with machine learning and large language models."
+    "descriptionEn": "Building products with machine learning and large language models.",
+    "locationEn": "Tokyo, Japan"
   },
   {
     "id": "jigjp-sabera-internship",
@@ -23,7 +24,14 @@
     "startDate": "2026-08-17",
     "endDate": "2026-08-29",
     "description": "スマートグラス「SABERA」向けのアプリを、チーム開発で企画から実装まで担当しました。",
-    "descriptionEn": "Took an app for the SABERA smart glasses from concept to implementation as part of a team."
+    "descriptionEn": "Took an app for the SABERA smart glasses from concept to implementation as part of a team.",
+    "relatedLinks": [
+      {
+        "href": "/blog/jigjp-sabera-internship",
+        "label": "SABERAの開発記事を読む",
+        "labelEn": "Read about the SABERA project"
+      }
+    ]
   },
   {
     "id": "waseda-cce-b3",
@@ -34,9 +42,10 @@
     "orgEn": "Department of Communications and Computer Engineering, Waseda University",
     "orgUrl": "https://www.waseda.jp/fsci/",
     "startDate": "2024-04",
-    "location": "Tokyo, Japan",
+    "location": "日本・東京",
     "description": "情報通信とコンピュータ工学を学びながら、AI・機械学習とソフトウェア開発に取り組んでいます。",
-    "descriptionEn": "Studying communications and computer engineering with a focus on AI, machine learning, and software development."
+    "descriptionEn": "Studying communications and computer engineering with a focus on AI, machine learning, and software development.",
+    "locationEn": "Tokyo, Japan"
   },
   {
     "id": "toin-gakuen-ses",
@@ -48,6 +57,7 @@
     "orgUrl": "https://toin.ac.jp/ses/",
     "startDate": "2018-04",
     "endDate": "2024-03",
-    "location": "Kanagawa, Japan"
+    "location": "日本・神奈川",
+    "locationEn": "Kanagawa, Japan"
   }
 ]

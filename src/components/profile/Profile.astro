@@ -14,19 +14,22 @@ import { getDisplayName, getProfileLinkPlacement } from "./helper"
 import { Content as AboutContent } from "@/content/about.md"
 import { Content as AboutEnglishContent } from "@/content/about-en.md"
 import { getSiteLocale } from "@/lib/i18n"
+import { getUIStrings } from "@/lib/ui-strings"
 import { PROFILE_AVATAR_WIDTH } from "@/lib/layout"
 
 import "@/styles/callout.css"
 
 interface Props {
   profile: ProfileConfig
+  continueHref?: string
 }
 
-const { profile } = Astro.props
+const { profile, continueHref } = Astro.props
 
 const aboutLinks = getProfileLinkPlacement("about")
 const locale = getSiteLocale(Astro.url.pathname)
 const isEnglish = locale === "en"
+const ui = getUIStrings(locale)
 const displayName = getDisplayName(locale)
 const tagline = isEnglish
   ? profile.tagline
@@ -92,35 +95,45 @@ const tagline = isEnglish
         <ProfileLinks keys={aboutLinks} />
       </footer>
     )}
+  {continueHref && (
+    <a class="profile-continue" href={continueHref}>
+      {ui.viewProjects}
+      <Icon name="mingcute:arrow-down-line" aria-hidden="true" />
+    </a>
+  )}
 </div>
 
 <style>
-  /* The portrait, the name, the paragraph and the links are one introduction,
-     not four things that happen to follow each other. Holding them in one box
-     lets the page's rhythm space the introduction from what comes after it,
-     while the parts inside sit at conversational distance. */
   .profile-block {
-    display: grid;
-    gap: var(--space-xs);
-    margin-block-start: var(--space-2xs);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--space-m);
+    min-block-size: calc(100svh - var(--header-height, 3rem) - var(--space-s));
+    padding-block-end: var(--space-s);
   }
 
   .profile-header {
     display: flex;
+    min-inline-size: 0;
     flex-direction: column;
     align-items: center;
     gap: var(--space-xs);
   }
 
   :global(.profile-avatar) {
-    inline-size: 6rem;
-    block-size: 6rem;
+    inline-size: clamp(11rem, 29svh, 15rem);
+    block-size: auto;
+    aspect-ratio: 1;
+    max-inline-size: 100%;
     align-self: center;
   }
 
   .profile-content {
-    flex: 1;
     display: grid;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    text-align: center;
     gap: var(--space-2xs);
   }
 
@@ -129,6 +142,7 @@ const tagline = isEnglish
      this row changes height when it opens and the items can sit centred. */
   .profile-meta {
     display: flex;
+    justify-content: center;
     flex-wrap: wrap;
     align-items: center;
     gap: var(--space-2xs) var(--space-s);
@@ -143,6 +157,7 @@ const tagline = isEnglish
 
   .profile-heading h1 {
     display: flex;
+    justify-content: center;
     flex-wrap: wrap;
     align-items: center;
     gap: var(--space-2xs);
@@ -162,6 +177,7 @@ const tagline = isEnglish
 
   .profile-footer {
     display: flex;
+    justify-content: center;
     flex-wrap: wrap;
     align-items: center;
     gap: var(--space-2xs) var(--space-s);
@@ -181,7 +197,41 @@ const tagline = isEnglish
     block-size: 1rem;
   }
 
+  .profile-continue {
+    display: inline-flex;
+    align-self: center;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2xs);
+    min-block-size: var(--control-size);
+    color: var(--foreground);
+    font-size: var(--step--1);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  @media (width < 40rem) and (height < 40rem) {
+    .profile-block {
+      gap: var(--space-3xs);
+    }
+
+    .profile-header {
+      gap: var(--space-3xs);
+    }
+
+    :global(.profile-avatar) {
+      inline-size: 10rem;
+    }
+
+    prose-content {
+      line-height: 1.5;
+    }
+  }
+
   @media (width >= 40rem) {
+    .profile-continue {
+      display: none;
+    }
     /* Side by side, the name block reads as a caption to the portrait, so it
        sits on the portrait's centre line rather than its top edge. */
     .profile-header {
@@ -190,6 +240,9 @@ const tagline = isEnglish
     }
 
     .profile-block {
+      display: grid;
+      min-block-size: auto;
+      padding-block-end: 0;
       gap: var(--space-s);
       margin-block-start: var(--space-s);
     }
@@ -203,8 +256,31 @@ const tagline = isEnglish
       block-size: 11rem;
     }
 
-    .profile-heading h1 {
-      font-size: var(--step-3);
+    .profile-content {
+      flex: 1;
+      text-align: start;
+    }
+
+    .profile-heading h1,
+    .profile-meta,
+    .profile-footer {
+      justify-content: flex-start;
+    }
+  }
+  @media (width >= 40rem) and (height < 30rem) {
+    .profile-block {
+      gap: var(--space-2xs);
+      margin-block-start: var(--space-2xs);
+    }
+
+    :global(.profile-avatar) {
+      inline-size: 8rem;
+      block-size: 8rem;
+    }
+
+    .profile-continue {
+      display: inline-flex;
+      justify-self: center;
     }
   }
 </style>

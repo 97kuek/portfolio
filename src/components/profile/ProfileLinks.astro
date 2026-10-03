@@ -1,4 +1,5 @@
 ---
+import { getUIStrings } from "@/lib/ui-strings"
 import Button from "@/components/base/Button.astro"
 import Icon from "@/components/base/Icon.astro"
 
@@ -19,7 +20,11 @@ const { links, class: className = "", keys = true, as = "button" } = Astro.props
    profiles — not for documents like a CV or a feed. */
 const NON_IDENTITY_KEYS = new Set(["cv", "resume", "rss", "email", "calendar"])
 
-const processedLinks = getProcessedProfileLinks(links, keys)
+const ui = getUIStrings(Astro.url.pathname)
+const processedLinks = getProcessedProfileLinks(links, keys).map((link) => ({
+  ...link,
+  label: link.key === "email" && link.label === "Email" ? ui.email : link.label,
+}))
 ---
 
 {processedLinks.length > 0 && (

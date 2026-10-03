@@ -17,7 +17,7 @@ const {
 } = Astro.props
 ---
 
-<div
+<dropdown-menu
   data-dropdown-root
   data-state={open ? "open" : "closed"}
   style={`--dropdown-offset:${sideOffset}px`}
@@ -35,52 +35,135 @@ const {
   >
     <slot />
   </div>
-</div>
+</dropdown-menu>
 
 <script>
-  class DropdownMenu {
-    private trigger: HTMLElement | null
-    private content: HTMLElement | null
+  class DropdownMenu extends HTMLElement {
+    private trigger: HTMLElement | null = null
+    private content: HTMLElement | null = null
+    private events: AbortController | null = null
     private isOpen = false
 
-    constructor(private container: HTMLElement) {
-      this.trigger = container.querySelector("[data-dropdown-trigger]")
-      this.content = container.querySelector("[data-dropdown-content]")
+    connectedCallback() {
+      this.events?.abort()
+      this.events = new AbortController()
+      const { signal } = this.events
+      this.trigger = this.querySelector("[data-dropdown-trigger]")
+      this.content = this.querySelector("[data-dropdown-content]")
       if (!this.trigger || !this.content) return
-      this.trigger.addEventListener("click", this.handleTriggerClick)
-      this.content.addEventListener("click", this.handleContentClick)
-      document.addEventListener("click", this.handleOutsideClick)
-      this.container.addEventListener("dropdown-close", () => this.close())
-      this.container.addEventListener("dropdown-open", () => this.open())
-      if (container.dataset.state === "open") this.open()
+
+      this.trigger.id ||= `${this.content.id}-trigger`
+      this.trigger.setAttribute("aria-haspopup", "menu")
+      this.trigger.setAttribute("aria-controls", this.content.id)
+      this.content.setAttribute("aria-labelledby", this.trigger.id)
+      for (const item of this.items()) {
+        if (!item.hasAttribute("role")) item.setAttribute("role", "menuitem")
+        item.tabIndex = -1
+      }
+      this.isOpen = this.dataset.state === "open"
+      this.trigger.setAttribute("aria-expanded", String(this.isOpen))
+      this.trigger.addEventListener("click", this.handleTriggerClick, {
+        signal,
+      })
+      this.content.addEventListener("click", this.handleContentClick, {
+        signal,
+      })
+      this.addEventListener("keydown", this.handleKeyDown, { signal })
+      this.addEventListener(
+        "focusout",
+        (event) => {
+          if (!this.contains(event.relatedTarget as Node | null)) this.close()
+        },
+        { signal },
+      )
+      document.addEventListener("click", this.handleOutsideClick, { signal })
+      this.addEventListener("dropdown-close", () => this.close(), { signal })
+      this.addEventListener("dropdown-open", () => this.open(), { signal })
+    }
+
+    disconnectedCallback() {
+      this.events?.abort()
+    }
+
+    private items(): HTMLElement[] {
+      return Array.from(
+        this.content?.querySelectorAll<HTMLElement>(
+          "[data-dropdown-item]:not([disabled]):not([aria-disabled='true'])",
+        ) ?? [],
+      )
     }
 
     private handleTriggerClick = (event: Event) => {
       event.preventDefault()
       event.stopPropagation()
-      if (this.isOpen) this.close()
+      if (this.isOpen) this.close(true)
       else this.open()
     }
 
     private handleContentClick = (event: Event) => {
       if ((event.target as Element).closest("[data-dropdown-item]"))
-        this.close()
+        this.close(true)
     }
 
     private handleOutsideClick = (event: Event) => {
-      if (!this.container.contains(event.target as Node)) this.close()
+      if (!this.contains(event.target as Node)) this.close()
     }
 
-    private open() {
+    private handleKeyDown = (event: KeyboardEvent) => {
+      if (event.target === this.trigger) {
+        if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+          event.preventDefault()
+          this.open(event.key === "ArrowUp" ? -1 : 0)
+        }
+      } else if (this.isOpen) {
+        const items = this.items()
+        const index = items.indexOf(document.activeElement as HTMLElement)
+        let next: number | undefined
+        if (event.key === "ArrowDown") next = (index + 1) % items.length
+        if (event.key === "ArrowUp")
+          next = (index - 1 + items.length) % items.length
+        if (event.key === "Home") next = 0
+        if (event.key === "End") next = items.length - 1
+        if (next !== undefined) {
+          event.preventDefault()
+          items[next]?.focus()
+        }
+        if (
+          event.key === " " &&
+          document.activeElement instanceof HTMLAnchorElement
+        ) {
+          event.preventDefault()
+          document.activeElement.click()
+        }
+      }
+      if (this.isOpen && event.key === "Escape") {
+        event.preventDefault()
+        event.stopPropagation()
+        this.close(true)
+      }
+      if (this.isOpen && event.key === "Tab") this.close(true)
+    }
+
+    private open(index = 0) {
       if (!this.content) return
+      document
+        .querySelectorAll("[data-dropdown-root][data-state='open']")
+        .forEach((other) => {
+          if (other !== this)
+            other.dispatchEvent(new CustomEvent("dropdown-close"))
+        })
       this.isOpen = true
-      this.container.dataset.state = "open"
+      this.dataset.state = "open"
+      this.trigger?.setAttribute("aria-expanded", "true")
       this.position()
+      this.items().at(index)?.focus()
     }
 
-    private close() {
+    private close(restoreFocus = false) {
       this.isOpen = false
-      this.container.dataset.state = "closed"
+      this.dataset.state = "closed"
+      this.trigger?.setAttribute("aria-expanded", "false")
+      if (restoreFocus) this.trigger?.focus()
     }
 
     private position() {
@@ -102,22 +185,9 @@ const {
     }
   }
 
-  function initDropdowns() {
-    document
-      .querySelectorAll<HTMLElement>("[data-dropdown-root]")
-      .forEach((container) => {
-        if (container.dataset.dropdownInitialized) return
-        new DropdownMenu(container)
-        container.dataset.dropdownInitialized = "true"
-      })
+  if (!customElements.get("dropdown-menu")) {
+    customElements.define("dropdown-menu", DropdownMenu)
   }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initDropdowns)
-  } else {
-    initDropdowns()
-  }
-  document.addEventListener("astro:after-swap", initDropdowns)
 </script>
 
 <style is:global>
@@ -136,6 +206,7 @@ const {
     max-inline-size: calc(100vw - 1.25rem);
     max-block-size: min(24rem, calc(100dvh - 6rem));
     overflow: auto;
+    overscroll-behavior: contain;
     padding-block: 0;
     border: 1px solid var(--border);
     border-radius: var(--radius-md);

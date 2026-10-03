@@ -2,6 +2,7 @@
 lang: "en"
 routeSlug: "hrs"
 title: "HRS — Hotel Reservation System"
+image: "../../assets/photos/hrs-home.webp"
 description: "A hotel booking web app where guests handle everything from reservation to check-out themselves, built from UML analysis and design through implementation."
 fromDate: "2026-06"
 toDate: "2026-07"
@@ -10,6 +11,8 @@ url: "https://hrs-ruddy.vercel.app"
 types:
   - "coursework"
   - "product"
+programmingLanguages:
+  - "TypeScript"
 skills:
   - "TypeScript"
   - "Next.js"

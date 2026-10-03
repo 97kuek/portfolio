@@ -1,5 +1,6 @@
 ---
 title: "HRS — ホテル予約システム"
+image: "../../assets/photos/hrs-home.webp"
 description: "予約からチェックアウトまでを利用者自身で完結できるホテル予約Webアプリ。UMLによる分析・設計と実装を通しで担当しました。"
 fromDate: "2026-06"
 toDate: "2026-07"
@@ -8,6 +9,8 @@ url: "https://hrs-ruddy.vercel.app"
 types:
   - "coursework"
   - "product"
+programmingLanguages:
+  - "TypeScript"
 skills:
   - "TypeScript"
   - "Next.js"

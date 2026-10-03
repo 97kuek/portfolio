@@ -1,3 +1,5 @@
+import { DEFAULT_LOCALE, type SiteLocale } from "@/lib/i18n"
+import { getUIStrings } from "@/lib/ui-strings"
 import { getCollection, type CollectionEntry } from "astro:content"
 
 import { PROJECT_TYPES } from "@/schemas"
@@ -20,6 +22,7 @@ export const getProjectLinks = (
   paper?: string,
   url?: string,
   release?: string,
+  locale: SiteLocale = DEFAULT_LOCALE,
 ) => {
   const linkData = [
     { type: "code" as const, href: code },
@@ -37,7 +40,7 @@ export const getProjectLinks = (
       type: link.type,
       href: link.href,
       icon: PROJECT_LINK_TYPES[link.type].iconName,
-      label: PROJECT_LINK_TYPES[link.type].label,
+      label: getUIStrings(locale).projectLinks[link.type],
     }))
 }
 
