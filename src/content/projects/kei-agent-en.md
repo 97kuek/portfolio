@@ -30,36 +30,28 @@ selected: true
 Kei Agent is a personal assistant that combines an AI running on OpenAI Dots (called Dot below) with an execution service running on my Mac.
 It handles research, university coursework, my internship, and time tracking.
 
-This page follows a request step by step and explains where each part is processed. For everyday use, see the blog post [Building a Personal Assistant with OpenAI Dots](/en/blog/kei-agent).
+This page uses diagrams to show where each part of a request is processed. For everyday use, see the blog post [Building a Personal Assistant with OpenAI Dots](/en/blog/kei-agent).
 
-## The pieces
+## Architecture
 
-The work is split between Dot in the cloud and the Kei Agent execution service on my Mac.
+![The overall architecture. Dot in the cloud uses plugins to reach each service directly, and Mac work goes through Secure MCP Tunnel to the execution service, which routes it over A2A to the research, work, and coursework workers.](../../assets/photos/kei-agent-architecture-en.webp)
 
-| Where | What it does | Built with |
-| --- | --- | --- |
-| Dot (cloud) | Takes requests from Slack and voice calls, writes replies, and runs scheduled tasks | ChatGPT Dots |
-| Dot's plugins (cloud) | Let Dot call the Notion, Box, Outlook, Google Calendar, Gmail, Google Drive, and GitHub APIs directly | Plugins connected to ChatGPT |
-| Execution service (Mac) | Receives work requests from Dot and runs AI or scripts on the Mac | Python, MCP, SQLite |
-| Workers (Mac) | Run AI for each area, such as research or work, with a fixed account and permissions | A2A, Claude Code / Codex CLI |
-| Notion gateway (Mac) | The single door through which Mac-side processes read and write Notion | Notion API |
-
-The key rule is that Dot never hands the Mac anything it can do itself. Checking calendars and email, reading and writing Notion, and searching the web all happen through Dot's plugins. The Mac only gets work that needs the Mac: writing code against local files, running experiments, or importing assignments from Moodle. That is why Dot still answers while the Mac is closed.
-
-Notion is reached by two separate routes, Dot's plugin and the Mac's Notion gateway, each with its own authentication and permissions. Reads and writes through Dot's plugin never pass through the gateway.
+There is one rule for splitting the work: Dot never hands the Mac anything it can do itself. Checking calendars and email, reading and writing Notion, and searching the web all happen through Dot's plugins. The Mac only gets work that needs the Mac: writing code against local files, running experiments, or importing assignments from Moodle. That is why Dot still answers while the Mac is closed.
 
 ## From request to reply
 
-As an example, follow a request such as "run this experiment" in the research channel `#1-vlm`.
+This is what happens when I ask "run this experiment" in the research channel `#1-vlm`.
 
-### 1. Dot receives the request
+![The eight steps from a research request to its record. Steps 1 and 2 run in Dot in the cloud; steps 3 to 8 run on the Mac.](../../assets/photos/kei-agent-flow-en.webp)
 
-When I mention Dot in Slack, it adds 👀 to my message and posts a short "starting work" reply in the same thread.
-When I ask during a voice call, Dot records the request as one Slack post, within the permissions I have given it, and continues in that thread.
+Notes on the diagram:
 
-Dot runs with a standing set of custom instructions. They map channels to workspaces and define its tone, when to use plugins versus MCP, and what it must not do.
+- The call from Dot reaches the Mac through a tunnel client that connects out to OpenAI. No port on the Mac is exposed to the outside.
+- `run` receives the workspace name, the request text, a workload level, and a conversation ID. The conversation ID is the ID of the Slack thread's parent message, so follow-ups in the same thread continue the same conversation.
+- For each AI run, the execution service limits where it may write, what it may not read, whether it may reach the network, and which environment variables child processes receive. My personal Claude Code and Codex settings are not carried in.
+- The execution service never posts to Slack. It stores notices in an outbox, and Dot collects them with `notices` and replies in the thread. Only notices that were posted successfully are acknowledged, so a failed one comes back on the next run.
 
-The prompts below are the Japanese originals I actually use.
+Dot runs with custom instructions that map channels to workspaces and define its tone and when to use plugins versus MCP. Step 7 is driven by an hourly scheduled prompt. The prompts below are the Japanese originals I actually use.
 
 :::toggle[Prompt: Dot custom instructions (Slack and calls)]
 ```text
@@ -138,41 +130,6 @@ run の使い方:
 ```
 :::
 
-### 2. Dot decides between plugins and the Mac
-
-Dot first checks whether its plugins alone can answer.
-A question about a class in `#2-course`, for example, is answered by reading the course home and materials through the Notion and Box plugins, without involving the Mac.
-
-Code and experiments for a research topic need the Mac, so this request goes there.
-
-### 3. Through Secure MCP Tunnel to the MCP server on the Mac
-
-Dot calls `run` on the MCP server running on the Mac. It passes the workspace name (`vlm`), the request text, a workload level (`light`, `normal`, or `deep`), and a conversation ID. The conversation ID is the ID of the Slack thread's parent message, so follow-up requests in the same thread continue the same conversation.
-
-The call reaches the Mac through OpenAI's Secure MCP Tunnel. A tunnel client on the Mac connects out to OpenAI, attaches a shared token to each incoming call, and forwards it to the local MCP server. No port on the Mac is exposed to the outside.
-
-### 4. The workspace decides the worker and permissions; A2A carries the request
-
-The execution service maps the workspace name to a worker, an account, and a set of permissions. `vlm` is a research topic, so the research worker takes it.
-The execution service and the workers run as separate resident processes and talk over A2A (a protocol for agent-to-agent communication), only inside the Mac.
-
-### 5. The worker runs Claude Code or Codex
-
-The research worker starts the Claude Code or Codex CLI in the topic's workspace, `~/research/vlm/`. Which one it uses is configured per worker.
-The run is confined by limits that the execution service sets: where it may write, what it may not read, whether it may reach the network, and which environment variables child processes receive. My personal Claude Code and Codex settings are not carried in.
-
-### 6. Short tasks reply immediately; long ones return a ticket
-
-If the task finishes within 20 seconds, `run` returns the result directly, and Dot posts it in the thread with a ✅.
-Otherwise `run` returns a ticket, and Dot checks progress with `status` (queued, running, done, needs input, or failed). If the work needs a decision, Dot asks in the same thread and passes my answer back to `run` in the same conversation.
-
-### 7. Long experiments become jobs and send a notice when done
-
-Experiments that take more than a few minutes run as jobs in a queue (pueue), using scripts in the workspace.
-The execution service watches the jobs and, when one finishes, stores a notice in an outbox. The execution service never posts to Slack itself.
-
-Every hour, a scheduled Dot task calls `notices` to collect them, then asks `run` to "read the job results and summarize them." Dot posts the summary in the original thread and acknowledges only the notices it posted successfully. A notice that failed to post comes back on the next run.
-
 :::toggle[Prompt: Notices from Kei Agent (hourly)]
 ```text
 Kei Agent の MCP の notices を done=[] で呼ぶ（MCP が使えないときは、何もせずに終える）。
@@ -195,44 +152,26 @@ Slack に出せた知らせの id をまとめて、notices の done に入れ�
 ```
 :::
 
-### 8. Research notes go to Notion
+## Two routes into Notion
 
-The research worker records work logs and experiment results in the research home in Notion. This goes through the Mac's Notion gateway, not Dot's plugin.
+![Two routes into Notion. Dot goes through the Notion plugin and Mac workers go through the Notion gateway, each with separate authentication and permissions.](../../assets/photos/kei-agent-notion-en.webp)
 
-Only the gateway holds the Notion API key. Workers get a gateway token instead, and for every request the gateway checks that the target page sits inside the home that worker is allowed to use. The research worker cannot read or write anything outside the research home.
+Notion is reached by two separate routes, Dot's plugin and the Mac's Notion gateway, with separate authentication and permissions.
+Only the gateway holds the Notion API key; workers get a gateway token instead. For every request, the gateway checks that the target page sits inside the home that worker is allowed to use.
 
 ## Routes by area
 
-The other areas combine the same two routes: what Dot handles with plugins and what it asks the Mac to do.
+![What Dot handles with plugins and what it hands to the Mac, by area. Knowledge stays entirely with Dot, and time tracking entirely on the Mac.](../../assets/photos/kei-agent-areas-en.webp)
 
-| Area | Handled by Dot's plugins | Handed to the Mac |
-| --- | --- | --- |
-| Research | Checking the research home, finding new papers | Code, experiments, and jobs (research worker); research notes (Notion gateway) |
-| Coursework | Questions about classes, assignments, and grades (Notion); handbooks and past exams (Box) | Importing assignments from Moodle and checking submission status (no AI) |
-| Internship | Outlook calendar and email | Reading Teams and SharePoint documents; code changes in projects (company Claude Code) |
-| Knowledge | Searching and summarizing articles (web); saving them (Notion) | Nothing |
-| Time tracking | Nothing | Timing through the MCP `timer`, then sending to Toggl and Notion |
-
-For coursework, the Mac worker reads the Moodle calendar every 30 minutes and writes to the "Assignments" database in the course home through the Notion gateway. It only copies structured data, so no AI is involved. When the Moodle API is configured, it also checks submission status every 10 minutes.
-
-The internship worker reads company data, so it cannot reach the network from the web tools or from commands. Its AI is Claude Code under the company account, and its account and workspaces are kept apart from the other workers.
+Importing coursework assignments only copies structured data, so no AI is involved. The internship worker reads company data, so its network access is cut off and its account and workspaces are kept apart from the other workers.
 
 ## Scheduled tasks through the day
 
+![The day's schedule. Dot's scheduled tasks are above the axis and the Mac's remaining jobs below. Dot also collects notices from the Mac every hour.](../../assets/photos/kei-agent-day-en.webp)
+
 Most scheduled work runs as Dot's scheduled tasks. The Mac keeps only imports that need secrets (Moodle and Toggl) plus maintenance and backups, because Dot's scheduled tasks have no place to store URL tokens or API keys.
 
-| Time | Task | Where it runs |
-| --- | --- | --- |
-| 00:00 | Overnight tasks | Dot → MCP `run` |
-| 07:00 | New related papers, reading list | Dot (web, Notion, Slack) |
-| 07:40 | Calendar sync | Dot (Outlook, Google Calendar, Notion) |
-| 08:00 | Morning agenda and Daily | Dot (Notion, Slack, and MCP when available) |
-| 08:00, 18:00 | Deadline reminders | Dot (Notion, Slack) |
-| Hourly | Notices from Kei Agent | Dot → MCP `notices` |
-| 21:00 | Evening review | Dot (Notion, Slack, and MCP when available) |
-| 08:00, 22:00 | Moodle and Toggl imports, maintenance | Mac |
-
-Each scheduled task is described below with its prompt. Every prompt begins with the same shared rules, collected here once.
+Every scheduled prompt begins with the same shared rules, collected here once.
 
 :::toggle[Prompt: Shared rules (at the top of every scheduled prompt)]
 ```text
@@ -248,10 +187,6 @@ Each scheduled task is described below with its prompt. Every prompt begins with
 ```
 :::
 
-### Morning: research feeds and today's plan
-
-At 07:00, Dot reads the keywords for each topic in the research home and picks relevant new papers from arXiv. It writes them to the "Related work" database through the Notion plugin and posts a single summary to `#0-overview`.
-
 :::toggle[Prompt: New related papers (07:00)]
 ```text
 研究ホームの「テーマ」DB で、終わっていないテーマごとに、キーワード（keywords）と前提（premises）を読む。
@@ -264,8 +199,6 @@ Slack の #0-overview には、テーマごとに題と1行の要点を並べた
 ```
 :::
 
-Also at 07:00, it reads my interests from the "Sources" page in the shared home, picks three to five articles through web search, and posts each one separately to `#4-knowledge`. Replying "save this" in an article's thread makes Dot save it to Notion.
-
 :::toggle[Prompt: Reading list (07:00)]
 ```text
 共通ホームの「収集」ページの興味と情報源を読み、この24時間の記事から3〜5件を選ぶ。
@@ -277,8 +210,6 @@ Slack の #4-knowledge に、1記事につき1つの独立した親投稿（チ�
 - Notion には書かない（「読みもの」DB に入れるのは、利用者が選んだものだけ）
 ```
 :::
-
-At 07:40, it reads the next seven days from Outlook and Google Calendar through their plugins and copies them into the shared calendar database.
 
 :::toggle[Prompt: Calendar sync (07:40)]
 ```text
@@ -293,8 +224,6 @@ Outlook の会社の予定と Google Calendar の個人の予定から、今日�
 通常の同期結果は Slack には出さない（朝の一覧に載る）。
 ```
 :::
-
-At 08:00, it posts today's classes, meetings, and deadlines in time order to `#0-overview` and writes a Daily in that thread. If the Mac is open, it also reads overnight activity through the MCP `recent` and `jobs` tools.
 
 :::toggle[Prompt: Morning agenda and Daily (08:00)]
 ```text
@@ -316,10 +245,6 @@ Daily は次の4つを、この順と見出しで書く。
 ```
 :::
 
-### Daytime: deadline reminders
-
-At 08:00 and 18:00, it gathers assignments with approaching deadlines from the course home. The Mac worker imports the assignments, but only Dot sends reminders, and it does not repeat one it already sent.
-
 :::toggle[Prompt: Deadline reminders (08:00 and 18:00)]
 ```text
 授業ホームの「課題」で、期限切れ・提出済みを除き、締切が24時間以内のものと、3日以内で状態が「未着手」のものを集める。
@@ -328,12 +253,6 @@ At 08:00 and 18:00, it gathers assignments with approaching deadlines from the c
 Slack の #0-overview に出すときは「⏰ 締切が近い課題」の見出しに、`10/03 23:59` 科目 題 の形で並べる。
 ```
 :::
-
-The hourly "Notices from Kei Agent" task is the one covered in [step 7 above](#7-long-experiments-become-jobs-and-send-a-notice-when-done).
-
-### Evening: review and overnight tasks
-
-At 21:00, it summarizes what got done and what remains from the day's tasks and conversations, and posts it to `#0-overview`. It ends by asking whether there is anything to run overnight; if I reply with something I learned, Dot asks follow-up questions and saves it to a learning log in the shared home.
 
 :::toggle[Prompt: Evening review (21:00)]
 ```text
@@ -349,8 +268,6 @@ Slack の #0-overview に「🌙 Retro & Planning（日付）」を出し、そ�
 （題・日付・分野・種類・出典。本文は 場面・学んだこと・次にどう使うか）。
 ```
 :::
-
-When I say "do this tonight" during the day, Dot adds it to the research home's "Tasks" database marked for tonight. At 00:00, Dot sends up to five of those tasks to the Mac one by one through MCP `run`. Anything unfinished by morning is followed up by the hourly notices, and the results appear in the morning Daily. If the Mac is closed, the tasks wait for the next night.
 
 :::toggle[Prompt: Overnight tasks (00:00)]
 ```text
@@ -370,7 +287,7 @@ conversation は Task のページの ID から - を除いたもの。翌日に
 ## Operations
 
 The execution service, workers, tunnel, and Notion gateway run under `launchd`, and processes talk to each other only inside the Mac (`127.0.0.1`).
-`kei-agent setup` creates the configuration and registers the services, and `kei-agent doctor` checks their state. Features are added as modules, and the CLI also scaffolds, tests, and enables them.
+`kei-agent setup` creates the configuration and registers the services, and `kei-agent doctor` checks their state. Features are added as modules.
 
 While the Mac sleeps, local work and synchronization stop, and data copied into Notion stays as of the last import.
 
