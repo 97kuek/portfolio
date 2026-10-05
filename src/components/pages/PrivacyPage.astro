@@ -61,6 +61,13 @@ const isEnglish = getSiteLocale(Astro.url.pathname) === "en"
         the comments or reactions database.
       </p>
 
+      <p>
+        Unsent comment names and text are kept in this tab’s session storage so
+        you can return from another page without losing your draft. They are
+        sent only when you post. An accepted draft is removed; edits made while
+        posting are kept. Closing the tab ends the storage session.
+      </p>
+
       <h2>Contact</h2>
       <p>
         Questions and deletion requests can be sent to{" "}
@@ -98,6 +105,10 @@ const isEnglish = getSiteLocale(Astro.url.pathname) === "en"
       <h2>ブラウザ内の保存</h2>
       <p>
         テーマと言語の設定は、利用中のブラウザのlocalStorageへ保存します。選択した表示を復元するためだけに使い、コメント・リアクション用データベースへは送りません。
+      </p>
+
+      <p>
+        入力中のコメントの名前と本文は、別のページから戻ったときに復元できるよう、このタブ内に一時保存します。投稿するまでサーバーには送りません。投稿が受け付けられた下書きは削除し、送信中に追記した文章は残します。保存期間はタブのセッションが終わるまでです。
       </p>
 
       <h2>連絡先</h2>

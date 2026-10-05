@@ -34,6 +34,8 @@ const REACTIONS = REACTION_KINDS.map((kind) => ({
   data-target={target}
   data-endpoint={REACTIONS_ENDPOINT}
   data-count-label={ui.reactionCount}
+  data-load-failed={ui.reactionLoadFailed}
+  data-failed={ui.reactionFailed}
   class="reactions"
 >
   <h2 class="sr-only">{ui.reactions}</h2>
@@ -146,6 +148,7 @@ const REACTIONS = REACTION_KINDS.map((kind) => ({
     private target = ""
     private buttons: HTMLButtonElement[] = []
     private status: HTMLElement | null = null
+    private requestId = 0
 
     connectedCallback() {
       this.target = this.dataset.target ?? ""
@@ -184,15 +187,24 @@ const REACTIONS = REACTION_KINDS.map((kind) => ({
         .replace("{count}", String(state.counts[kind] ?? 0))
     }
 
+    private setStatus(message: string, failed = false) {
+      if (!this.status) return
+      this.status.textContent = message
+      this.status.classList.toggle("sr-only", !failed)
+    }
+
     private async load() {
+      const requestId = ++this.requestId
       try {
         const response = await fetch(
           `${this.dataset.endpoint}?target=${encodeURIComponent(this.target)}`,
         )
-        if (!response.ok) return
-        this.render((await response.json()) as ReactionState)
+        if (!response.ok) throw new Error(String(response.status))
+        const state = (await response.json()) as ReactionState
+        if (requestId === this.requestId) this.render(state)
       } catch {
-        /* Counts stay at zero; the buttons still work once the API returns. */
+        if (requestId === this.requestId)
+          this.setStatus(this.dataset.loadFailed ?? "", true)
       }
     }
 
@@ -200,6 +212,8 @@ const REACTIONS = REACTION_KINDS.map((kind) => ({
       const kind = button.dataset.kind
       if (!kind) return
 
+      this.requestId++
+      this.setStatus("")
       for (const other of this.buttons) other.disabled = true
       try {
         const response = await fetch(this.dataset.endpoint ?? "", {
@@ -207,13 +221,12 @@ const REACTIONS = REACTION_KINDS.map((kind) => ({
           headers: { "content-type": "application/json" },
           body: JSON.stringify({ target: this.target, kind }),
         })
-        if (response.ok) {
-          const state = (await response.json()) as ReactionState
-          this.render(state)
-          this.announce(button, state)
-        }
+        if (!response.ok) throw new Error(String(response.status))
+        const state = (await response.json()) as ReactionState
+        this.render(state)
+        this.announce(button, state)
       } catch {
-        /* Leave the previous tally in place rather than inventing one. */
+        this.setStatus(this.dataset.failed ?? "", true)
       } finally {
         for (const other of this.buttons) other.disabled = false
       }
