@@ -1,5 +1,6 @@
 ---
 import { cn } from "@/lib/utils"
+import { getUIStrings } from "@/lib/ui-strings"
 
 import Icon from "./Icon.astro"
 
@@ -28,11 +29,14 @@ const {
   variant = "plain",
   class: className,
 } = Astro.props
+const ui = getUIStrings(Astro.url.pathname)
 ---
 
 <button
   type="button"
   data-copy-btn
+  data-copied={ui.copied}
+  data-copy-failed={ui.copyFailed}
   data-copy-text={text}
   data-copy-selector={selector}
   data-copy-variant={variant}
@@ -51,6 +55,12 @@ const {
         if (btn.hasAttribute("data-copy-bound")) return
         btn.setAttribute("data-copy-bound", "")
 
+        var label = btn.querySelector(".copy-label")
+        var origLabel = label ? label.textContent : ""
+        var origTitle = btn.getAttribute("title")
+        var timer
+        var requestId = 0
+
         btn.addEventListener("click", function (e) {
           e.stopPropagation()
           var text
@@ -65,22 +75,39 @@ const {
           }
           if (!text) return
 
-          navigator.clipboard.writeText(text).then(function () {
+          var currentRequest = ++requestId
+          clearTimeout(timer)
+          function restore() {
             var copyIcon = btn.querySelector(".copy-icon")
             var checkIcon = btn.querySelector(".check-icon")
-            var label = btn.querySelector(".copy-label")
-            var origLabel = label ? label.textContent : ""
-
-            if (copyIcon) copyIcon.setAttribute("hidden", "")
-            if (checkIcon) checkIcon.removeAttribute("hidden")
-            if (label) label.textContent = "Copied!"
-
-            setTimeout(function () {
-              if (copyIcon) copyIcon.removeAttribute("hidden")
-              if (checkIcon) checkIcon.setAttribute("hidden", "")
-              if (label) label.textContent = origLabel
-            }, 1500)
-          })
+            if (copyIcon) copyIcon.removeAttribute("hidden")
+            if (checkIcon) checkIcon.setAttribute("hidden", "")
+            if (label) label.textContent = origLabel
+            if (origTitle === null) btn.removeAttribute("title")
+            else btn.setAttribute("title", origTitle)
+          }
+          restore()
+          Promise.resolve()
+            .then(function () {
+              return navigator.clipboard.writeText(text)
+            })
+            .then(function () {
+              if (currentRequest !== requestId || !btn.isConnected) return
+              var copyIcon = btn.querySelector(".copy-icon")
+              var checkIcon = btn.querySelector(".check-icon")
+              if (copyIcon) copyIcon.setAttribute("hidden", "")
+              if (checkIcon) checkIcon.removeAttribute("hidden")
+              if (label) label.textContent = btn.getAttribute("data-copied")
+              btn.setAttribute("title", btn.getAttribute("data-copied"))
+              timer = setTimeout(restore, 1500)
+            })
+            .catch(function () {
+              if (currentRequest !== requestId || !btn.isConnected) return
+              var message = btn.getAttribute("data-copy-failed")
+              if (label) label.textContent = message
+              btn.setAttribute("title", message)
+              timer = setTimeout(restore, 1500)
+            })
         })
       })
     }

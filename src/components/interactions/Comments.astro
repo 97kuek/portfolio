@@ -218,12 +218,59 @@ const ui = getUIStrings(locale)
     createdAt: string
   }
 
+  interface Draft {
+    author: string
+    body: string
+  }
+
+  // Keep drafts within this tab; storage may be unavailable in private contexts.
+  const drafts = new Map<string, Draft>()
+
   class PostComments extends HTMLElement {
     private target = ""
     private list: HTMLOListElement | null = null
     private status: HTMLElement | null = null
     private form: HTMLFormElement | null = null
     private submit: HTMLButtonElement | null = null
+    private events?: AbortController
+
+    private get draftKey() {
+      return `comment-draft:${this.target}`
+    }
+
+    private readDraft(): Draft | undefined {
+      try {
+        const value = JSON.parse(
+          sessionStorage.getItem(this.draftKey) ?? "null",
+        )
+        if (
+          value &&
+          typeof value.author === "string" &&
+          typeof value.body === "string"
+        )
+          return value
+      } catch {
+        // Fall back to memory when storage is blocked or corrupt.
+      }
+      return drafts.get(this.draftKey)
+    }
+
+    private saveDraft() {
+      if (!this.form) return
+      const data = new FormData(this.form)
+      const draft = {
+        author: String(data.get("author") ?? ""),
+        body: String(data.get("body") ?? ""),
+      }
+      drafts.set(this.draftKey, draft)
+      try {
+        if (draft.author || draft.body)
+          sessionStorage.setItem(this.draftKey, JSON.stringify(draft))
+        else sessionStorage.removeItem(this.draftKey)
+      } catch {
+        // In-memory drafts still survive client-side navigation.
+      }
+    }
 
     connectedCallback() {
       this.target = this.dataset.target ?? ""
@@ -233,8 +280,25 @@ const ui = getUIStrings(locale)
       this.submit = this.querySelector(".comment-submit")
       if (!this.target || !this.form) return
 
-      this.form.addEventListener("submit", (event) => this.post(event))
+      this.events?.abort()
+      this.events = new AbortController()
+      const { signal } = this.events
+      const draft = this.readDraft()
+      if (draft) {
+        this.form.querySelector<HTMLInputElement>("[name=author]")!.value =
+          draft.author
+        this.form.querySelector<HTMLTextAreaElement>("[name=body]")!.value =
+          draft.body
+      }
+      this.form.addEventListener("input", () => this.saveDraft(), { signal })
+      this.form.addEventListener("submit", (event) => this.post(event), {
+        signal,
+      })
       void this.load()
+    }
+
+    disconnectedCallback() {
+      this.events?.abort()
     }
 
     private setStatus(message: string | null) {
@@ -310,6 +374,8 @@ const ui = getUIStrings(locale)
       const body = String(data.get("body") ?? "").trim()
       if (!body) return
 
+      this.saveDraft()
+      const submittedDraft = this.readDraft()
       const submitLabel = this.dataset.submit ?? ""
       if (this.submit) {
         this.submit.disabled = true
@@ -333,7 +399,15 @@ const ui = getUIStrings(locale)
             pending?: boolean
           }
           this.render(payload.comments)
-          this.form.reset()
+          // Do not erase text edited while the request was in flight.
+          const currentDraft = this.readDraft()
+          if (
+            currentDraft?.author === submittedDraft?.author &&
+            currentDraft?.body === submittedDraft?.body
+          ) {
+            this.form.reset()
+            this.saveDraft()
+          }
           if (payload.pending) this.setStatus(this.dataset.pending ?? null)
         } else {
           this.setStatus(
