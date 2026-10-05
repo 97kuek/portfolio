@@ -1,5 +1,6 @@
 ---
 import CommonLayout from "@/layouts/CommonLayout.astro"
+import Button from "@/components/base/Button.astro"
 import Icon from "@/components/base/Icon.astro"
 import { getSiteLocale } from "@/lib/i18n"
 import { sectionCrumb } from "@/lib/sections"
@@ -21,7 +22,7 @@ const ui = getUIStrings(locale)
 >
   <site-search
     data-empty={ui.searchEmpty}
-    data-error={ui.searchUnavailable}
+    data-error={import.meta.env.DEV ? ui.searchUnavailable : ui.searchFailed}
     data-searching={ui.searching}
     data-result-count={ui.searchResultCount}
     class="search"
@@ -42,6 +43,11 @@ const ui = getUIStrings(locale)
     </form>
 
     <p class="search-status" role="status" aria-live="polite" data-status></p>
+    {!import.meta.env.DEV && (
+        <div hidden data-recovery>
+          <Button variant="outline" data-reload>{ui.searchReload}</Button>
+        </div>
+      )}
     <ol class="search-results" data-results></ol>
   </site-search>
 </CommonLayout>
@@ -157,6 +163,7 @@ const ui = getUIStrings(locale)
     private input: HTMLInputElement | null = null
     private results: HTMLOListElement | null = null
     private status: HTMLElement | null = null
+    private recovery: HTMLElement | null = null
     private timer: number | undefined
     private requestId = 0
 
@@ -164,6 +171,7 @@ const ui = getUIStrings(locale)
       this.input = this.querySelector("[data-input]")
       this.results = this.querySelector("[data-results]")
       this.status = this.querySelector("[data-status]")
+      this.recovery = this.querySelector("[data-recovery]")
       if (!this.input) return
 
       this.input.addEventListener("input", () => {
@@ -179,6 +187,13 @@ const ui = getUIStrings(locale)
         event.preventDefault()
         window.clearTimeout(this.timer)
         void this.run(this.input!.value)
+      })
+      this.querySelector("[data-reload]")?.addEventListener("click", () => {
+        window.clearTimeout(this.timer)
+        // Failed module imports stay cached until the document reloads.
+        // Keep even edits made before the input debounce has run.
+        this.updateQuery(this.input!.value)
+        location.reload()
       })
 
       // A query in the URL makes a search shareable and survives a reload.
@@ -230,15 +245,27 @@ const ui = getUIStrings(locale)
       if (this.status) this.status.textContent = message
     }
 
-    private async run(rawQuery: string) {
-      const requestId = ++this.requestId
+    private showError() {
+      this.setStatus(this.dataset.error ?? "")
+      if (this.recovery) this.recovery.hidden = false
+    }
+
+    private updateQuery(rawQuery: string) {
       const query = rawQuery.trim()
       this.updateLanguageSwitch(query)
-      const isCurrent = () => this.isConnected && requestId === this.requestId
       const url = new URL(location.href)
       if (query) url.searchParams.set("q", query)
       else url.searchParams.delete("q")
-      history.replaceState(null, "", url)
+      // Astro uses this state to restore the page on Back and Forward.
+      history.replaceState(history.state, "", url)
+      return query
+    }
+
+    private async run(rawQuery: string) {
+      const requestId = ++this.requestId
+      const query = this.updateQuery(rawQuery)
+      const isCurrent = () => this.isConnected && requestId === this.requestId
+      if (this.recovery) this.recovery.hidden = true
 
       if (!this.results) return
       this.results.replaceChildren()
@@ -255,7 +282,7 @@ const ui = getUIStrings(locale)
         const pagefind = await this.load()
         if (!isCurrent()) return
         if (!pagefind) {
-          this.setStatus(this.dataset.error ?? "")
+          this.showError()
           return
         }
 
@@ -296,7 +323,7 @@ const ui = getUIStrings(locale)
           this.results.append(item)
         }
       } catch {
-        if (isCurrent()) this.setStatus(this.dataset.error ?? "")
+        if (isCurrent()) this.showError()
       }
     }
   }
