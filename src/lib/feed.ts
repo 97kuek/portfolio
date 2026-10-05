@@ -5,7 +5,7 @@ import { getSiteDescription } from "@site-config"
 import { getDisplayName } from "@/components/profile/helper"
 import { PostManager } from "@/lib/blog"
 import { getContentHref, isContentInLocale } from "@/lib/content-locale"
-import type { SiteLocale } from "@/lib/i18n"
+import { localizedPath, type SiteLocale } from "@/lib/i18n"
 
 /**
  * One feed per language. A reader who subscribes from the Japanese pages
@@ -19,7 +19,7 @@ export const buildFeed = async (context: APIContext, locale: SiteLocale) => {
   return rss({
     title: getDisplayName(locale),
     description: getSiteDescription(locale),
-    site: context.site!,
+    site: new URL(localizedPath("/", locale), context.site!),
     items: posts.map((post) => ({
       title: post.data.title,
       description: post.data.description,

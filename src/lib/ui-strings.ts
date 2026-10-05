@@ -107,6 +107,8 @@ const UI_STRINGS = {
     searchPlaceholder: "Search posts and projects",
     searchResultCount: "{count} results",
     searchUnavailable: "Search is unavailable on this build.",
+    searchFailed: "Search could not load. Reload the page to try again.",
+    searchReload: "Reload search",
     siteNav: "Site navigation",
     subpost: "Subpost",
     subpostCount: (count: number) =>
@@ -226,6 +228,9 @@ const UI_STRINGS = {
     searchPlaceholder: "記事とプロジェクトを検索",
     searchResultCount: "{count}件見つかりました",
     searchUnavailable: "このビルドでは検索を利用できません。",
+    searchFailed:
+      "検索を読み込めませんでした。ページを再読み込みしてお試しください。",
+    searchReload: "検索を再読み込み",
     siteNav: "サイトナビゲーション",
     subpost: "補足記事",
     subpostCount: (count: number) => `補足記事${count}件`,
