@@ -58,7 +58,7 @@ jobs:
       - name: Browser regression tests
         run: pnpm test:browser
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: failure()
         with:
           name: browser-report
