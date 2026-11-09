@@ -103,6 +103,12 @@ content edits do not stay behind a build cache.
 
 Pushing to `main` runs `.github/workflows/ci.yml`, which validates and builds
 once, then passes the checked `dist/` artifact to the reusable `deploy.yml`.
+When the entire event range only changes `README.md`, `CONTRIBUTING.md`,
+`DEVELOPMENT.md`, `AGENTS.md`, or files under `docs/`, CI only checks whitespace
+and skips the build, browser tests, and deployment. Article Markdown under
+`src/content/`, `.pages.yml`, and all other files still require full validation.
+Missing or uncertain change history also requires full validation. The `check`
+job remains present in both paths so required checks can use the same name.
 Deployment publishes that same output using a Pages-scoped token. Apply D1
 migrations through the CLI before deploying code that needs a schema change;
 the deployment workflow does not modify the database.
@@ -120,6 +126,11 @@ wrangler pages deploy dist --project-name 97kuek --branch main
 ```
 
 ## Bilingual content
+
+Articles can also be managed in the browser through [Pages CMS](https://app.pagescms.org/).
+See [the publishing guide](docs/PUBLISHING.md) for setup, drafts, images, and
+translations. The configuration is `.pages.yml`; the site remains a static
+Markdown build, and article saves run the full CI pipeline.
 
 Japanese is the default language and owns the unprefixed routes; English lives
 under `/en`. Collections keep one file per language:

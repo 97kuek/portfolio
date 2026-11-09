@@ -11,6 +11,9 @@ pnpm dev
 
 For cloud workspaces, follow the [cloud development workflow](DEVELOPMENT.md#cloud-development).
 
+Articles can be edited and published through a browser. See the
+[publishing guide](docs/PUBLISHING.md) for the Pages CMS workflow.
+
 ## Validation
 
 ```bash

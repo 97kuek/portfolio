@@ -42,6 +42,9 @@
 ## コンテンツ
 
 - ブログ記事は `src/content/blog/`、プロジェクトは `src/content/projects/`
+- ブラウザからの記事管理は Pages CMS。設定は `.pages.yml`、操作は [docs/PUBLISHING.md](docs/PUBLISHING.md)
+  - 新規記事は下書きが既定。既存記事の `draft: false` と `routeSlug` を保持する
+  - 本文は Markdown のソース編集を使い、独自のディレクティブや数式を保持する
 - MDXではなくMarkdownを使う。プロース内に対話的な部品が必要なときだけ例外
 - Sätteriパイプラインで使えるもの
   - GFM、ディレクティブとcallout、Temmlによる数式、wikilink
@@ -154,6 +157,9 @@ wrangler d1 migrations apply portfolio-interactions --remote
 
 ## 検証
 
+- CIは `README.md`・`CONTRIBUTING.md`・`DEVELOPMENT.md`・`AGENTS.md`・`docs/**` だけの差分なら、空白検査だけ行う
+  - `src/content/` の記事、`.pages.yml`、その他のファイルは通常の全検証を行う。差分を判定できない場合も全検証する
+  - ドキュメントだけの変更ではビルド・ブラウザ検証・デプロイを省く。ローカルの変更時は関係するチェックを実行する
 - Biomeがフォーマッタ（Astro / JS / TS / CSS / JSON）
 - oxlintがリンタ。Biomeのリンタは意図的に無効
 - `pnpm lint:styles` はCSS構成の不変条件を見る（インラインstyle属性の禁止など）
