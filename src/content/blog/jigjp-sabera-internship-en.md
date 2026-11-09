@@ -4,6 +4,7 @@ routeSlug: "jigjp-sabera-internship"
 title: "Two weeks in a Fukui farmhouse, building a stargazing app for smart glasses"
 description: "Notes from the SABERA course of the jig.jp summer internship: two weeks of living together and building an app for smart glasses, from the first idea to the final demo."
 createdAt: 2026-09-03
+draft: false
 tags:
   - "internship"
   - "sabera"

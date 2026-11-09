@@ -2,6 +2,8 @@
 title: "自己紹介"
 description: "ポートフォリオを公開しました。自己紹介と、鳥人間コンテストの運営をしていた話、いまAIエンジニアとして作っているもの、そしてこのブログで何を書いていくかについて。"
 createdAt: 2026-08-29
+draft: false
+routeSlug: "hello"
 tags:
   - "intro"
 authors:

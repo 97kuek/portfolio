@@ -2,6 +2,8 @@
 title: "スマートグラス向けの星空アプリを、福井の古民家で2週間かけて作ってきた"
 description: "株式会社jig.jpのサマーインターン SABERAコースに参加し、スマートグラス向けアプリをチームで企画から実装まで進めた2週間の記録"
 createdAt: 2026-09-03
+draft: false
+routeSlug: "jigjp-sabera-internship"
 tags:
   - "internship"
   - "sabera"

@@ -24,5 +24,9 @@ export const COVER_WIDTHS = [640, 960, 1280]
 /** Twice the largest CSS box for the profile portrait (15rem), for 2x screens. */
 export const PROFILE_AVATAR_WIDTH = 480
 
+/** Mirrors Profile.astro's portrait size, including short viewport layouts. */
+export const PROFILE_AVATAR_SIZES =
+  "(width >= 40rem) and (height < 30rem) 8rem, (width >= 40rem) 11rem, (height < 40rem) 10rem, clamp(11rem, 29svh, 15rem)"
+
 /** Twice the byline avatar's CSS box (1.25rem), rounded up to a sane candidate. */
 export const AUTHOR_AVATAR_WIDTH = 64

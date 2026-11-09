@@ -4,6 +4,7 @@ routeSlug: "hello"
 title: "Introduction"
 description: "My portfolio is live. An introduction to who I am, the human-powered aircraft contest I helped run, what I build as an AI engineer, and what I plan to write about here."
 createdAt: 2026-08-29
+draft: false
 tags:
   - "intro"
 authors:
