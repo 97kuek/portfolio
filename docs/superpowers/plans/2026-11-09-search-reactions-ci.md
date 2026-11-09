@@ -35,7 +35,7 @@
 
 ## Verification
 
-- All local checks passed: 48 unit tests, 18 Markdown tests, type/build/41 HTML/link checks, actionlint, and 218 browser tests (6 intentional skips).
+- All local checks passed: 48 unit tests, 18 Markdown tests, type/build/41 HTML/link checks, actionlint, and 270 browser tests (6 intentional skips).
 - A fresh reviewer found no blocking issues.
 - Production migrations applied; reaction/comment row counts were preserved.
 - Deployed to https://d89a4527.97kuek.pages.dev (production alias https://97kuek.pages.dev).
