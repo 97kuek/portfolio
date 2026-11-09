@@ -1,19 +1,17 @@
 ---
-title: "Azure AIの全体像と使い分け"
-description: "Microsoft Foundry、Azure OpenAI、文書・画像認識の役割と使い分けを整理。検索・音声・言語処理やRAGの構成例もまとめた学習ノート。"
+title: Azure AIの全体像と使い分け
+description: Microsoft Foundry、Azure OpenAI、文書・画像認識の役割と使い分けを整理。検索・音声・言語処理やRAGの構成例もまとめた学習ノート。
 createdAt: 2026-11-09
-draft: false
-routeSlug: "azure-ai-overview"
+draft: true
+routeSlug: azure-ai-overview
 tags:
-  - "Azure"
-  - "generative-ai"
-  - "学習ノート"
+  - Azure
 authors:
-  - "keitaro"
-stage: "seedling"
-audience: "AzureのAIサービスをこれから使う人、似た名前のサービスの違いを整理したい人"
+  - keitaro
+stage: seedling
+audience: AzureのAIサービスをこれから使う人、似た名前のサービスの違いを整理したい人
+lang: ja
 ---
-
 AzureでAIを使おうとすると、Azure OpenAI、Foundry、Document Intelligence、Computer Visionなど、いろいろな名前が出てくる。どれもAIに関係しているが、開発環境、モデルの提供、文書の読み取り、検索と、それぞれが担当する範囲は違う。
 
 このノートでは、各サービスの役割と使い分けを整理する。後半では、検索した資料をもとに回答するRAG（検索拡張生成）や請求書処理を例に、組み合わせ方を見ていく。
