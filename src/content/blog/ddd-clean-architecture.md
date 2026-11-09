@@ -1,19 +1,21 @@
 ---
-title: "DDDとクリーンアーキテクチャ"
-description: "DDDの業務モデルとクリーンアーキテクチャの依存方向を整理。注文確定のPython例で、集約・ユースケース・保存処理の関係を考える。"
+title: DDDとクリーンアーキテクチャ
+description: DDDの業務モデルとクリーンアーキテクチャの依存方向を整理。注文確定のPython例で、集約・ユースケース・保存処理の関係を考える。
 createdAt: 2026-11-09
 draft: false
-routeSlug: "ddd-clean-architecture"
+routeSlug: ddd-clean-architecture
 tags:
-  - "DDD"
-  - "clean-architecture"
-  - "Python"
-  - "学習ノート"
+  - DDD
+  - clean-architecture
+  - Python
+  - 学習ノート
 authors:
-  - "keitaro"
-stage: "seedling"
-audience: "DDDとクリーンアーキテクチャの違いや、業務ルールをどこに書くかを整理したい人"
+  - keitaro
+stage: seedling
+audience: DDDとクリーンアーキテクチャの違いや、業務ルールをどこに書くかを整理したい人
+lang: ja
 ---
+ドメイン駆動設計（以下、DDD）とクリーンアーキテクチャについて学んだので、アウトプットしてみる。
 
 DDDとクリーンアーキテクチャを調べると、Entity、Repository、Use Caseなど、似た用語が出てくる。両方を使った設計例も多いので、何をどちらの考え方で決めているのかが分かりにくい。
 
