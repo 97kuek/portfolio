@@ -103,12 +103,14 @@ content edits do not stay behind a build cache.
 
 Pushing to `main` runs `.github/workflows/ci.yml`, which validates and builds
 once, then passes the checked `dist/` artifact to the reusable `deploy.yml`.
-Deployment applies pending D1 migrations before publishing that same output.
+Deployment publishes that same output using a Pages-scoped token. Apply D1
+migrations through the CLI before deploying code that needs a schema change;
+the deployment workflow does not modify the database.
 Pull requests only validate. To deploy manually in GitHub Actions, run the CI
 workflow on `main`; other branches cannot deploy.
 
 Deployment is skipped until the repository has both `CLOUDFLARE_API_TOKEN` and
-`CLOUDFLARE_ACCOUNT_ID` secrets. The token needs access to Pages and D1. Until
+`CLOUDFLARE_ACCOUNT_ID` secrets. The token only needs access to Pages. Until
 then, deploy by hand:
 
 ```bash
