@@ -2,7 +2,7 @@
 
 **Goal:** Fix search history, serialize reaction toggles in D1, and deploy the same output validated by CI.
 
-**Architecture:** Preserve Astro history state. Add a backward-compatible reaction `active` column and toggle it with one UPSERT. CI validates once and hands its static artifact to the reusable deployment workflow.
+**Architecture:** Preserve Astro history state. Add a backward-compatible reaction `active` column and toggle it with one UPSERT. CI validates once and hands its static artifact to the reusable Pages deployment workflow; schema migrations remain a manual prerequisite.
 
 **Tech stack:** Astro, TypeScript, Cloudflare Pages/D1, GitHub Actions.
 
@@ -20,7 +20,7 @@
 
 - [x] Search: add Japanese/English back-and-forward browser regressions, observe failure, preserve `history.state` in `SearchPage.astro`, verify after build.
 - [x] Reactions: add real local D1 concurrency tests, observe failure, add `0002_reaction_active.sql`, use atomic UPSERT and filter active rows, verify even/odd toggles and existing data.
-- [x] CI: keep validation/build/browser checks in `ci.yml`; upload checked output, call `deploy.yml` only on main outside PRs; download the same artifact, apply migrations and deploy without rebuilding.
+- [x] CI: keep validation/build/browser checks in `ci.yml`; upload checked output, call `deploy.yml` only on main outside PRs; download the same artifact and deploy without rebuilding or database access.
 - [x] Update deployment documentation and unit test registration.
 - [x] Format, lint/styles, unit/Markdown/type/build/HTML/link checks, actionlint and browser regressions.
 - [x] Independent review, apply migration and deploy manually, verify live search navigation without production API writes.
@@ -31,7 +31,7 @@
 - Reaction defaults preserve existing selected rows; simultaneous operations preserve parity.
 - PRs and manual runs on non-main branches cannot deploy or migrate production.
 - Missing secrets skip deployment; validation failures prevent artifact deployment.
-- Hidden output files, Functions source and migration files survive the deploy path.
+- Hidden output files and Functions source survive the deploy path.
 
 ## Verification
 

@@ -184,7 +184,7 @@ pnpm test:links
 
 - `main` にpushすると `.github/workflows/ci.yml` が検証・ビルドを1回行い、同じ成果物を再利用する `deploy.yml` を呼ぶ
   - `CLOUDFLARE_API_TOKEN` と `CLOUDFLARE_ACCOUNT_ID` のsecretが揃うまでは動かない
-  - デプロイ前にD1の未適用migrationを適用する。トークンにはPagesとD1の権限が必要
+  - D1の変更がある場合は、本番デプロイ前にCLIでmigrationを適用しておく。CIはDBを操作せず、トークンにはPagesの権限だけを持たせる
   - GitHub Actionsから手動実行するときは `main` のCIワークフローを使う。PRと他ブランチはデプロイしない
 - 手動でデプロイする場合
 

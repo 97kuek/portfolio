@@ -18,6 +18,8 @@ for (const prefix of ["", "/en"]) {
       }) => {
         await page.goto(`${prefix}/`)
         await page.locator(`.site-actions a[href="${prefix}/search"]`).click()
+        await expect(page).toHaveURL(new RegExp(`${prefix}/search$`))
+        await page.evaluate(() => customElements.whenDefined("site-search"))
         const input = page.locator("#search-input")
         const results = page.locator(".search-result h2 a")
         await input.fill("WASA")
