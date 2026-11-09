@@ -1,0 +1,134 @@
+media:
+  - name: photos
+    label: 記事の画像
+    input: src/assets/photos
+    output: ../../assets/photos
+    extensions: [jpg, jpeg, png, webp, avif, gif]
+    rename: safe
+
+content:
+  - name: blog
+    label: 記事
+    type: collection
+    path: src/content/blog
+    format: yaml-frontmatter
+    subfolders: false
+    filename:
+      template: new-article.md
+      field: create
+    operations:
+      rename: false
+    view:
+      fields: [title, lang, createdAt, draft, stage]
+      primary: title
+      sort: [createdAt, updatedAt, title]
+      search: [title, description, tags, audience]
+      default:
+        sort: createdAt
+        order: desc
+    fields:
+      - name: title
+        label: タイトル
+        type: string
+        required: true
+      - name: description
+        label: 記事の概要
+        type: text
+        options:
+          maxlength: 200
+      - name: draft
+        label: 下書き
+        type: boolean
+        default: true
+        description: オンの間は非公開です。公開する場合はオフにして保存します。保存するとGitHubへ反映され、mainでは検証後にサイトが更新されます。
+      - name: createdAt
+        label: 公開日
+        type: date
+        required: true
+        description: 公開予約の機能ではありません。非公開にする場合は「下書き」をオンにします。
+        options:
+          format: yyyy-MM-dd
+      - name: updatedAt
+        label: 更新日
+        type: date
+        default: ""
+        description: 未更新なら空欄にします。入力する場合は公開日より後の日付を指定します。
+        options:
+          format: yyyy-MM-dd
+      - name: lang
+        label: 言語
+        type: select
+        default: ja
+        required: true
+        options:
+          values:
+            - name: ja
+              label: 日本語
+            - name: en
+              label: 英語
+      - name: routeSlug
+        label: URLの識別名
+        type: string
+        required: true
+        description: 半角英小文字・数字・ハイフンで64文字以内にします（例 hello-world）。作成時は画面上部のFilenameをnew-article.mdから変更してください。日本語はhello-world.md、英語版はhello-world-en.mdとし、ここには同じhello-worldを指定します。公開後は変更しないでください。
+        options:
+          maxlength: 64
+        pattern:
+          regex: "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          message: 半角英小文字・数字・ハイフンで入力してください。
+      - name: image
+        label: カバー画像
+        type: image
+        description: 任意です。アップロード前に長辺2400px程度に圧縮してください。未指定なら星空のカバーになります。
+        options:
+          media: photos
+      - name: tags
+        label: タグ
+        type: string
+        list: true
+      - name: authors
+        label: 著者
+        type: select
+        default: [keitaro]
+        options:
+          multiple: true
+          values:
+            - name: keitaro
+              label: 植木敬太郎
+      - name: stage
+        label: 記事の段階
+        type: select
+        options:
+          values:
+            - name: seedling
+              label: 書き始め
+            - name: budding
+              label: 整理中
+            - name: evergreen
+              label: まとまった記事
+      - name: audience
+        label: 想定する読者
+        type: text
+        options:
+          maxlength: 300
+      - name: order
+        label: 表示順
+        type: number
+        description: 通常は空欄で構いません。
+      - name: body
+        label: 本文（Markdown）
+        type: code
+        description: Markdownをそのまま編集します。数式、:::toggle、:::note、wikilinkも使えます。本文の画像は「記事の画像」に追加し、![画像の説明](../../assets/photos/ファイル名.jpg)の形で挿入します。画像の説明は公開ページでキャプションになります。
+        options:
+          format: markdown
+
+settings:
+  content:
+    merge: true
+  commit:
+    identity: user
+    templates:
+      create: "Add {path}"
+      update: "Update {path}"
+      delete: "Remove {path}"
+      rename: "Rename {oldPath} to {newPath}"

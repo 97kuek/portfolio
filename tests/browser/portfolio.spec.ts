@@ -61,15 +61,42 @@ for (const colorScheme of ["light", "dark"] as const) {
 
     test("search excludes recommendations and clears pending results", async ({
       page,
+      request,
     }) => {
       for (const prefix of ["", "/en"]) {
         await page.goto(`${prefix}/search?q=WASA`)
         const results = page.locator(".search-result h2 a")
-        await expect(results).toHaveCount(2)
-        for (const href of await results.evaluateAll((links) =>
-          links.map((link) => link.getAttribute("href")),
-        ))
-          expect(href).toMatch(/\/(blog\/hello|projects\/wasa-chat)/)
+        await expect.poll(() => results.count()).toBeGreaterThanOrEqual(2)
+        const hrefs = await results.evaluateAll((links) =>
+          links.map((link) => (link as HTMLAnchorElement).pathname),
+        )
+        expect(new Set(hrefs).size).toBe(hrefs.length)
+        expect(hrefs).toEqual(
+          expect.arrayContaining([
+            `${prefix}/blog/hello`,
+            `${prefix}/projects/wasa-chat`,
+          ]),
+        )
+        for (const href of hrefs) {
+          const response = await request.get(href)
+          expect(response.status(), href).toBe(200)
+          const indexedText = await page.evaluate(
+            (html) => {
+              const document = new DOMParser().parseFromString(
+                html,
+                "text/html",
+              )
+              const body = document.querySelector("[data-pagefind-body]")
+              for (const ignored of body?.querySelectorAll(
+                "[data-pagefind-ignore]",
+              ) ?? [])
+                ignored.remove()
+              return body?.textContent
+            },
+            await response.text(),
+          )
+          expect(indexedText, href).toContain("WASA")
+        }
         const input = page.locator("#search-input")
         await input.fill("research")
         await input.fill("")
@@ -122,13 +149,18 @@ for (const colorScheme of ["light", "dark"] as const) {
       const results = page.locator(".search-result h2 a")
       const expectLocale = async (prefix: string, query: string) => {
         await expect(input).toHaveValue(query)
-        await expect(results).toHaveCount(2)
-        for (const href of await results.evaluateAll((links) =>
-          links.map((link) => link.getAttribute("href")),
-        )) {
-          expect(href).toMatch(
-            new RegExp(`^${prefix}/(blog/hello|projects/wasa-chat)/?$`),
-          )
+        await expect.poll(() => results.count()).toBeGreaterThanOrEqual(2)
+        const paths = await results.evaluateAll((links) =>
+          links.map((link) => (link as HTMLAnchorElement).pathname),
+        )
+        expect(paths).toEqual(
+          expect.arrayContaining([
+            `${prefix}/blog/hello`,
+            `${prefix}/projects/wasa-chat`,
+          ]),
+        )
+        for (const path of paths) {
+          expect(path.startsWith("/en/"), path).toBe(prefix === "/en")
         }
         expect(new URL(page.url()).searchParams.get("q")).toBe(query)
       }

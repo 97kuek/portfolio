@@ -2,6 +2,8 @@
 title: "DDDとクリーンアーキテクチャ"
 description: "DDDの業務モデルとクリーンアーキテクチャの依存方向を整理。注文確定のPython例で、集約・ユースケース・保存処理の関係を考える。"
 createdAt: 2026-11-09
+draft: false
+routeSlug: "ddd-clean-architecture"
 tags:
   - "DDD"
   - "clean-architecture"

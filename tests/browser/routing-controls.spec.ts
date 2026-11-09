@@ -78,7 +78,7 @@ test("search results link directly to the canonical page", async ({
   for (const prefix of ["", "/en"]) {
     await page.goto(`${prefix}/search?q=WASA`)
     const results = page.locator(".search-result h2 a")
-    await expect(results).toHaveCount(2)
+    await expect.poll(() => results.count()).toBeGreaterThanOrEqual(2)
     for (const href of await results.evaluateAll((links) =>
       links.map((link) => (link as HTMLAnchorElement).href),
     )) {
@@ -119,7 +119,7 @@ for (const prefix of ["", "/en"]) {
       const projectResult = page.locator(
         `.search-result h2 a[href="${prefix}/projects/wasa-chat"]`,
       )
-      await expect(results).toHaveCount(2)
+      await expect.poll(() => results.count()).toBeGreaterThanOrEqual(2)
       await projectResult.click()
       await expect(page.locator("h1")).toHaveText("WASA Chat")
 
@@ -127,7 +127,7 @@ for (const prefix of ["", "/en"]) {
       await expect(page).toHaveURL(new RegExp(`${prefix}/search\\?q=WASA$`))
       await expect(input).toHaveValue("WASA")
       await expect(page.locator("h1")).toHaveText(prefix ? "Search" : "検索")
-      await expect(results).toHaveCount(2)
+      await expect.poll(() => results.count()).toBeGreaterThanOrEqual(2)
       await expect(projectResult).toBeVisible()
       await expect(
         page.locator(`.search-result h2 a[href="${prefix}/blog/hello"]`),

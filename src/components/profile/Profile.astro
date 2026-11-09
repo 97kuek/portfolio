@@ -15,7 +15,7 @@ import { Content as AboutContent } from "@/content/about.md"
 import { Content as AboutEnglishContent } from "@/content/about-en.md"
 import { getSiteLocale } from "@/lib/i18n"
 import { getUIStrings } from "@/lib/ui-strings"
-import { PROFILE_AVATAR_WIDTH } from "@/lib/layout"
+import { PROFILE_AVATAR_SIZES, PROFILE_AVATAR_WIDTH } from "@/lib/layout"
 
 import "@/styles/callout.css"
 
@@ -46,6 +46,7 @@ const tagline = isEnglish
         data-slot="profile-avatar"
         width={PROFILE_AVATAR_WIDTH}
         height={PROFILE_AVATAR_WIDTH}
+        sizes={PROFILE_AVATAR_SIZES}
         loading="eager"
         fetchpriority="high"
         class="profile-avatar"

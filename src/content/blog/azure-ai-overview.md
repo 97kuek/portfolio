@@ -2,6 +2,8 @@
 title: "Azure AIの全体像と使い分け"
 description: "Microsoft Foundry、Azure OpenAI、文書・画像認識の役割と使い分けを整理。検索・音声・言語処理やRAGの構成例もまとめた学習ノート。"
 createdAt: 2026-11-09
+draft: false
+routeSlug: "azure-ai-overview"
 tags:
   - "Azure"
   - "generative-ai"

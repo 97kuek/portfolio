@@ -1,5 +1,39 @@
 import { expect, test } from "@playwright/test"
 
+test.describe("profile portrait at 2x", () => {
+  test.use({ deviceScaleFactor: 2 })
+
+  test("downloads a portrait-sized candidate for its rendered box", async ({
+    page,
+  }) => {
+    await page.goto("/")
+    const image = page.locator('img[data-slot="profile-avatar"]')
+    const selection = await image.evaluate(
+      async (element: HTMLImageElement) => {
+        await element.decode()
+        const candidate = element.srcset
+          .split(",")
+          .map((value) => {
+            const [url, descriptor] = value.trim().split(/\s+/)
+            return {
+              url: new URL(url, location.href).href,
+              width: Number.parseFloat(descriptor),
+            }
+          })
+          .find(({ url }) => url === element.currentSrc)
+        return {
+          selectedWidth: candidate?.width,
+          renderedWidth: element.getBoundingClientRect().width,
+        }
+      },
+    )
+    expect(selection.selectedWidth).toBeGreaterThanOrEqual(
+      selection.renderedWidth * 2,
+    )
+    expect(selection.selectedWidth).toBeLessThanOrEqual(480)
+  })
+})
+
 for (const deviceScaleFactor of [1, 2]) {
   test.describe(`article photos at ${deviceScaleFactor}x`, () => {
     test.use({

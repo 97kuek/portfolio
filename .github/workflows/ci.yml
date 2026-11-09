@@ -14,56 +14,95 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check:
+  scope:
     runs-on: ubuntu-latest
+    outputs:
+      docs_only: ${{ steps.scope.outputs.docs_only }}
     steps:
       - uses: actions/checkout@v7
-
-      - uses: pnpm/action-setup@v6
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Classify changes and check documentation whitespace
+        id: scope
+        run: node scripts/ci-scope.mjs
+
+  check:
+    needs: scope
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require successful scope check
+        env:
+          SCOPE_RESULT: ${{ needs.scope.result }}
+        run: test "$SCOPE_RESULT" = success
+
+      - uses: actions/checkout@v7
+        if: needs.scope.outputs.docs_only != 'true'
+
+      - uses: pnpm/action-setup@v6
+        if: needs.scope.outputs.docs_only != 'true'
+
+      - uses: actions/setup-node@v7
+        if: needs.scope.outputs.docs_only != 'true'
         with:
           node-version: 22
           cache: pnpm
 
       - name: Install dependencies
+        if: needs.scope.outputs.docs_only != 'true'
         run: pnpm install --frozen-lockfile
 
       - name: Format check
+        if: needs.scope.outputs.docs_only != 'true'
         run: pnpm format:check
 
       - name: Lint
+        if: needs.scope.outputs.docs_only != 'true'
         run: pnpm lint
 
       - name: Style architecture
+        if: needs.scope.outputs.docs_only != 'true'
         run: pnpm lint:styles
 
       - name: Markdown plugins
+        if: needs.scope.outputs.docs_only != 'true'
         run: pnpm test:markdown
 
       - name: Unit tests
+        if: needs.scope.outputs.docs_only != 'true'
         run: pnpm test:unit
 
       - name: Type check
+        if: needs.scope.outputs.docs_only != 'true'
         run: pnpm astro check
 
       - name: Build
+        if: needs.scope.outputs.docs_only != 'true'
         run: pnpm build
 
       - name: Generated HTML check
+        if: needs.scope.outputs.docs_only != 'true'
         run: pnpm test:html
 
       - name: Link check
+        if: needs.scope.outputs.docs_only != 'true'
         run: pnpm test:links
 
       - name: Install browser
+        if: needs.scope.outputs.docs_only != 'true'
         run: pnpm exec playwright install --with-deps chromium
 
       - name: Browser regression tests
+        if: needs.scope.outputs.docs_only != 'true'
         run: pnpm test:browser
 
       - name: Save validated site
-        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        if: needs.scope.outputs.docs_only != 'true' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
         with:
           name: validated-site
@@ -73,13 +112,13 @@ jobs:
           retention-days: 1
 
       - uses: actions/upload-artifact@v4
-        if: failure()
+        if: failure() && needs.scope.outputs.docs_only != 'true'
         with:
           name: browser-report
           path: playwright-report/
 
   deploy:
-    needs: check
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: [scope, check]
+    if: needs.scope.outputs.docs_only != 'true' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     uses: ./.github/workflows/deploy.yml
     secrets: inherit

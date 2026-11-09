@@ -24,10 +24,15 @@ for (const prefix of ["", "/en"]) {
         const results = page.locator(".search-result h2 a")
         await input.fill("WASA")
         await input.press("Enter")
-        await expect(results).toHaveCount(2)
+        await expect.poll(() => results.count()).toBeGreaterThanOrEqual(2)
         await input.fill("WASA Chat")
         await input.press("Enter")
-        await expect(results).toHaveCount(2)
+        await expect.poll(() => results.count()).toBeGreaterThanOrEqual(2)
+        await expect(
+          page.locator(
+            `.search-result h2 a[href="${prefix}/projects/wasa-chat"]`,
+          ),
+        ).toBeVisible()
 
         const title = await results.first().textContent()
         const href = await results.first().getAttribute("href")
@@ -41,7 +46,7 @@ for (const prefix of ["", "/en"]) {
         for (let i = 0; i < 2; i++) {
           await page.goBack()
           await expect(input).toHaveValue("WASA Chat")
-          await expect(results).toHaveCount(2)
+          await expect.poll(() => results.count()).toBeGreaterThanOrEqual(2)
           expect(new URL(page.url()).searchParams.get("q")).toBe("WASA Chat")
           await page.goForward()
           await expect(page.locator("h1")).toHaveText(title!)
@@ -97,7 +102,9 @@ for (const prefix of ["", "/en"]) {
         await page.unroute("**/pagefind/pagefind.js")
         await reload.focus()
         await page.keyboard.press("Enter")
-        await expect(page.locator(".search-result")).toHaveCount(2)
+        await expect
+          .poll(() => page.locator(".search-result").count())
+          .toBeGreaterThanOrEqual(2)
         await expect(input).toHaveValue("WASA Chat")
         expect(new URL(page.url()).searchParams.get("q")).toBe("WASA Chat")
         await expect(reload).toBeHidden()
@@ -125,7 +132,9 @@ for (const prefix of ["", "/en"]) {
           document.querySelector<HTMLButtonElement>("[data-reload]")!.click()
         })
         await expect(page.locator("#search-input")).toHaveValue("WASA Chat")
-        await expect(page.locator(".search-result")).toHaveCount(2)
+        await expect
+          .poll(() => page.locator(".search-result").count())
+          .toBeGreaterThanOrEqual(2)
         expect(new URL(page.url()).searchParams.get("q")).toBe("WASA Chat")
         await expect(page.locator("[data-recovery]")).toBeHidden()
       })

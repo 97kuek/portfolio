@@ -35,7 +35,7 @@
     "lint": "oxlint --type-aware",
     "audit": "pnpm audit --prod --audit-level high",
     "lint:styles": "node scripts/check-style-architecture.mjs",
-    "test:unit": "node --experimental-strip-types --test tests/i18n.test.ts tests/interactions.test.ts tests/string-manipulation.test.ts tests/prepare-pages.test.ts tests/comments-api.test.ts tests/blog-data.test.ts tests/code-styles.test.ts tests/date-parsing.test.ts tests/frontmatter-dates.test.ts tests/reactions-api.test.ts",
+    "test:unit": "node --experimental-strip-types --test tests/i18n.test.ts tests/interactions.test.ts tests/string-manipulation.test.ts tests/prepare-pages.test.ts tests/comments-api.test.ts tests/blog-data.test.ts tests/code-styles.test.ts tests/date-parsing.test.ts tests/frontmatter-dates.test.ts tests/reactions-api.test.ts tests/ci-scope.test.mjs",
     "test:markdown": "node --experimental-strip-types --test tests/markdown-plugins.test.ts",
     "test:html": "node scripts/check-generated-html.mjs",
     "test:links": "node scripts/check-links.mjs",
