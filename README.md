@@ -34,6 +34,7 @@ The static Astro build is deployed to Cloudflare Pages at
 
 ```bash
 pnpm build
+wrangler d1 migrations apply portfolio-interactions --remote
 wrangler pages deploy dist --project-name 97kuek --branch main
 ```
 

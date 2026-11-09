@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto"
 import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-sections"
 import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers"
 import {
@@ -59,3 +60,13 @@ const ecOptions: SatteriExpressiveCodeOptions = {
 }
 
 export const ecRenderer = createRenderer(ecOptions)
+
+const codeStylesAsset = ecRenderer.then(({ baseStyles, themeStyles }) => {
+  const css = baseStyles + themeStyles
+  const hash = createHash("sha256").update(css).digest("hex")
+  return { href: `/styles/code-${hash}.css`, css }
+})
+
+export function getCodeStylesAsset() {
+  return codeStylesAsset
+}

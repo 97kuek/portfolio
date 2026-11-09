@@ -11,6 +11,13 @@ export const CONTENT_THUMB_SIZES = "(max-width: 40rem) 100vw, 12rem"
 /** Detail-page covers: full width up to the prose measure. */
 export const COVER_SIZES = "(max-width: 48rem) 100vw, 48rem"
 
+/**
+ * Markdown figures: the body's 44rem border box minus its inline gutters.
+ * Use the 1rem gutter minimum from layout.css as a conservative upper bound;
+ * the fluid gutters can make the actual prose box slightly narrower.
+ */
+export const PROSE_IMAGE_SIZES = "(min-width: 44rem) 42rem, calc(100vw - 2rem)"
+
 /** Candidates rendered for a detail-page cover. */
 export const COVER_WIDTHS = [640, 960, 1280]
 

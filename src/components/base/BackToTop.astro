@@ -21,9 +21,14 @@ const ui = getUIStrings(Astro.url.pathname)
 <script>
   class BackToTop extends HTMLElement {
     private button: HTMLButtonElement | null = null
+    private commentsObserver: IntersectionObserver | null = null
+    private commentsVisible = false
 
     private readonly updateVisibility = () => {
-      this.button?.toggleAttribute("hidden", window.scrollY <= 300)
+      this.button?.toggleAttribute(
+        "hidden",
+        window.scrollY <= 300 || this.commentsVisible,
+      )
     }
 
     private readonly scrollToTop = () => {
@@ -39,6 +44,16 @@ const ui = getUIStrings(Astro.url.pathname)
     connectedCallback(): void {
       this.button = this.querySelector("button")
       if (!this.button) return
+      this.commentsObserver?.disconnect()
+      this.commentsVisible = false
+      const comments = document.querySelector("post-comments")
+      if (comments) {
+        this.commentsObserver = new IntersectionObserver(([entry]) => {
+          this.commentsVisible = entry.isIntersecting
+          this.updateVisibility()
+        })
+        this.commentsObserver.observe(comments)
+      }
       this.button.addEventListener("click", this.scrollToTop)
       window.addEventListener("scroll", this.updateVisibility, {
         passive: true,
@@ -47,6 +62,7 @@ const ui = getUIStrings(Astro.url.pathname)
     }
 
     disconnectedCallback(): void {
+      this.commentsObserver?.disconnect()
       this.button?.removeEventListener("click", this.scrollToTop)
       window.removeEventListener("scroll", this.updateVisibility)
     }

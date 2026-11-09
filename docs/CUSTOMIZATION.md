@@ -1,4 +1,4 @@
-# Customize My Scholar
+# Customize the Portfolio
 
 Start with content and configuration. Move into CSS, icons, and Markdown
 pipeline changes only after the site builds with your own data.
@@ -7,14 +7,11 @@ pipeline changes only after the site builds with your own data.
 
 Most site content lives in `src/content/`.
 
-- `src/content/about.md`: about-page prose.
-- `src/content/tech.md`, `src/content/misc.md`, `src/content/services.md`:
-  homepage/profile sections.
+- `src/content/about.md` and `src/content/about-en.md`: homepage profile prose.
 - `src/content/blog/`: blog posts and subposts.
 - `src/content/projects/`: project cards and project detail pages.
 - `src/content/experience.json`: education, research, and teaching timeline.
 - `src/content/people.toml`: authors used by blog posts.
-- `src/content/publications/main.bib`: BibTeX source for `/publications`.
 
 Blog posts use Markdown. Required frontmatter is:
 
@@ -42,8 +39,7 @@ Static files live in `public/` and are served from the site root.
 - Favicons and app icons: `public/favicon.ico`, `public/favicon.svg`,
   `public/apple-touch-icon.png`, `public/web-app-manifest-*.png`.
 - Web manifest: `public/site.webmanifest`.
-- Social fallback image: `public/img/social-preview.png`.
-- Documents: `public/doc/`.
+- Social fallback image: `public/img/social-preview.jpg`.
 - Fonts: `public/fonts/`.
 
 If you remove or rename an asset, update paths in `src/site.config.ts`, Markdown
@@ -58,19 +54,23 @@ Edit `src/site.config.ts`.
   license.
 - `PROFILE`: name, tagline, email, pronunciation, pronouns, and social links.
 - `NAV_LINKS`: top-level header navigation.
-- `PUB_CONFIG`: publication author highlighting and equal-contribution symbols.
 - `FOOTER`: source links, footer links, and theme credits.
 
 The config is validated in development with Zod schemas from `src/schemas.ts`.
 If a dev server or build fails, read the schema error before changing layout code.
+
+Google Search Console uses the URL-prefix property `https://97kuek.pages.dev/`.
+Its public HTML verification token is `SITE.googleSiteVerification`; keep it in
+place after verification to retain ownership. Submit `/sitemap-index.xml` in
+Search Console. Astro generates the sitemap, and `/robots.txt` links to it.
 
 ## 4. Change routes and pages
 
 Pages live in `src/pages/`.
 
 - Remove a page by deleting its route file and removing any navigation link.
-- Add a simple content page by following `src/pages/teaching.md` or
-  `src/pages/uses.astro`.
+- Add a simple content page by following `src/pages/privacy.astro` and its
+  shared page component in `src/components/pages/`.
 - Add collection-backed pages by following `src/pages/projects/index.astro` and
   `src/pages/projects/[...id].astro`.
 
@@ -151,6 +151,9 @@ Current features include:
 - Heading normalization from `src/plugins/satteri-normalize-headings.ts`.
 - Sidenotes from `src/plugins/satteri-sidenotes.ts`.
 
+Footnotes open within the text column by clicking their number or focusing it
+and pressing Space. Their styles live in `src/styles/typography-block.css`.
+
 Use Markdown directives for callouts:
 
 ```md
@@ -190,7 +193,7 @@ colons (`::::toggle[…]` … `::::`).
 Use the shared Markdown directive in any article or project:
 
 ```md
-::youtube[OpenAI公式：Dotsの紹介]{id="uXspbC2srEQ"}
+::youtube[動画の紹介]{id="VIDEO_ID_11"}
 ```
 
 Use the 11-character YouTube video ID and a title in the page language.
@@ -199,34 +202,15 @@ is responsive, loads lazily, and supports playback and fullscreen in the page
 without autoplay. Only `youtube-nocookie.com` is allowed by the embed plugin
 and the site’s `frame-src` policy. No MDX or page-specific JavaScript is needed.
 
-## 9. Change publications
-
-Publications are loaded from `src/content/publications/main.bib` and rendered by
-`src/lib/publications/` plus `src/components/publications/PubCard.astro`.
-
-Use BibTeX fields consistently. Link-like fields are mapped to icons by
-`PUBLICATION_LINK_TYPES` in `src/icon.config.ts`. If you add a custom BibTeX
-field for links, add a matching entry there.
-
-Publication cards also support optional representative media. Add a public or
-remote image URL with `image`, plus concise alternative text with `imagealt`:
-
-```bibtex
-image={/img/publications/example.svg},
-imagealt={Diagram summarizing the publication's method},
-```
-
-Entries without these fields keep the standard text-only card layout.
-
-## 10. Agent workflow
+## 9. Agent workflow
 
 When using a coding agent:
 
-1. Ask it to read `docs/INSTALL.md`, this file, `src/site.config.ts`,
+1. Ask it to read `DEVELOPMENT.md`, this file, `src/site.config.ts`,
    `src/content.config.ts`, and `src/icon.config.ts` first.
 2. Replace content before redesigning components.
 3. Run `pnpm build` after content changes.
 4. Run `pnpm format:check`, `pnpm lint`, `pnpm test:markdown`, and
    `pnpm astro check` before opening a pull request.
-5. Take screenshots of at least `/`, `/blog`, `/projects`, `/publications`, and
+5. Take screenshots of at least `/`, `/blog`, `/projects`, `/experience`, and
    one post page after visual changes.

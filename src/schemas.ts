@@ -72,10 +72,6 @@ export const SiteConfigSchema = z.object({
   }),
 
   /**
-   * Home page settings. Every count hides its section when set to 0.
-   * The recent-posts section is governed by `blog.featuredPostCount`.
-   */
-  /**
    * How much of each section the home page previews before sending readers to
    * its full listing. Set a count to 0 to drop that section from the page.
    */
@@ -96,9 +92,11 @@ export const SiteConfigSchema = z.object({
     })
     .optional(),
 
+  // Public ownership token; keep it after Search Console verification.
+  googleSiteVerification: z.string().min(1).optional(),
+
   // Theme settings
   favicon: z.string().default("/favicon.ico"),
-  prerender: z.boolean().default(true),
 
   // Content license
   license: z
@@ -235,34 +233,6 @@ export const FooterConfigSchema = z.object({
 })
 
 /**
- * Schema for tools/software with categorization tags.
- */
-export const ToolSchema = z.object({
-  /** Name of the tool or software */
-  name: z.string(),
-  /** Brief description of what the tool does */
-  description: z.string(),
-  /** Official website or documentation URL */
-  href: z.url(),
-  /** Icon identifier for the tool */
-  icon: z.string(),
-  /** Categorization tags for filtering and organization */
-  tags: z
-    .array(
-      z.enum([
-        "Free",
-        "OpenSource",
-        "Subscription",
-        "Bundle",
-        "SelfHosted",
-        "Gifted",
-        "Favorite",
-      ]),
-    )
-    .optional(),
-})
-
-/**
  * Taxonomy of project forms. Technical domains and tools belong in `skills`
  * so the project type and skill filters remain semantically independent.
  */
@@ -282,77 +252,3 @@ export const ProjectTypeSchema = z.enum(
     ...ProjectTypeSlug[],
   ],
 )
-
-/**
- * Schema for publication configuration including author display and formatting settings.
- */
-export const PublicationConfigSchema = z.object({
-  // Author display settings
-  maxFirstAuthors: z.number().min(1).default(4),
-  maxLastAuthors: z.number().min(0).optional(),
-  highlightAuthor: z.object({
-    firstName: z.string(),
-    lastName: z.string(),
-    aliases: z.array(z.string()).optional(),
-  }),
-  equalSymbols: z
-    .object({
-      first: z.string().default("*"),
-      second: z.string().default("†"),
-      third: z.string().default("‡"),
-      last: z.string().default("§"),
-    })
-    .default({ first: "*", second: "†", third: "‡", last: "§" }),
-})
-
-/**
- * Processed publication data type for component rendering.
- * This represents the transformed data structure expected by PubCard.astro
- */
-export const ProcessedPublicationSchema = z.object({
-  // Core publication info
-  title: z.string(),
-  /** Citation.js-formatted BibTeX entry for the copy action */
-  bibtex: z.string(),
-  year: z.number().or(z.string()).optional(),
-  abstract: z.string().optional(),
-  award: z.string().optional(),
-  image: z.string().optional(),
-  imageAlt: z.string().optional(),
-
-  // Main URL (derived from doi, url, or other primary link)
-  mainUrl: z.string().optional(),
-
-  // Processed author data
-  authorData: z.object({
-    /** First authors to display (with highlighted author(s) and commas) */
-    displayFirstAuthors: z.string(),
-    /** Last authors to display (with highlighted author(s) and commas) */
-    displayLastAuthors: z.string().optional(),
-    /** Whether there are more authors than displayed */
-    hasMore: z.boolean(),
-    /** Count of hidden authors */
-    hiddenCount: z.number(),
-    /** Hidden authors (with highlighted author(s) and commas) */
-    hiddenAuthors: z.string(),
-  }),
-
-  /** Information based on venue / booktitle / journal / etc */
-  publisher: z.string().optional(),
-
-  // Action links
-  links: z.array(
-    z.object({
-      href: z.string(),
-      icon: z.string(),
-      label: z.string(),
-    }),
-  ),
-
-  // Sorting & filtering metadata
-  keywords: z.array(z.string()).default([]),
-  expandedKeywords: z.array(z.string()).default([]),
-  selected: z.boolean().default(false),
-  authorPosition: z.number().default(Infinity),
-  equalContributionNote: z.string().default(""),
-})

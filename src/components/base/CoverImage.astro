@@ -72,13 +72,13 @@ const stars = Array.from({ length: STAR_COUNT }, () => {
   const size = random()
   const glow = random()
   return {
-    cx: x * WIDTH,
+    cx: Number((x * WIDTH).toFixed(3)),
     // Stars thin out towards the horizon rather than filling the whole frame.
-    cy: y ** 1.4 * (HEIGHT * 0.72),
+    cy: Number((y ** 1.4 * (HEIGHT * 0.72)).toFixed(3)),
     // Kept small: the same drawing is a 12rem thumbnail and a full-width
     // banner, and anything larger reads as blobs once it is scaled up.
-    r: 0.22 + size * 0.5,
-    opacity: 0.4 + glow * 0.5,
+    r: Number((0.22 + size * 0.5).toFixed(3)),
+    opacity: Number((0.4 + glow * 0.5).toFixed(3)),
   }
 })
 

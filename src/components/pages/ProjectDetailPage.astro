@@ -19,7 +19,7 @@ import {
 import { sectionCrumb } from "@/lib/sections"
 import { interactionTarget } from "@/lib/interactions"
 import { ogImagePath } from "@/lib/og"
-import { processRawHeadings } from "@/lib/toc"
+import { MIN_TOC_HEADINGS, processRawHeadings } from "@/lib/toc"
 import { COVER_SIZES, COVER_WIDTHS } from "@/lib/layout"
 import {
   getProjectLinks,
@@ -40,18 +40,9 @@ const isEnglish = locale === "en"
 
 const { Content, headings } = await render(project)
 
-/* Two entries is a list of the obvious; the table earns its space from three. */
-const MIN_TOC_HEADINGS = 3
 const tocHeadings = processRawHeadings(headings, SITE.tocMaxDepth)
 const showToc = tocHeadings.length >= MIN_TOC_HEADINGS
-const links = getProjectLinks(
-  project.data.code,
-  project.data.doc,
-  project.data.paper,
-  project.data.url,
-  project.data.release,
-  locale,
-)
+const links = getProjectLinks(project.data, locale)
 const target = interactionTarget(
   "projects",
   getContentSlug(project.id, project.data),

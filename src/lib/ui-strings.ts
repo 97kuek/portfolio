@@ -1,4 +1,4 @@
-import { getSiteLocale, type SiteLocale } from "@/lib/i18n"
+import { getSiteLocale, type SiteLocale } from "./i18n.ts"
 
 /**
  * Chrome and component labels that are not content. Page copy lives in the
@@ -9,6 +9,8 @@ import { getSiteLocale, type SiteLocale } from "@/lib/i18n"
 const UI_STRINGS = {
   en: {
     backToTop: "Back to top",
+    footnotes: "Footnotes",
+    footnoteBackref: "Back to reference {n}",
     stageLabels: {
       seedling: "seedling",
       budding: "budding",
@@ -37,6 +39,8 @@ const UI_STRINGS = {
     commentEmpty: "No comments yet. Be the first.",
     commentFailed: "Could not post the comment. Please try again.",
     commentLoadFailed: "Comments could not be loaded.",
+    commentLoadOlder: "Load earlier comments",
+    commentLoading: "Loading…",
     commentName: "Name (optional)",
     commentNamePlaceholder: "Anonymous",
     commentPending: "Thanks — your comment is waiting to be reviewed.",
@@ -47,8 +51,6 @@ const UI_STRINGS = {
     commentSubmit: "Post comment",
     commentSubmitting: "Posting…",
     comments: "Comments",
-    currentPost: "Current post",
-    currentSubpost: "Current subpost",
     breadcrumbNav: "Breadcrumb navigation",
     closeImage: "Close the image",
     openImage: "Open image",
@@ -82,9 +84,6 @@ const UI_STRINGS = {
     oldestPost: "You're at the oldest post!",
     pagination: "Pagination",
     postActions: "Post actions",
-    postAndSubposts: "Post and subposts",
-    postNavigation: "Post navigation",
-    postLabel: (title: string) => `Post: ${title}`,
     previous: "Previous",
     previousPage: "Go to previous page",
     previousPost: "Previous Post",
@@ -109,11 +108,6 @@ const UI_STRINGS = {
     searchUnavailable: "Search is unavailable on this build.",
     siteNav: "Site navigation",
     subpost: "Subpost",
-    subpostCount: (count: number) =>
-      `${count} ${count === 1 ? "subpost" : "subposts"}`,
-    subposts: "Subposts",
-    subpostsNavigation: "Subposts navigation",
-    subpostsSection: "Subposts section",
     parentPost: "Parent post",
     tableOfContents: "Table of contents",
     theme: "Theme",
@@ -125,6 +119,8 @@ const UI_STRINGS = {
   },
   ja: {
     backToTop: "ページ上部へ戻る",
+    footnotes: "脚注",
+    footnoteBackref: "参照{n}に戻る",
     stageLabels: {
       seedling: "アイデア・メモ",
       budding: "推敲中",
@@ -154,6 +150,8 @@ const UI_STRINGS = {
     commentFailed:
       "コメントを送信できませんでした。時間をおいて再度お試しください。",
     commentLoadFailed: "コメントを読み込めませんでした。",
+    commentLoadOlder: "以前のコメントを読み込む",
+    commentLoading: "読み込み中…",
     commentName: "お名前（任意）",
     commentNamePlaceholder: "匿名",
     commentPending: "ありがとうございます。確認後に公開されます。",
@@ -163,8 +161,6 @@ const UI_STRINGS = {
     commentSubmit: "コメントする",
     commentSubmitting: "送信中…",
     comments: "コメント",
-    currentPost: "現在の記事",
-    currentSubpost: "現在の補足記事",
     breadcrumbNav: "パンくずリスト",
     closeImage: "画像を閉じる",
     openImage: "画像を開く",
@@ -199,9 +195,6 @@ const UI_STRINGS = {
     oldestPost: "これが最初の記事です",
     pagination: "ページ送り",
     postActions: "記事の操作",
-    postAndSubposts: "記事と補足記事",
-    postNavigation: "記事内ナビゲーション",
-    postLabel: (title: string) => `記事: ${title}`,
     previous: "前へ",
     previousPage: "前のページへ",
     previousPost: "前の記事",
@@ -228,10 +221,6 @@ const UI_STRINGS = {
     searchUnavailable: "このビルドでは検索を利用できません。",
     siteNav: "サイトナビゲーション",
     subpost: "補足記事",
-    subpostCount: (count: number) => `補足記事${count}件`,
-    subposts: "補足記事",
-    subpostsNavigation: "補足記事のナビゲーション",
-    subpostsSection: "補足記事のセクション",
     parentPost: "親記事",
     tableOfContents: "目次",
     theme: "テーマ",

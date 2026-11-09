@@ -1,10 +1,10 @@
 import type { APIRoute, GetStaticPaths } from "astro"
 
-import { PostManager } from "@/lib/blog"
+import { getAllPostsAndSubposts } from "@/lib/blog"
 import { renderPostImage } from "@/lib/og"
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const posts = await PostManager.getInstance().getAllPostsAndSubposts()
+  const posts = await getAllPostsAndSubposts()
   return posts.map((post) => ({
     params: { id: post.id },
     props: {

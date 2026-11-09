@@ -22,7 +22,8 @@ export default defineConfig({
   compressHTML: true,
   trailingSlash: "never",
   output: "static",
-  prefetch: { prefetchAll: true, defaultStrategy: "hover" },
+  prefetch: { prefetchAll: false, defaultStrategy: "hover" },
+  build: { inlineStylesheets: "never" },
   image: {
     responsiveStyles: true,
     layout: "constrained",
@@ -45,12 +46,12 @@ export default defineConfig({
         !page.includes("/404"),
     }),
   ],
-  // Pagefind is loaded at runtime; do not inject unresolved preload markers
-  // into Astro's automatically inlined client script.
+  // Cache the shared copy handler, and keep Pagefind's runtime import out of
+  // automatically inlined scripts with unresolved preload markers.
   vite: {
     build: {
       assetsInlineLimit: (file) =>
-        file.includes("SearchPage") ? false : undefined,
+        /SearchPage|CopyButton/.test(file) ? false : undefined,
     },
   },
   server: { port: 4321, host: true },

@@ -97,6 +97,17 @@ for (const file of htmlFiles) {
     /__VITE_PRELOAD__/,
     `${relative}: unresolved script preload marker`,
   )
+  if (html.includes('class="expressive-code"')) {
+    const stylesheet = html.match(/href="(\/styles\/code-[a-f0-9]+\.css)"/)
+    assert.ok(
+      stylesheet,
+      `${relative}: missing shared code CSS; clear Astro's content cache after changing Markdown plugins`,
+    )
+    assert.ok(
+      (await stat(path.join(distDir, stylesheet[1].slice(1)))).isFile(),
+      `${relative}: shared code CSS asset is missing`,
+    )
+  }
   const ids = [...html.matchAll(/<[^>]+\sid="([^"]+)"/g)].map(
     (match) => match[1],
   )
@@ -125,7 +136,7 @@ for (const file of htmlFiles) {
     )
   }
 
-  if (!relative.startsWith(`en${path.sep}`)) {
+  if (relative !== "en.html" && !relative.startsWith(`en${path.sep}`)) {
     assert.doesNotMatch(
       html,
       /aria-label="(?:Navigate to|Send email|Copy email|Subposts navigation|Current (?:post|subpost)|Parent post)/,

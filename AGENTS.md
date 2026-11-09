@@ -72,7 +72,7 @@
 - スキーマ変更は `migrations/` に足して適用する
 
 ```bash
-wrangler d1 execute portfolio-interactions --remote --file=migrations/<file>.sql
+wrangler d1 migrations apply portfolio-interactions --remote
 ```
 
 - モデレーションは `pnpm comments <list|hide|show|delete|backup>` を使う
@@ -182,12 +182,15 @@ pnpm test:links
 
 ## デプロイ
 
-- `main` にpushすると `.github/workflows/deploy.yml` が検証・ビルド・デプロイする
+- `main` にpushすると `.github/workflows/ci.yml` が検証・ビルドを1回行い、同じ成果物を再利用する `deploy.yml` を呼ぶ
   - `CLOUDFLARE_API_TOKEN` と `CLOUDFLARE_ACCOUNT_ID` のsecretが揃うまでは動かない
+  - デプロイ前にD1の未適用migrationを適用する。トークンにはPagesとD1の権限が必要
+  - GitHub Actionsから手動実行するときは `main` のCIワークフローを使う。PRと他ブランチはデプロイしない
 - 手動でデプロイする場合
 
 ```bash
 pnpm build
+wrangler d1 migrations apply portfolio-interactions --remote
 wrangler pages deploy dist --project-name 97kuek --branch main
 ```
 

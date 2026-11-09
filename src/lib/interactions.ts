@@ -48,3 +48,20 @@ export const COMMENTS_ENDPOINT = "/api/comments"
  */
 export const COMMENT_MAX_LENGTH = 2000
 export const COMMENT_AUTHOR_MAX_LENGTH = 40
+
+/** Public fields only; visitor hashes never leave the API. */
+export interface PublicComment {
+  id: number
+  author: string | null
+  body: string
+  createdAt: string
+}
+
+export interface CommentPage {
+  comments: PublicComment[]
+  nextCursor: number | null
+}
+
+export interface CommentPostResponse extends CommentPage {
+  pending: boolean
+}

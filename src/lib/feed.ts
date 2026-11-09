@@ -3,8 +3,8 @@ import type { APIContext } from "astro"
 
 import { getSiteDescription } from "@site-config"
 import { getDisplayName } from "@/components/profile/helper"
-import { PostManager } from "@/lib/blog"
-import { getContentHref, isContentInLocale } from "@/lib/content-locale"
+import { getPostsInLocale } from "@/lib/blog/listing"
+import { getContentHref } from "@/lib/content-locale"
 import type { SiteLocale } from "@/lib/i18n"
 
 /**
@@ -12,9 +12,7 @@ import type { SiteLocale } from "@/lib/i18n"
  * should not start receiving the English translations of the same posts.
  */
 export const buildFeed = async (context: APIContext, locale: SiteLocale) => {
-  const posts = (await PostManager.getInstance().getMainPosts()).filter(
-    (post) => isContentInLocale(post.data, locale),
-  )
+  const posts = await getPostsInLocale(locale)
 
   return rss({
     title: getDisplayName(locale),

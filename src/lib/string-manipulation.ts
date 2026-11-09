@@ -9,22 +9,19 @@
  */
 export const slugify = (text: string): string => {
   return text
+    .normalize("NFC")
     .trim()
     .toLowerCase()
     .replace(/\s+/g, "-") // Replace spaces with dashes
-    .replace(/[^\w-]+/g, "") // Remove non-word characters except dashes
+    .replace(/[^\p{L}\p{N}\p{M}_-]+/gu, "")
     .replace(/--+/g, "-") // Replace multiple dashes with single dash
     .replace(/^-+/, "") // Remove leading dashes
     .replace(/-+$/, "") // Remove trailing dashes
 }
 
-/**
- * Deduplicates an array of strings by converting to lowercase first
- * @param arr Array of strings to deduplicate
- * @returns Array with duplicates removed (case-insensitive)
- */
-export const dedupLowerCase = (arr: string[]) => [
-  ...new Set(arr.map((s) => s.toLowerCase())),
+/** Normalize before deduplicating, and omit values that cannot form a route. */
+export const getUniqueSlugs = (values: string[]) => [
+  ...new Set(values.map(slugify).filter(Boolean)),
 ]
 
 /**

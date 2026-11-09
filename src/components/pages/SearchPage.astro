@@ -130,6 +130,8 @@ const ui = getUIStrings(locale)
 </style>
 
 <script>
+  import { normalizePath } from "@/lib/i18n"
+
   interface PagefindResultData {
     url: string
     meta: { title?: string }
@@ -238,7 +240,7 @@ const ui = getUIStrings(locale)
       const url = new URL(location.href)
       if (query) url.searchParams.set("q", query)
       else url.searchParams.delete("q")
-      history.replaceState(null, "", url)
+      history.replaceState(history.state, "", url)
 
       if (!this.results) return
       this.results.replaceChildren()
@@ -284,7 +286,9 @@ const ui = getUIStrings(locale)
 
           const heading = document.createElement("h2")
           const link = document.createElement("a")
-          link.href = entry.url
+          const url = new URL(entry.url, location.href)
+          url.pathname = normalizePath(url.pathname)
+          link.href = `${url.pathname}${url.search}${url.hash}`
           link.textContent = entry.meta.title ?? entry.url
           heading.append(link)
 

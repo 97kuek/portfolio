@@ -4,6 +4,7 @@ import test from "node:test"
 import {
   getSiteLocale,
   localizedPath,
+  normalizePath,
   stripLocalePrefix,
   translatedPathFromAvailable,
 } from "../src/lib/i18n.ts"
@@ -42,4 +43,14 @@ void test("translation lookup returns only an exact generated counterpart", () =
     translatedPathFromAvailable("/projects/japanese-only", availablePaths),
     null,
   )
+})
+
+void test("encoded Japanese paths find the generated translation", () => {
+  const paths = new Set(["/blog/tags/学習", "/en/blog/tags/学習"])
+  assert.equal(
+    translatedPathFromAvailable("/blog/tags/%E5%AD%A6%E7%BF%92/", paths),
+    "/en/blog/tags/学習",
+  )
+  assert.equal(normalizePath("/blog/tags/bad%tag/"), "/blog/tags/bad%tag")
+  assert.equal(normalizePath("/blog/tags/a%2Fb/"), "/blog/tags/a%2Fb")
 })

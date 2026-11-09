@@ -8,7 +8,6 @@ import { getContentHref, getContentSlug } from "@/lib/content-locale"
 import { getSiteLocale } from "@/lib/i18n"
 import { CONTENT_THUMB_SIZES } from "@/lib/layout"
 import { getProjectLinks } from "@/lib/projects"
-import { slugify } from "@/lib/string-manipulation"
 import { getUIStrings } from "@/lib/ui-strings"
 
 import "@/styles/content-row.css"
@@ -18,18 +17,10 @@ interface Props {
 }
 
 const { project } = Astro.props
-const { title, selected, image, code, doc, paper, url, release, skills } =
-  project.data
+const { title, selected, image, skills } = project.data
 
 const ui = getUIStrings(Astro.url.pathname)
-const links = getProjectLinks(
-  code,
-  doc,
-  paper,
-  url,
-  release,
-  getSiteLocale(Astro.url.pathname),
-)
+const links = getProjectLinks(project.data, getSiteLocale(Astro.url.pathname))
 
 // The detail page is the richer destination when it exists; otherwise send
 // people straight to the thing itself, preferring the live URL over a repo.
@@ -40,10 +31,7 @@ const titleHref = hasDetailPage
   : primaryLink?.href
 ---
 
-<article
-  class="content-row"
-  data-project-skills={skills.map((skill) => slugify(skill)).join(",")}
->
+<article class="content-row">
   <div class="content-row-thumb">
     {titleHref ? (
       <Link href={titleHref} class="content-row-thumb-link" aria-label={title}>

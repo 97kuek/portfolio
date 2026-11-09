@@ -10,7 +10,7 @@ import {
   REACTION_KINDS,
   type Env,
   type RequestContext,
-} from "./_lib"
+} from "./_lib.ts"
 
 interface CountRow {
   kind: string
@@ -42,12 +42,12 @@ const clientHashOrResponse = async (
 const readState = async (env: Env, target: string, clientHash: string) => {
   const [totals, mine] = await Promise.all([
     env.DB.prepare(
-      "SELECT kind, COUNT(*) AS count FROM reactions WHERE target = ? GROUP BY kind",
+      "SELECT kind, COUNT(*) AS count FROM reactions WHERE target = ? AND active = 1 GROUP BY kind",
     )
       .bind(target)
       .all<CountRow>(),
     env.DB.prepare(
-      "SELECT kind FROM reactions WHERE target = ? AND client_hash = ?",
+      "SELECT kind FROM reactions WHERE target = ? AND client_hash = ? AND active = 1",
     )
       .bind(target, clientHash)
       .all<{ kind: string }>(),
@@ -83,27 +83,16 @@ export const onRequestPost = async ({ request, env }: RequestContext) => {
   const clientHash = await clientHashOrResponse(request, env)
   if (clientHash instanceof Response) return clientHash
 
-  // A press toggles: the primary key makes one reaction per visitor per kind
-  // the only representable state, so there is nothing to reconcile.
-  const existing = await env.DB.prepare(
-    "SELECT 1 FROM reactions WHERE target = ? AND kind = ? AND client_hash = ?",
+  // Toggle inside one statement so concurrent presses cannot read the same
+  // stale state and collapse into a single change.
+  await env.DB.prepare(
+    `INSERT INTO reactions (target, kind, client_hash, created_at, active)
+     VALUES (?, ?, ?, ?, 1)
+     ON CONFLICT (target, kind, client_hash)
+     DO UPDATE SET active = 1 - reactions.active`,
   )
-    .bind(target, kind, clientHash)
-    .first()
-
-  if (existing) {
-    await env.DB.prepare(
-      "DELETE FROM reactions WHERE target = ? AND kind = ? AND client_hash = ?",
-    )
-      .bind(target, kind, clientHash)
-      .run()
-  } else {
-    await env.DB.prepare(
-      "INSERT OR IGNORE INTO reactions (target, kind, client_hash, created_at) VALUES (?, ?, ?, ?)",
-    )
-      .bind(target, kind, clientHash, new Date().toISOString())
-      .run()
-  }
+    .bind(target, kind, clientHash, new Date().toISOString())
+    .run()
 
   return json(await readState(env, target, clientHash))
 }

@@ -14,5 +14,3 @@ export function cn(...values: ClassValue[]): string {
   for (const value of values) collectClassNames(value, result)
   return result.join(" ")
 }
-
-export const isSubpost = (id: string) => id.includes("/")

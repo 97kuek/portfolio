@@ -13,6 +13,10 @@
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
 
+# Expressive Code styles include their SHA-256 hash in the filename.
+/styles/code-*.css
+  Cache-Control: public, max-age=31536000, immutable
+
 # Static assets below aren't hashed, so cache long but let the browser
 # revalidate on reload instead of marking them immutable.
 /fonts/*

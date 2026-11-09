@@ -1,6 +1,7 @@
 import assert from "node:assert/strict"
 import test from "node:test"
-import { markdownToHtml } from "satteri"
+import { createSatteriMarkdownProcessor } from "@astrojs/markdown-satteri"
+import { defineHastPlugin, markdownToHtml } from "satteri"
 
 import { calloutDirective } from "../src/lib/callout.ts"
 import { collapseCjkLineBreaks } from "../src/plugins/satteri-cjk-line-breaks.ts"
@@ -47,6 +48,7 @@ void test("repeated references receive unique controls and backrefs", async () =
 
 void test("footnote label stays accessible without entering the heading outline", async () => {
   const { html } = await markdownToHtml("Text.[^note]\n\n[^note]: Note.", {
+    fileURL: new URL("file:///content/blog/notes-en.md"),
     hastPlugins: [...satteriSidenotes(), headingAnchors],
   })
 
@@ -56,6 +58,21 @@ void test("footnote label stays accessible without entering the heading outline"
   )
   assert.doesNotMatch(html, /<h2[^>]*id="footnote-label"/)
   assert.doesNotMatch(html, /href="#footnote-label"/)
+})
+
+void test("footnote labels follow each document's language", async () => {
+  const hastPlugins = satteriSidenotes()
+  for (const [filename, heading, backref] of [
+    ["notes.md", "脚注", "参照1に戻る"],
+    ["notes-en.md", "Footnotes", "Back to reference 1"],
+  ]) {
+    const { html } = await markdownToHtml("Text.[^note]\n\n[^note]: Note.", {
+      fileURL: new URL(`file:///content/blog/${filename}`),
+      hastPlugins,
+    })
+    assert.ok(html.includes(`id="footnote-label">${heading}</div>`))
+    assert.ok(html.includes(`aria-label="${backref}"`))
+  }
 })
 
 void test("the configured Satteri feature pipeline composes correctly", async () => {
@@ -142,6 +159,65 @@ void test("a standalone image becomes a figure with its alt text as caption", ()
 
   assert.match(html, /<figure><img src="\/photo.jpg" alt=""/)
   assert.match(html, /<figcaption>滑走路の機体<\/figcaption>/)
+})
+
+void test("standalone article photos use the prose width when choosing responsive candidates", () => {
+  const { html } = markdownToHtml("![滑走路の機体](/photo.jpg)", {
+    hastPlugins: [imageFigures],
+  })
+
+  assert.match(html, /sizes="\(min-width: 44rem\) 42rem, calc\(100vw - 2rem\)"/)
+})
+
+void test("article image sizes survive Astro's image marker for local asset processing", async () => {
+  const processor = await createSatteriMarkdownProcessor({
+    syntaxHighlight: false,
+    hastPlugins: [imageFigures],
+  })
+  const { code } = await processor.render(
+    "![滑走路の機体](../../assets/photos/wasa-test-flight.jpg)",
+  )
+  const marker = code.match(/__ASTRO_IMAGE_="([^"]+)"/)
+  assert.ok(marker)
+  const properties = JSON.parse(marker[1].replaceAll("&quot;", '"'))
+
+  assert.equal(properties.sizes, "(min-width: 44rem) 42rem, calc(100vw - 2rem)")
+  assert.equal(properties.src, "../../assets/photos/wasa-test-flight.jpg")
+  assert.equal(properties.alt, "")
+  assert.match(code, /<figcaption>滑走路の機体<\/figcaption>/)
+})
+
+void test("custom image sizing and high resolution candidates are preserved", () => {
+  for (const properties of [
+    { sizes: "24px", srcSet: "/small.jpg 24w, /original.jpg 2400w" },
+    { width: 24 },
+    { height: 24 },
+  ]) {
+    const { html } = markdownToHtml("![An icon](/icon.jpg)", {
+      hastPlugins: [
+        defineHastPlugin({
+          name: "custom-image-sizing",
+          element: {
+            filter: ["img"],
+            visit(node, ctx) {
+              for (const [key, value] of Object.entries(properties))
+                ctx.setProperty(node, key, value)
+            },
+          },
+        }),
+        imageFigures,
+      ],
+    })
+
+    assert.doesNotMatch(html, /42rem/)
+    if (properties.sizes) {
+      assert.match(html, /sizes="24px"/)
+      assert.match(html, /srcset="\/small.jpg 24w, \/original.jpg 2400w"/)
+    } else {
+      assert.doesNotMatch(html, /sizes=/)
+      assert.match(html, /(?:width|height)="24"/)
+    }
+  }
 })
 
 void test("images without alt text, and images inside a sentence, are left alone", () => {

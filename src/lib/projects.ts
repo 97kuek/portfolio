@@ -3,7 +3,6 @@ import { getUIStrings } from "@/lib/ui-strings"
 import { getCollection, type CollectionEntry } from "astro:content"
 
 import { PROJECT_TYPES } from "@/schemas"
-import { slugify } from "@/lib/string-manipulation"
 
 import { PROJECT_LINK_TYPES, type ProjectLinkType } from "@icon-config"
 
@@ -17,13 +16,10 @@ export const getProjectTypeLabel = (slug: string) =>
 // ========================================
 
 export const getProjectLinks = (
-  code?: string,
-  doc?: string,
-  paper?: string,
-  url?: string,
-  release?: string,
+  { code, doc, paper, url, release }: Pick<Project["data"], ProjectLinkType>,
   locale: SiteLocale = DEFAULT_LOCALE,
 ) => {
+  const labels = getUIStrings(locale).projectLinks
   const linkData = [
     { type: "code" as const, href: code },
     { type: "doc" as const, href: doc },
@@ -40,24 +36,8 @@ export const getProjectLinks = (
       type: link.type,
       href: link.href,
       icon: PROJECT_LINK_TYPES[link.type].iconName,
-      label: getUIStrings(locale).projectLinks[link.type],
+      label: labels[link.type],
     }))
-}
-
-export function getProjectSkillCounts(projects: Project[], minimum = 2) {
-  const counts = new Map<string, { label: string; count: number }>()
-  for (const project of projects) {
-    for (const label of project.data.skills) {
-      const slug = slugify(label)
-      const current = counts.get(slug)
-      counts.set(slug, { label, count: (current?.count || 0) + 1 })
-    }
-  }
-
-  return [...counts.entries()]
-    .map(([slug, value]) => ({ slug, ...value }))
-    .filter(({ count }) => count >= minimum)
-    .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
 }
 
 // ========================================

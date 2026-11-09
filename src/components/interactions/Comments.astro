@@ -30,10 +30,14 @@ const ui = getUIStrings(locale)
   data-rate-limited={ui.commentRateLimited}
   data-submit={ui.commentSubmit}
   data-submitting={ui.commentSubmitting}
+  data-loading={ui.commentLoading}
   class="comments"
 >
   <h2 class="comments-title">{ui.comments}</h2>
 
+  <button type="button" class="comment-load-more" data-load-more hidden>
+    {ui.commentLoadOlder}
+  </button>
   <ol class="comment-list" data-list></ol>
   <p
     class="comment-status"
@@ -155,7 +159,8 @@ const ui = getUIStrings(locale)
     font-size: var(--step--1);
   }
 
-  .comment-submit {
+  .comment-submit,
+  .comment-load-more {
     min-block-size: var(--control-size-compact);
     padding-inline: var(--space-s);
     border: 1px solid var(--border);
@@ -167,11 +172,15 @@ const ui = getUIStrings(locale)
     cursor: pointer;
   }
 
-  .comment-submit:is(:hover, :focus-visible) {
+  .comment-load-more {
+    justify-self: start;
+  }
+
+  :is(.comment-submit, .comment-load-more):is(:hover, :focus-visible) {
     border-color: var(--accent);
   }
 
-  .comment-submit[disabled] {
+  :is(.comment-submit, .comment-load-more)[disabled] {
     cursor: progress;
     opacity: 0.6;
   }
@@ -211,12 +220,11 @@ const ui = getUIStrings(locale)
 </style>
 
 <script>
-  interface Comment {
-    id: number
-    author: string | null
-    body: string
-    createdAt: string
-  }
+  import type {
+    CommentPage,
+    CommentPostResponse,
+    PublicComment,
+  } from "@/lib/interactions"
 
   interface Draft {
     author: string
@@ -233,6 +241,10 @@ const ui = getUIStrings(locale)
     private form: HTMLFormElement | null = null
     private submit: HTMLButtonElement | null = null
     private events?: AbortController
+    private comments = new Map<number, PublicComment>()
+    private oldestId: number | null = null
+    private nextCursor: number | null = null
+    private loadMore: HTMLButtonElement | null = null
 
     private get draftKey() {
       return `comment-draft:${this.target}`
@@ -278,6 +290,7 @@ const ui = getUIStrings(locale)
       this.status = this.querySelector("[data-status]")
       this.form = this.querySelector("[data-form]")
       this.submit = this.querySelector(".comment-submit")
+      this.loadMore = this.querySelector("[data-load-more]")
       if (!this.target || !this.form) return
 
       this.events?.abort()
@@ -294,6 +307,11 @@ const ui = getUIStrings(locale)
       this.form.addEventListener("submit", (event) => this.post(event), {
         signal,
       })
+      this.loadMore?.addEventListener(
+        "click",
+        () => this.load(this.nextCursor),
+        { signal },
+      )
       void this.load()
     }
 
@@ -307,9 +325,17 @@ const ui = getUIStrings(locale)
       this.status.hidden = !message
     }
 
+    private setCursor(cursor: number | null) {
+      this.nextCursor = cursor
+      if (this.loadMore) this.loadMore.hidden = cursor === null
+    }
+
     /** Comment text is visitor input, so it only ever reaches the DOM as text. */
-    private render(comments: Comment[]) {
+    private render(incoming: PublicComment[]) {
       if (!this.list) return
+      for (const comment of incoming) this.comments.set(comment.id, comment)
+      const comments = [...this.comments.values()].sort((a, b) => a.id - b.id)
+      this.oldestId = comments[0]?.id ?? null
       this.list.replaceChildren()
 
       if (comments.length === 0) {
@@ -353,16 +379,27 @@ const ui = getUIStrings(locale)
       }
     }
 
-    private async load() {
+    private async load(before: number | null = null) {
+      const label = this.loadMore?.textContent ?? ""
+      if (this.loadMore) {
+        this.loadMore.disabled = true
+        this.loadMore.textContent = this.dataset.loading ?? label
+      }
       try {
-        const response = await fetch(
-          `${this.dataset.endpoint}?target=${encodeURIComponent(this.target)}`,
-        )
+        const query = new URLSearchParams({ target: this.target })
+        if (before !== null) query.set("before", String(before))
+        const response = await fetch(`${this.dataset.endpoint}?${query}`)
         if (!response.ok) throw new Error(String(response.status))
-        const data = (await response.json()) as { comments: Comment[] }
+        const data = (await response.json()) as CommentPage
         this.render(data.comments)
+        this.setCursor(data.nextCursor ?? null)
       } catch {
         this.setStatus(this.dataset.loadFailed ?? null)
+      } finally {
+        if (this.loadMore) {
+          this.loadMore.disabled = false
+          this.loadMore.textContent = label
+        }
       }
     }
 
@@ -394,9 +431,14 @@ const ui = getUIStrings(locale)
         })
 
         if (response.ok) {
-          const payload = (await response.json()) as {
-            comments: Comment[]
-            pending?: boolean
+          const payload = (await response.json()) as CommentPostResponse
+          // A failed initial GET must not prevent paging after a successful
+          // post. Keep the older cursor when earlier pages are already loaded.
+          if (
+            this.oldestId === null ||
+            (payload.comments[0]?.id ?? Infinity) <= this.oldestId
+          ) {
+            this.setCursor(payload.nextCursor ?? null)
           }
           this.render(payload.comments)
           // Do not erase text edited while the request was in flight.

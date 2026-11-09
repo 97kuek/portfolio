@@ -164,6 +164,9 @@ const analyticsToken = import.meta.env.PROD
     content="width=device-width, initial-scale=1.0, user-scalable=yes"
   >
   <meta name="generator" content={Astro.generator}>
+  {SITE.googleSiteVerification && (
+    <meta name="google-site-verification" content={SITE.googleSiteVerification} />
+  )}
 
   <script is:inline>
     /* Reaching for the language switch is a decision, so the site remembers it

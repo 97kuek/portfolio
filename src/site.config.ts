@@ -3,7 +3,6 @@ import type {
   FooterConfig,
   LinkConfig,
   ProfileConfig,
-  PublicationConfig,
   SiteConfig,
 } from "@/types"
 
@@ -46,8 +45,9 @@ export const SITE: SiteConfig = {
     cloudflareToken: "c1261f35fd9748ebb88e9a13cb4d0757",
   },
 
+  googleSiteVerification: "n8l_hpZbn9zBFE78jSSr43pyjAvthEAOpmfNAAmGjHE",
+
   favicon: "/favicon.ico",
-  prerender: true,
 
   license: {
     label: "CC-BY-4.0",
@@ -84,27 +84,6 @@ export const NAV_LINKS: LinkConfig[] = [
   { href: "/blog", label: "Blog" },
 ]
 
-export const NAVIGATION: LinkConfig[] = NAV_LINKS.map(({ href, label }) => ({
-  href,
-  label,
-}))
-
-export const PUB_CONFIG: PublicationConfig = {
-  maxFirstAuthors: 6,
-  maxLastAuthors: 1,
-  highlightAuthor: {
-    firstName: "Keitaro",
-    lastName: "Ueki",
-    aliases: ["K. Ueki", "植木 敬太郎"],
-  },
-  equalSymbols: {
-    first: "*",
-    second: "†",
-    third: "‡",
-    last: "§",
-  },
-}
-
 export const FOOTER: FooterConfig = {
   credits: true,
   sourceCode: "https://github.com/97kuek/portfolio",
@@ -113,14 +92,9 @@ export const FOOTER: FooterConfig = {
 }
 
 if (import.meta.env.DEV && typeof window === "undefined") {
-  const {
-    FooterConfigSchema,
-    ProfileConfigSchema,
-    PublicationConfigSchema,
-    SiteConfigSchema,
-  } = await import("@/schemas")
+  const { FooterConfigSchema, ProfileConfigSchema, SiteConfigSchema } =
+    await import("@/schemas")
   SiteConfigSchema.parse(SITE)
   ProfileConfigSchema.parse(PROFILE)
   FooterConfigSchema.parse(FOOTER)
-  PublicationConfigSchema.parse(PUB_CONFIG)
 }

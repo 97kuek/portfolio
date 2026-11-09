@@ -9,7 +9,7 @@ import {
   ExpressiveCodeBlock,
   type ExpressiveCodeTheme,
 } from "satteri-expressive-code"
-import { ecRenderer } from "./config"
+import { ecRenderer } from "./config.ts"
 
 const ANNOTATION = /^(.+?)\{:([^}]+)\}$/
 

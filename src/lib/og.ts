@@ -274,5 +274,7 @@ export async function renderPostImage({
     ],
   })
 
-  return sharp(Buffer.from(svg)).png().toBuffer()
+  return sharp(Buffer.from(svg))
+    .png({ compressionLevel: 9, adaptiveFiltering: !!cover })
+    .toBuffer()
 }
