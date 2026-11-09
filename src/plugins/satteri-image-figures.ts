@@ -1,5 +1,6 @@
 import { h } from "hastscript"
 import { defineHastPlugin } from "satteri"
+import { PROSE_IMAGE_SIZES } from "../lib/layout.ts"
 
 /**
  * Gives every captioned image a caption under it.
@@ -31,12 +32,20 @@ export function imageFigures() {
         const alt = image.properties.alt
         if (typeof alt !== "string" || alt.trim().length === 0) return
 
+        // Astro preserves this hint when it generates srcset later. Leave
+        // explicitly sized images alone, including small standalone icons.
+        const properties = { ...image.properties, alt: "" }
+        if (
+          properties.sizes == null &&
+          properties.width == null &&
+          properties.height == null
+        ) {
+          properties.sizes = PROSE_IMAGE_SIZES
+        }
+
         ctx.replaceNode(
           node,
-          h("figure", [
-            h("img", { ...image.properties, alt: "" }),
-            h("figcaption", alt),
-          ]),
+          h("figure", [h("img", properties), h("figcaption", alt)]),
         )
       },
     },

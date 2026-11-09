@@ -1,16 +1,13 @@
 # Contributing
 
-Thanks for helping improve My Scholar. This project is both a personal-site
-codebase and a theme template, so changes should keep the theme reusable for
-other researchers, students, and builders.
+This repository is Keitaro Ueki's personal portfolio. Keep changes focused on
+its content, accessibility, and maintainable static-site implementation.
 
 ## Before you start
 
-1. Read `docs/INSTALL.md`.
-2. Read `docs/CUSTOMIZATION.md` if your change affects theme users.
-3. Read `DEVELOPMENT.md` if your change affects architecture, CSS, Markdown, or
-   publishing workflow.
-4. Open an issue first for large visual redesigns, schema changes, routing
+1. Read `AGENTS.md` and `DEVELOPMENT.md`.
+2. Read `docs/CUSTOMIZATION.md` if your change affects site configuration.
+3. Open an issue first for large visual redesigns, schema changes, routing
    changes, or dependency additions.
 
 ## Local setup
@@ -27,14 +24,8 @@ pnpm dev
 - Add or update docs when behavior, configuration, or user workflow changes.
 - Avoid new dependencies unless the feature clearly needs them.
 - Preserve static output and low client-side JavaScript.
-- Run:
-
-```bash
-pnpm format:check
-pnpm lint
-pnpm astro check
-pnpm build
-```
+- Run the [validation commands](README.md#validation), followed by
+  `pnpm test:browser`.
 
 - Include screenshots for visual changes.
 
@@ -43,8 +34,8 @@ pnpm build
 Use clear, descriptive commit messages:
 
 ```text
-Add publication keyword filtering docs
-Fix project category chip state
+Add Japanese tag navigation
+Fix footnote keyboard controls
 ```
 
 Do not add AI attribution or co-author lines.
@@ -67,7 +58,7 @@ Explain:
 - The user problem.
 - The pages/components affected.
 - Whether it adds dependencies or client JavaScript.
-- How it fits the theme's academic/personal-site use case.
+- How it fits the portfolio's use case.
 
 Features that improve content portability, performance, accessibility, or
 customization are more likely to fit the project than broad UI framework

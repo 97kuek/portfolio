@@ -29,7 +29,7 @@ const sourceLinks = [
     <ProfileLinks links={PROFILE.links} keys={footerLinks} />
 
     <p>
-      &copy; <span id="current-year"></span>
+      &copy; <span id="current-year">{new Date().getFullYear()}</span>
       {getDisplayName(locale)}.
       {SITE.license ? (
           <>
@@ -90,8 +90,14 @@ const sourceLinks = [
 </footer>
 
 <script>
-  const yearElement = document.getElementById("current-year")
-  if (yearElement) yearElement.textContent = new Date().getFullYear().toString()
+  function updateCopyrightYear() {
+    const yearElement = document.getElementById("current-year")
+    if (yearElement)
+      yearElement.textContent = new Date().getFullYear().toString()
+  }
+
+  updateCopyrightYear()
+  document.addEventListener("astro:page-load", updateCopyrightYear)
 </script>
 
 <style>

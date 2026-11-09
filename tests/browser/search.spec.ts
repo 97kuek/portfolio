@@ -20,10 +20,10 @@ for (const prefix of ["", "/en"]) {
         await page.locator(`.site-actions a[href="${prefix}/search"]`).click()
         const input = page.locator("#search-input")
         const results = page.locator(".search-result h2 a")
-        await input.fill("Dots")
+        await input.fill("WASA")
         await input.press("Enter")
         await expect(results).toHaveCount(2)
-        await input.fill("MCP")
+        await input.fill("WASA Chat")
         await input.press("Enter")
         await expect(results).toHaveCount(2)
 
@@ -38,9 +38,9 @@ for (const prefix of ["", "/en"]) {
 
         for (let i = 0; i < 2; i++) {
           await page.goBack()
-          await expect(input).toHaveValue("MCP")
+          await expect(input).toHaveValue("WASA Chat")
           await expect(results).toHaveCount(2)
-          expect(new URL(page.url()).searchParams.get("q")).toBe("MCP")
+          expect(new URL(page.url()).searchParams.get("q")).toBe("WASA Chat")
           await page.goForward()
           await expect(page.locator("h1")).toHaveText(title!)
           await expect(input).toHaveCount(0)
@@ -63,7 +63,7 @@ for (const prefix of ["", "/en"]) {
         page,
       }, testInfo) => {
         await page.route("**/pagefind/pagefind.js", (route) => route.abort())
-        await page.goto(`${prefix}/search?q=Dots`)
+        await page.goto(`${prefix}/search?q=WASA`)
         const input = page.locator("#search-input")
         const status = page.locator("site-search [data-status]")
         const reload = page.getByRole("button", {
@@ -76,7 +76,7 @@ for (const prefix of ["", "/en"]) {
         await input.press("Enter")
         await expect(status).toBeEmpty()
         await expect(reload).toBeHidden()
-        await input.fill("Dots")
+        await input.fill("WASA")
         await input.press("Enter")
         await expect(reload).toBeVisible()
         expect(
@@ -88,16 +88,16 @@ for (const prefix of ["", "/en"]) {
           path: testInfo.outputPath("search-failure.png"),
         })
 
-        // Import failures are cached for this document, even after the network recovers.
-        await page.unroute("**/pagefind/pagefind.js")
-        await input.fill("MCP")
+        await input.fill("WASA Chat")
         await input.press("Enter")
         await expect(reload).toBeVisible()
+        // Restore the network immediately before the explicit recovery action.
+        await page.unroute("**/pagefind/pagefind.js")
         await reload.focus()
         await page.keyboard.press("Enter")
         await expect(page.locator(".search-result")).toHaveCount(2)
-        await expect(input).toHaveValue("MCP")
-        expect(new URL(page.url()).searchParams.get("q")).toBe("MCP")
+        await expect(input).toHaveValue("WASA Chat")
+        expect(new URL(page.url()).searchParams.get("q")).toBe("WASA Chat")
         await expect(reload).toBeHidden()
         await expect(page.locator("html")).toHaveAttribute(
           "lang",
@@ -111,20 +111,20 @@ for (const prefix of ["", "/en"]) {
         await page.route("**/pagefind/pagefind.js", (route) =>
           route.fulfill({ status: 503, body: "Unavailable" }),
         )
-        await page.goto(`${prefix}/search?q=Dots`)
+        await page.goto(`${prefix}/search?q=WASA`)
         await expect(page.locator("[data-reload]")).toBeVisible()
         await page.unroute("**/pagefind/pagefind.js")
         // Dispatch and reload in one turn, before the 180 ms timer can run.
         await page.evaluate(() => {
           const input =
             document.querySelector<HTMLInputElement>("#search-input")!
-          input.value = "  MCP  "
+          input.value = "  WASA Chat  "
           input.dispatchEvent(new Event("input", { bubbles: true }))
           document.querySelector<HTMLButtonElement>("[data-reload]")!.click()
         })
-        await expect(page.locator("#search-input")).toHaveValue("MCP")
+        await expect(page.locator("#search-input")).toHaveValue("WASA Chat")
         await expect(page.locator(".search-result")).toHaveCount(2)
-        expect(new URL(page.url()).searchParams.get("q")).toBe("MCP")
+        expect(new URL(page.url()).searchParams.get("q")).toBe("WASA Chat")
         await expect(page.locator("[data-recovery]")).toBeHidden()
       })
     })

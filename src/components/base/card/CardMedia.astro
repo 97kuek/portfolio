@@ -1,9 +1,0 @@
----
-export type Props = astroHTML.JSX.HTMLAttributes
-
-const { class: className, ...rest } = Astro.props
----
-
-<span data-slot="card-media" data-card-media class={className} {...rest}>
-  <slot />
-</span>

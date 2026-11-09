@@ -5,6 +5,8 @@ import {
   type HastVisitorContext,
 } from "satteri"
 
+import { getUIStrings } from "../lib/ui-strings.ts"
+
 export interface SidenoteOptions {
   backrefContent?: ElementContent | ElementContent[]
   rewriteFootnotes?: boolean
@@ -232,6 +234,7 @@ function rewriteFootnoteChildren(
   rewriteFootnotes: boolean,
   backrefChildren: ElementContent[],
   label: (n: number) => string,
+  headingLabel: string,
 ): RootContent[] {
   return children.map((child) => {
     if (!isElement(child)) return cloneNode(child)
@@ -240,6 +243,7 @@ function rewriteFootnoteChildren(
       return {
         ...cloneNode(child),
         tagName: "div",
+        children: [{ type: "text", value: headingLabel }],
       }
     }
 
@@ -263,6 +267,7 @@ function rewriteFootnoteChildren(
         rewriteFootnotes,
         backrefChildren,
         label,
+        headingLabel,
       ) as ElementContent[],
     }
   })
@@ -277,17 +282,22 @@ function rewriteFootnoteChildren(
 export function satteriSidenotes(
   options: SidenoteOptions = {},
 ): HastPluginDefinition[] {
-  const {
-    rewriteFootnotes = true,
-    backrefLabel = "Back to reference {n}",
-    backrefContent,
-  } = options
+  const { rewriteFootnotes = true, backrefLabel, backrefContent } = options
   const backrefChildren: ElementContent[] = backrefContent
     ? Array.isArray(backrefContent)
       ? backrefContent
       : [backrefContent]
     : [{ type: "text", value: " " }, BACKREF_ICON]
-  const label = (n: number) => backrefLabel.replace("{n}", String(n))
+  const labelsFor = (ctx: HastVisitorContext) => {
+    const ui = getUIStrings(
+      ctx.fileURL?.pathname.endsWith("-en.md") ? "en" : "ja",
+    )
+    return {
+      heading: ui.footnotes,
+      backref: (n: number) =>
+        (backrefLabel ?? ui.footnoteBackref).replace("{n}", String(n)),
+    }
+  }
 
   return [
     defineHastPlugin({
@@ -312,6 +322,8 @@ export function satteriSidenotes(
           const key = footnoteKey(String(link.properties?.href ?? ""))
           const content = state.definitions.get(key)
           if (!content) return
+
+          const label = labelsFor(ctx).backref
 
           let reference = state.references.get(key)
           if (!reference) {
@@ -372,7 +384,7 @@ export function satteriSidenotes(
                 properties: {
                   type: "checkbox",
                   id: snId,
-                  className: ["sidenote-toggle-checkbox"],
+                  className: ["sidenote-toggle-checkbox", "sr-only"],
                 },
                 children: [],
               },
@@ -406,6 +418,7 @@ export function satteriSidenotes(
         filter: ["section"],
         visit(node, ctx) {
           if (!hasProperty(node, "dataFootnotes")) return
+          const labels = labelsFor(ctx)
           ctx.setProperty(
             node,
             "children",
@@ -414,7 +427,8 @@ export function satteriSidenotes(
               getState(ctx),
               rewriteFootnotes,
               backrefChildren,
-              label,
+              labels.backref,
+              labels.heading,
             ),
           )
         },

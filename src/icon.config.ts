@@ -159,37 +159,6 @@ export const PROJECT_LINK_TYPES = {
   url: { label: "Website", iconName: "mingcute:globe-2-line" },
 } as const
 
-export const PUBLICATION_LINK_TYPES = {
-  // Core content & identifiers
-  abstract: { label: "Abstract", iconName: "mingcute:align-justify-line" },
-  arxiv: { label: "arXiv", iconName: "academicons:arxiv" },
-  doi: { label: "DOI", iconName: "academicons:doi" },
-  pdf: { label: "PDF", iconName: "mingcute:pdf-line" },
-  website: { label: "Website", iconName: "mingcute:globe-2-line" },
-
-  // Interactive & supplementary materials
-  code: { label: "Code", iconName: "mingcute:code-line" },
-  data: { label: "Data", iconName: "mingcute:coin-2-line" },
-  demo: { label: "Demo", iconName: "mingcute:play-circle-line" },
-  draft: { label: "Draft", iconName: "mingcute:flask-line" },
-  models: { label: "Models", iconName: "mingcute:box-3-line" },
-  proposal: { label: "Proposal", iconName: "mingcute:file-text-line" },
-  resources: { label: "Resources", iconName: "mingcute:folder-zip-line" },
-
-  // Presentation & discussion
-  post: { label: "Post", iconName: "mingcute:pen-line" },
-  poster: { label: "Poster", iconName: "mingcute:image-line" },
-  slides: { label: "Slides", iconName: "mingcute:presentation-line" },
-  talk: { label: "Talk", iconName: "mingcute:mic-line" },
-  thread: { label: "Thread", iconName: "mingcute:comment-line" },
-  video: { label: "Video", iconName: "mingcute:video-line" },
-
-  // Metadata & accolades
-  award: { label: "Award", iconName: "mingcute:trophy-line" },
-  selected: { label: "Selected", iconName: "" },
-  venue: { label: "Venue", iconName: "" },
-} as const
-
 export type ProfileLinkType = keyof typeof PROFILE_ICON_MAP
 export type SemanticIconName = keyof typeof SEMANTIC_ICONS
 export type ProjectLinkType = keyof typeof PROJECT_LINK_TYPES

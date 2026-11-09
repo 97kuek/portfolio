@@ -5,21 +5,19 @@ import { z } from "astro/zod"
 import { ProfileLinkConfigSchema, ProjectTypeSchema } from "@/schemas"
 
 import { createLocalDate } from "@/lib/date-utils"
-import {
-  dedupLowerCase,
-  dedupPreserveCase,
-  slugify,
-} from "@/lib/string-manipulation"
-
-const yearMonthDateSchema = z
-  .union([z.date(), z.string().transform(createLocalDate)])
-  .describe("Should be valid YYYY-MM format.")
+import { preserveFrontmatterDates } from "@/lib/frontmatter-dates"
+import { dedupPreserveCase, getUniqueSlugs } from "@/lib/string-manipulation"
 
 const dateSchema = z
   .union([z.date(), z.string().transform(createLocalDate)])
   .refine((date) => !Number.isNaN(date.getTime()), {
-    error: "Invalid date format. Must be YYYY-MM-DD or ISO datetime format.",
+    error:
+      "Invalid calendar date. Use YYYY-MM, YYYY-MM-DD or ISO datetime format.",
   })
+
+const yearMonthDateSchema = dateSchema.describe(
+  "Should be valid YYYY-MM format.",
+)
 
 /**
  * Bilingual collections keep one file per language. The language and the
@@ -37,7 +35,10 @@ const localeFields = {
 }
 
 const blog = defineCollection({
-  loader: glob({ pattern: "**/*.md", base: "./src/content/blog" }),
+  loader: preserveFrontmatterDates(
+    glob({ pattern: "**/*.md", base: "./src/content/blog" }),
+    ["createdAt", "updatedAt"],
+  ),
   schema: ({ image }) =>
     z
       .object({
@@ -48,10 +49,7 @@ const blog = defineCollection({
         updatedAt: dateSchema.optional(),
         order: z.number().optional(),
         image: image().optional(),
-        tags: z
-          .array(z.string())
-          .default([])
-          .transform((arr) => dedupLowerCase(arr).map((tag) => slugify(tag))),
+        tags: z.array(z.string()).default([]).transform(getUniqueSlugs),
         authors: z.array(reference("people")).default([]),
         draft: z.boolean().default(false),
         stage: z.enum(["seedling", "budding", "evergreen"]).optional(),
@@ -88,7 +86,10 @@ const people = defineCollection({
 })
 
 const projects = defineCollection({
-  loader: glob({ base: "./src/content/projects", pattern: "**/!(*README).md" }),
+  loader: preserveFrontmatterDates(
+    glob({ base: "./src/content/projects", pattern: "**/!(*README).md" }),
+    ["fromDate", "toDate"],
+  ),
   schema: ({ image }) =>
     z
       .object({

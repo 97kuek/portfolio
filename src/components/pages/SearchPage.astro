@@ -136,6 +136,8 @@ const ui = getUIStrings(locale)
 </style>
 
 <script>
+  import { normalizePath } from "@/lib/i18n"
+
   interface PagefindResultData {
     url: string
     meta: { title?: string }
@@ -190,7 +192,7 @@ const ui = getUIStrings(locale)
       })
       this.querySelector("[data-reload]")?.addEventListener("click", () => {
         window.clearTimeout(this.timer)
-        // Failed module imports stay cached until the document reloads.
+        // Reloading clears any cached module import failure.
         // Keep even edits made before the input debounce has run.
         this.updateQuery(this.input!.value)
         location.reload()
@@ -311,7 +313,9 @@ const ui = getUIStrings(locale)
 
           const heading = document.createElement("h2")
           const link = document.createElement("a")
-          link.href = entry.url
+          const url = new URL(entry.url, location.href)
+          url.pathname = normalizePath(url.pathname)
+          link.href = `${url.pathname}${url.search}${url.hash}`
           link.textContent = entry.meta.title ?? entry.url
           heading.append(link)
 

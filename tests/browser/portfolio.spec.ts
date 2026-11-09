@@ -16,10 +16,12 @@ for (const colorScheme of ["light", "dark"] as const) {
       for (const route of [
         "/",
         "/projects",
-        "/projects/kei-agent",
+        "/projects/wasa-chat",
         "/experience",
-        "/blog/kei-agent",
-        "/en/blog/kei-agent",
+        "/blog/hello",
+        "/en/blog/hello",
+        "/blog/azure-ai-overview",
+        "/blog/ddd-clean-architecture",
         "/en/privacy",
       ]) {
         await page.goto(route)
@@ -29,13 +31,9 @@ for (const colorScheme of ["light", "dark"] as const) {
             () => document.documentElement.scrollWidth <= innerWidth,
           ),
         ).toBe(true)
-        if (route.includes("blog/kei-agent")) {
-          await expect(page.locator("prose-content figure img")).toHaveCount(3)
-          await expect(page.locator("iframe")).toHaveAttribute(
-            "src",
-            /youtube-nocookie/,
-          )
-          await expect(page.locator(".post-cover")).toHaveCount(0)
+        if (route.includes("blog/hello")) {
+          await expect(page.locator("prose-content figure img")).toHaveCount(1)
+          await expect(page.locator(".post-cover")).toHaveCount(1)
         }
         if (route === "/experience")
           await expect(
@@ -65,13 +63,13 @@ for (const colorScheme of ["light", "dark"] as const) {
       page,
     }) => {
       for (const prefix of ["", "/en"]) {
-        await page.goto(`${prefix}/search?q=Dots`)
+        await page.goto(`${prefix}/search?q=WASA`)
         const results = page.locator(".search-result h2 a")
         await expect(results).toHaveCount(2)
         for (const href of await results.evaluateAll((links) =>
           links.map((link) => link.getAttribute("href")),
         ))
-          expect(href).toMatch(/\/(blog|projects)\/kei-agent/)
+          expect(href).toMatch(/\/(blog\/hello|projects\/wasa-chat)/)
         const input = page.locator("#search-input")
         await input.fill("research")
         await input.fill("")
@@ -83,7 +81,7 @@ for (const colorScheme of ["light", "dark"] as const) {
     test("keyboard image viewer opens full resolution and restores focus", async ({
       page,
     }) => {
-      await page.goto("/blog/kei-agent")
+      await page.goto("/blog/hello")
       const trigger = page.locator(".image-viewer-trigger").first()
       await trigger.focus()
       await page.keyboard.press("Enter")
@@ -129,23 +127,23 @@ for (const colorScheme of ["light", "dark"] as const) {
           links.map((link) => link.getAttribute("href")),
         )) {
           expect(href).toMatch(
-            new RegExp(`^${prefix}/(blog|projects)/kei-agent/?$`),
+            new RegExp(`^${prefix}/(blog/hello|projects/wasa-chat)/?$`),
           )
         }
         expect(new URL(page.url()).searchParams.get("q")).toBe(query)
       }
 
       for (const initialPrefix of ["", "/en"]) {
-        await page.goto(`${initialPrefix}/search?q=Dots`)
-        await expectLocale(initialPrefix, "Dots")
+        await page.goto(`${initialPrefix}/search?q=WASA`)
+        await expectLocale(initialPrefix, "WASA")
         for (const prefix of [initialPrefix ? "" : "/en", initialPrefix]) {
           // Switch before the input debounce can update the page URL.
-          await input.fill("MCP")
+          await input.fill("WASA Chat")
           await page.locator("[data-language-switch]").click()
-          await expectLocale(prefix, "MCP")
+          await expectLocale(prefix, "WASA Chat")
         }
         await page.reload()
-        await expectLocale(initialPrefix, "MCP")
+        await expectLocale(initialPrefix, "WASA Chat")
         await input.fill("")
         await page.locator("[data-language-switch]").click()
         await expect(input).toBeEmpty()
@@ -186,10 +184,6 @@ for (const colorScheme of ["light", "dark"] as const) {
       for (const prefix of ["", "/en"]) {
         for (const [slug, description] of [
           [
-            "kei-agent",
-            prefix ? /Requests pass from Slack/ : /Slackまたは音声通話からDot/,
-          ],
-          [
             "hrs",
             prefix
               ? /HRS home screen with a hotel photo/
@@ -214,7 +208,7 @@ for (const colorScheme of ["light", "dark"] as const) {
             "alt",
             description,
           )
-          if (slug === "kei-agent") {
+          if (slug === "wasa-chat") {
             await page.screenshot({
               path: testInfo.outputPath(
                 `project-image-${prefix ? "en" : "ja"}.png`,

@@ -79,9 +79,6 @@ const ui = getUIStrings(locale)
     <a class="skip-link" href="#main-content">{ui.skipToContent}</a>
     <MenuBar>
       <Header />
-      {Astro.slots.has("subposts-navigation-header") && (
-          <slot name="subposts-navigation-header" />
-        )}
       {Astro.slots.has("toc-header") && (
           <slot name="toc-header" />
         )}

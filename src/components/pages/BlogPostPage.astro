@@ -15,21 +15,21 @@ import ShareActions from "@/components/blog/ShareActions.astro"
 import Comments from "@/components/interactions/Comments.astro"
 import Reactions from "@/components/interactions/Reactions.astro"
 import TOCHeader from "@/components/toc/TOCHeader.astro"
-import { PostManager } from "@/lib/blog"
-import { getRelatedPosts, withMetadata } from "@/lib/blog/listing"
+import { getMetadata } from "@/lib/blog"
+import {
+  getPostsInLocale,
+  getRelatedPosts,
+  withMetadata,
+} from "@/lib/blog/listing"
 import { getStageVariant, getStageLabel } from "@/lib/blog/stage"
 import { taxonomyPath } from "@/lib/blog/taxonomy"
 import type { Post } from "@/lib/blog/types"
-import {
-  getContentLocale,
-  getContentSlug,
-  isContentInLocale,
-} from "@/lib/content-locale"
+import { getContentLocale, getContentSlug } from "@/lib/content-locale"
 import { interactionTarget } from "@/lib/interactions"
 import { COVER_SIZES, COVER_WIDTHS } from "@/lib/layout"
 import { ogImagePath } from "@/lib/og"
 import { sectionCrumb } from "@/lib/sections"
-import { processRawHeadings } from "@/lib/toc"
+import { MIN_TOC_HEADINGS, processRawHeadings } from "@/lib/toc"
 import { getUIStrings } from "@/lib/ui-strings"
 
 import "@/styles/content-row.css"
@@ -41,12 +41,9 @@ interface Props {
 const { post } = Astro.props
 const locale = getContentLocale(post.data)
 
-const postManager = PostManager.getInstance()
-const metadata = await postManager.getMetadata(post.id)
+const metadata = await getMetadata(post.id)
 const { Content, headings } = await render(post)
 
-/* Two entries is a list of the obvious; the table earns its space from three. */
-const MIN_TOC_HEADINGS = 3
 const tocHeadings = processRawHeadings(headings, SITE.tocMaxDepth)
 const showToc = tocHeadings.length >= MIN_TOC_HEADINGS
 
@@ -62,9 +59,7 @@ const relatedPosts = await withMetadata(
   await getRelatedPosts(post, SITE.blog.relatedPostCount),
 )
 
-const localePosts = (await postManager.getMainPosts()).filter((entry) =>
-  isContentInLocale(entry.data, locale),
-)
+const localePosts = await getPostsInLocale(locale)
 const currentIndex = localePosts.findIndex((entry) => entry.id === post.id)
 const newerPost = currentIndex > 0 ? localePosts[currentIndex - 1] : null
 const olderPost =

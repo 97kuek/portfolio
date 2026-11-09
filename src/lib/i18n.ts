@@ -29,6 +29,11 @@ export const stripLocalePrefix = (pathname: string) =>
 
 /** One spelling per route, so a set of paths can be compared by equality. */
 export const normalizePath = (pathname: string): string => {
+  try {
+    pathname = decodeURI(pathname)
+  } catch {
+    // Keep malformed escape sequences literal instead of breaking navigation.
+  }
   if (pathname === "/") return pathname
   return pathname.replace(/\/+$/, "") || "/"
 }

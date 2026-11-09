@@ -6,7 +6,9 @@ for (const locale of ["", "/en"]) {
       test.use({ colorScheme })
       test.beforeEach(async ({ page }) => {
         await page.route("**/api/**", (route) =>
-          route.fulfill({ json: { comments: [], counts: {}, mine: [] } }),
+          route.fulfill({
+            json: { comments: [], nextCursor: null, counts: {}, mine: [] },
+          }),
         )
         await page.route(
           /^https:\/\/(www\.youtube-nocookie\.com|static\.cloudflareinsights\.com)\//,
@@ -14,10 +16,82 @@ for (const locale of ["", "/en"]) {
         )
       })
 
+      test("older comments can be retried and remain visible after posting", async ({
+        page,
+      }) => {
+        const comment = (id: number, body = `comment-${id}`) => ({
+          id,
+          author: "Reader",
+          body,
+          createdAt: "2026-11-09T02:00:00.000Z",
+        })
+        let failedOnce = false
+        await page.route("**/api/comments**", (route) => {
+          if (route.request().method() === "POST") {
+            return route.fulfill({
+              json: {
+                nextCursor: 3,
+                comments: [
+                  comment(3),
+                  comment(4),
+                  comment(5, "<script>literal text</script>"),
+                ],
+                pending: false,
+              },
+            })
+          }
+          const before = new URL(route.request().url()).searchParams.get(
+            "before",
+          )
+          if (before === "3" && !failedOnce) {
+            failedOnce = true
+            return route.fulfill({
+              status: 503,
+              json: { error: "Unavailable" },
+            })
+          }
+          return route.fulfill({
+            json:
+              before === "3"
+                ? { comments: [comment(1), comment(2)], nextCursor: null }
+                : { comments: [comment(3), comment(4)], nextCursor: 3 },
+          })
+        })
+        await page.goto(`${locale}/blog/hello`)
+        const items = page.locator(".comment-item")
+        const older = page.locator("[data-load-more]")
+        await expect(items).toHaveCount(2)
+        await older.click()
+        await expect(page.locator("post-comments [data-status]")).toContainText(
+          locale ? "could not" : "読み込めません",
+        )
+        await expect(items).toHaveCount(2)
+        await expect(older).toBeEnabled()
+        await older.click()
+        await expect(items).toHaveCount(4)
+        await expect(items.locator(".comment-body")).toHaveText([
+          "comment-1",
+          "comment-2",
+          "comment-3",
+          "comment-4",
+        ])
+        await expect(older).toBeHidden()
+        await page
+          .locator('textarea[name="body"]')
+          .fill("<script>literal text</script>")
+        await page.locator(".comment-submit").click()
+        await expect(items).toHaveCount(5)
+        await expect(items.last().locator(".comment-body")).toHaveText(
+          "<script>literal text</script>",
+        )
+        await expect(page.locator(".comment-body script")).toHaveCount(0)
+        await expect(page.locator('textarea[name="body"]')).toBeEmpty()
+      })
+
       test("comment drafts survive privacy visits and reloads, stay scoped, and clear after posting", async ({
         page,
       }) => {
-        await page.goto(`${locale}/blog/kei-agent`)
+        await page.goto(`${locale}/blog/hello`)
         const author = page.locator('input[name="author"]')
         const body = page.locator('textarea[name="body"]')
         await author.fill("Reader")
@@ -31,9 +105,9 @@ for (const locale of ["", "/en"]) {
         }
         await page.reload()
         await expect(body).toHaveValue("An unfinished comment")
-        await page.goto(`${locale}/projects/kei-agent`)
+        await page.goto(`${locale}/projects/wasa-chat`)
         await expect(body).toBeEmpty()
-        await page.goto(`${locale}/blog/kei-agent`)
+        await page.goto(`${locale}/blog/hello`)
         await expect(body).toHaveValue("An unfinished comment")
         await page.route("**/api/comments", (route) =>
           route.fulfill({ status: 503, json: {} }),
@@ -56,14 +130,26 @@ for (const locale of ["", "/en"]) {
       test("posting does not discard edits made while waiting", async ({
         page,
       }) => {
-        await page.goto(`${locale}/blog/kei-agent`)
+        await page.goto(`${locale}/blog/hello`)
         let release!: () => void
         const pending = new Promise<void>((resolve) => {
           release = resolve
         })
         await page.route("**/api/comments", async (route) => {
           await pending
-          await route.fulfill({ json: { comments: [] } })
+          await route.fulfill({
+            json: {
+              comments: [
+                {
+                  id: 1,
+                  author: null,
+                  body: "First draft",
+                  createdAt: "2026-11-09T02:00:00.000Z",
+                },
+              ],
+              pending: false,
+            },
+          })
         })
         const body = page.locator('textarea[name="body"]')
         await body.fill("First draft")
@@ -83,7 +169,7 @@ for (const locale of ["", "/en"]) {
         await page.route("**/api/reactions**", (route) =>
           route.fulfill({ status: 503, json: {} }),
         )
-        await page.goto(`${locale}/blog/kei-agent`)
+        await page.goto(`${locale}/blog/hello`)
         const status = page.locator("[data-reaction-status]")
         await expect(status).toContainText(
           locale ? "Could not load" : "読み込めません",
@@ -121,7 +207,7 @@ for (const locale of ["", "/en"]) {
             value: { writeText: async () => {} },
           })
         })
-        await page.goto(`${locale}/blog/kei-agent`)
+        await page.goto(`${locale}/blog/hello`)
         const copy = page.locator(".share-actions [data-copy-btn]")
         const label = copy.locator(".copy-label")
         const original = locale ? "Copy URL" : "URLをコピー"

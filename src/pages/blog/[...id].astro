@@ -2,12 +2,12 @@
 import type { GetStaticPaths } from "astro"
 
 import BlogPostPage from "@/components/pages/BlogPostPage.astro"
-import { PostManager } from "@/lib/blog"
+import { getAllPostsAndSubposts } from "@/lib/blog"
 import type { Post } from "@/lib/blog/types"
 import { getContentSlug, isContentInLocale } from "@/lib/content-locale"
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const posts = await PostManager.getInstance().getAllPostsAndSubposts()
+  const posts = await getAllPostsAndSubposts()
 
   return posts
     .filter((post) => isContentInLocale(post.data, "ja"))

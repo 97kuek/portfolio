@@ -11,7 +11,7 @@ plain CSS that is easy to inspect.
   dependency for one widget.
 - Own theme primitives: colors, spacing, typography, shape, motion, and icons are
   local tokens or local files.
-- Keep content schema-first. Validate author, project, blog, publication, and
+- Keep content schema-first. Validate author, project, blog, and
   profile data with Zod instead of allowing loosely shaped content.
 - Keep Markdown portable. Prefer `.md`, Sätteri plugins, directives, callouts,
   math, and code transforms over MDX-only content. Sätteri Markdown pipeline for callouts, links, headings, math, and code
@@ -24,7 +24,7 @@ plain CSS that is easy to inspect.
 
 - `astro.config.ts`: Astro, sitemap, image, server, and Markdown processor
   configuration.
-- `src/site.config.ts`: user-facing site, profile, navigation, publication, and
+- `src/site.config.ts`: user-facing site, profile, navigation, and
   footer config.
 - `src/content.config.ts`: content collection loaders and schemas.
 - `src/schemas.ts`: reusable config and content schema definitions.
@@ -76,13 +76,44 @@ deploying to production. Never push directly to `main` during this workflow.
 
 ## Deployment
 
-Pushing to `main` runs `.github/workflows/deploy.yml`, which validates, builds,
-and deploys to Cloudflare Pages. It is skipped until the repository has both
-`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets; until then, deploy
-by hand:
+Public HTML URLs omit the trailing slash except at `/`. After Pagefind reads
+Astro's directory output, `scripts/prepare-pages.mjs` moves nested `index.html`
+files to sibling `.html` files so Cloudflare serves those URLs directly. This
+also puts the English fallback at `en/404.html`. Search results normalize
+Pagefind's directory URLs to the same extensionless paths.
+
+Shared component CSS stays in hashed stylesheets so the browser can reuse it
+across pages. Copy buttons use a processed Astro module with one navigation
+listener. Prefetching is opt-in on header navigation and search, rather than on
+every content link. OG cards use lossless PNG compression; photographic covers
+enable adaptive filtering. Placeholder SVG coordinates use three decimals to
+avoid sending invisible precision.
+
+Markdown figure images use `PROSE_IMAGE_SIZES` from `src/lib/layout.ts` so normal
+reading selects a prose-sized candidate; the full srcset remains available to
+the image viewer. Expressive Code shares its unchanged base/theme CSS through
+a content-hashed `/styles/code-*.css` asset, with block-specific CSS left in place.
+After changing Markdown processor or plugin code, run `pnpm clean` before the
+next build to discard previously rendered content entries.
+
+Blog data is exposed as named functions from `src/lib/blog/index.ts`. A single
+catalog indexes published posts, authors, subposts, word counts, and metadata
+for each production build. Development reloads the catalog on every call so
+content edits do not stay behind a build cache.
+
+Pushing to `main` runs `.github/workflows/ci.yml`, which validates and builds
+once, then passes the checked `dist/` artifact to the reusable `deploy.yml`.
+Deployment applies pending D1 migrations before publishing that same output.
+Pull requests only validate. To deploy manually in GitHub Actions, run the CI
+workflow on `main`; other branches cannot deploy.
+
+Deployment is skipped until the repository has both `CLOUDFLARE_API_TOKEN` and
+`CLOUDFLARE_ACCOUNT_ID` secrets. The token needs access to Pages and D1. Until
+then, deploy by hand:
 
 ```bash
 pnpm build
+wrangler d1 migrations apply portfolio-interactions --remote
 wrangler pages deploy dist --project-name 97kuek --branch main
 ```
 
@@ -119,10 +150,10 @@ The API returns `503` when this secret is absent. There is deliberately no
 fallback value: using a known salt would make the stored pseudonyms easier to
 guess from an address and user agent.
 
-Schema changes go in `migrations/` and are applied with:
+Schema changes go in `migrations/` and are applied once, before deploying, with:
 
 ```bash
-wrangler d1 execute portfolio-interactions --remote --file=migrations/<file>.sql
+wrangler d1 migrations apply portfolio-interactions --remote
 ```
 
 Moderation goes through a small wrapper around wrangler:
@@ -138,6 +169,20 @@ pnpm comments backup [file]   # d1 export, run this before anything destructive
 Comments publish immediately by default. Setting the `COMMENT_MODERATION`
 environment variable on the Pages project to `1` stores new ones hidden
 instead, and the form tells the writer their comment is awaiting review.
+
+The hourly limit is checked inside the insert statement so concurrent requests
+cannot exceed it. Reaction rows keep an `active` flag, toggled by one UPSERT so
+simultaneous presses cannot lose an operation. Counts only include active rows;
+the migration preserves existing reactions as active.
+
+`GET /api/comments?target=blog:hello` returns the latest 200
+public comments in chronological order, plus `nextCursor` when older comments
+exist. Pass that cursor as `before` to load the preceding page. Posting returns
+the current public page; the widget merges by ID to retain earlier pages.
+
+`pnpm test:unit` also exercises the comment and reaction handlers against
+temporary local D1 databases via Wrangler. The config in `tests/fixtures/` disables remote
+bindings and persistence; tests use no production database or secrets.
 
 The endpoints only run on Pages, so `pnpm dev` renders the widgets and reports
 that they could not load. To exercise them locally:
@@ -211,7 +256,6 @@ Use `pnpm routine` for the standard pre-PR local pass.
   `README.md`.
 - People are defined in `src/content/people.toml`.
 - Experience is defined in `src/content/experience.json`.
-- Publications are loaded from BibTeX at `src/content/publications/main.bib`.
 
 Do not introduce MDX unless the feature genuinely needs component islands inside
 content. If MDX is needed, document the reason and update install/customization

@@ -31,6 +31,20 @@ prose-content {
     margin-block-start: var(--space-l);
     padding-block-start: var(--space-s);
     border-block-start: 1.5px solid var(--border);
+
+    ol {
+      padding-inline-start: 1.5rem;
+    }
+
+    li {
+      color: var(--muted-foreground);
+      font-size: var(--step--1);
+    }
+
+    li::marker {
+      color: var(--primary);
+      font-weight: var(--font-weight-medium);
+    }
   }
 
   .expressive-code {
@@ -106,4 +120,78 @@ prose-content .video-embed iframe {
   border: 0;
   border-radius: var(--radius-lg);
   background: var(--muted);
+}
+
+prose-content .sidenote-toggle {
+  color: var(--primary);
+  font-size: 0.8em;
+  font-weight: var(--font-weight-medium);
+  line-height: 0;
+  vertical-align: super;
+}
+
+prose-content label.sidenote-toggle {
+  cursor: pointer;
+}
+
+prose-content .sidenote-toggle::before {
+  content: "[";
+}
+
+prose-content .sidenote-toggle::after {
+  content: "]";
+}
+
+prose-content
+  .sidenote-wrapper:has(> .sidenote-toggle-checkbox:focus-visible)
+  > .sidenote-toggle {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+prose-content .sidenote {
+  display: none;
+  margin-block: var(--space-xs);
+  padding: var(--space-xs);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--muted);
+  color: var(--muted-foreground);
+  font-size: var(--step--1);
+  line-height: calc(1em + var(--leading-offset));
+}
+
+prose-content :is(.sidenote, .footnotes) {
+  overflow-wrap: anywhere;
+}
+
+prose-content .sidenote-toggle-checkbox:checked + .sidenote {
+  display: block;
+}
+
+prose-content .sidenote::before {
+  content: attr(data-sidenote-number) ". ";
+  color: var(--primary);
+  font-weight: var(--font-weight-medium);
+}
+
+prose-content :is(.sidenote-backref, .footnote-backref) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: var(--control-size-compact);
+  min-block-size: var(--control-size-compact);
+  color: var(--primary);
+  vertical-align: middle;
+}
+
+prose-content .sidenote-backref-icon {
+  inline-size: 1em;
+  block-size: 1em;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
 }
