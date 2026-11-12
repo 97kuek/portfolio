@@ -51,7 +51,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Download validated site
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: validated-site
           path: dist/
